@@ -1,42 +1,36 @@
-Comparing /home/hirwo/Documents/chia_pet/CTCF/small/LHH0086.for.BROWSER.sorted.bedgraph vs. /home/hirwo/Documents/chia_pet/CTCF/small/LHH0048.for.BROWSER.bedgraph
-Ratio: 1.1135420645545973
-Num Counted: 107909
-Ratio: 1.1135420645545973
-Similarity (inverted): 3.987260873975752
-Mean Squared Error (ish): 462.5245119661689
+Comparing LHH0086.for.BROWSER.sorted.bedgraph vs. LHH0048.for.BROWSER.bedgraph
+Num Counted: 248956
+Ratio: 0.9317418284486024
+Similarity (inverted): 0.7803021416568342
+Mean Squared Error (ish): 67.92373352078084
 
-Comparing /home/hirwo/Documents/chia_pet/CTCF/small/LHH0086.for.BROWSER.sorted.bedgraph vs. /home/hirwo/Documents/chia_pet/CTCF/small/LHH0084.for.BROWSER.sorted.bedgraph
-Ratio: 1.1654883526659938
-Num Counted: 91570
-Ratio: 1.1654883526659938
-Similarity (inverted): 2.7943652572018984
-Mean Squared Error (ish): 173.48041518565222
+Comparing LHH0086.for.BROWSER.sorted.bedgraph vs. LHH0084.for.BROWSER.sorted.bedgraph
+Num Counted: 248956
+Ratio: 1.0969345194561793
+Similarity (inverted): 0.4968590428759366
+Mean Squared Error (ish): 12.467337368752354
 
-Comparing /home/hirwo/Documents/chia_pet/CTCF/small/LHH0086.for.BROWSER.sorted.bedgraph vs. /home/hirwo/Documents/chia_pet/CTCF/small/LHH0054L.for.BROWSER.sorted.bedgraph
-Ratio: 1.8894105486046153
-Num Counted: 84708
-Ratio: 1.8894105486046153
-Similarity (inverted): 5.3479055282700285
-Mean Squared Error (ish): 602.376666083219
+Comparing LHH0086.for.BROWSER.sorted.bedgraph vs. LHH0054L.for.BROWSER.sorted.bedgraph
+Num Counted: 248956
+Ratio: 1.264253590034289
+Similarity (inverted): 0.7927031133679656
+Mean Squared Error (ish): 73.1980154701944
 
-Comparing /home/hirwo/Documents/chia_pet/CTCF/small/LHH0048.for.BROWSER.bedgraph vs. /home/hirwo/Documents/chia_pet/CTCF/small/LHH0084.for.BROWSER.sorted.bedgraph
-Ratio: 1.0466495966025087
-Num Counted: 101590
-Ratio: 1.0466495966025087
-Similarity (inverted): 3.8895838959223554
-Mean Squared Error (ish): 432.95794629644473
+Comparing LHH0048.for.BROWSER.bedgraph vs. LHH0084.for.BROWSER.sorted.bedgraph
+Num Counted: 248956
+Ratio: 1.177294488627425
+Similarity (inverted): 0.9346708945288954
+Mean Squared Error (ish): 88.65863316831165
 
-Comparing /home/hirwo/Documents/chia_pet/CTCF/small/LHH0048.for.BROWSER.bedgraph vs. /home/hirwo/Documents/chia_pet/CTCF/small/LHH0054L.for.BROWSER.sorted.bedgraph
-Ratio: 1.6967572296968914
-Num Counted: 85025
-Ratio: 1.6967572296968914
-Similarity (inverted): 1.8910688083879699
-Mean Squared Error (ish): 74.84167256532415
+Comparing LHH0048.for.BROWSER.bedgraph vs. LHH0054L.for.BROWSER.sorted.bedgraph
+Num Counted: 248956
+Ratio: 1.356871132574713
+Similarity (inverted): 0.4508806016471279
+Mean Squared Error (ish): 4.292660150518787
 
-Comparing /home/hirwo/Documents/chia_pet/CTCF/small/LHH0084.for.BROWSER.sorted.bedgraph vs. /home/hirwo/Documents/chia_pet/CTCF/small/LHH0054L.for.BROWSER.sorted.bedgraph
-Ratio: 1.6211320724764748
-Num Counted: 77540
-Ratio: 1.6211320724764748
-Similarity (inverted): 4.8938094160032675
-Mean Squared Error (ish): 454.1626750759616
+Comparing LHH0084.for.BROWSER.sorted.bedgraph vs. LHH0054L.for.BROWSER.sorted.bedgraph
+Num Counted: 248956
+Ratio: 1.1525333259282062
+Similarity (inverted): 0.6900338451620206
+Mean Squared Error (ish): 49.4702542565149
 

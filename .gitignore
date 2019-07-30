@@ -1,0 +1,7 @@
+*
+
+!*.py
+!*.txt
+!noisy_peaks/
+!noisy_peaks/*
+!.gitignore
