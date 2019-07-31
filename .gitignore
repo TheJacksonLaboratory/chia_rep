@@ -3,5 +3,5 @@
 !*.py
 !*.txt
 !noisy_peaks/
-!noisy_peaks/*
+!test/*.py
 !.gitignore

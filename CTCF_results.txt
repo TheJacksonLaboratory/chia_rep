@@ -1,36 +1,36 @@
 Comparing LHH0086.for.BROWSER.sorted.bedgraph vs. LHH0048.for.BROWSER.bedgraph
-Num Counted: 248956
+Num Counted: 217166
 Ratio: 0.9317418284486024
-Similarity (inverted): 0.7803021416568342
-Mean Squared Error (ish): 67.92373352078084
+Similarity (inverted): 0.8945272279192822
+Mean Squared Error (ish): 77.86679776023651
 
 Comparing LHH0086.for.BROWSER.sorted.bedgraph vs. LHH0084.for.BROWSER.sorted.bedgraph
-Num Counted: 248956
+Num Counted: 209600
 Ratio: 1.0969345194561793
-Similarity (inverted): 0.4968590428759366
-Mean Squared Error (ish): 12.467337368752354
+Similarity (inverted): 0.5901528620144163
+Mean Squared Error (ish): 14.808294093392709
 
 Comparing LHH0086.for.BROWSER.sorted.bedgraph vs. LHH0054L.for.BROWSER.sorted.bedgraph
-Num Counted: 248956
+Num Counted: 214242
 Ratio: 1.264253590034289
-Similarity (inverted): 0.7927031133679656
-Mean Squared Error (ish): 73.1980154701944
+Similarity (inverted): 0.9211461631782532
+Mean Squared Error (ish): 85.05841590069974
 
 Comparing LHH0048.for.BROWSER.bedgraph vs. LHH0084.for.BROWSER.sorted.bedgraph
-Num Counted: 248956
+Num Counted: 216477
 Ratio: 1.177294488627425
-Similarity (inverted): 0.9346708945288954
-Mean Squared Error (ish): 88.65863316831165
+Similarity (inverted): 1.0749036951654714
+Mean Squared Error (ish): 101.9604793075024
 
 Comparing LHH0048.for.BROWSER.bedgraph vs. LHH0054L.for.BROWSER.sorted.bedgraph
-Num Counted: 248956
+Num Counted: 217949
 Ratio: 1.356871132574713
-Similarity (inverted): 0.4508806016471279
-Mean Squared Error (ish): 4.292660150518787
+Similarity (inverted): 0.5150261348465118
+Mean Squared Error (ish): 4.903365009394652
 
 Comparing LHH0084.for.BROWSER.sorted.bedgraph vs. LHH0054L.for.BROWSER.sorted.bedgraph
-Num Counted: 248956
+Num Counted: 213174
 Ratio: 1.1525333259282062
-Similarity (inverted): 0.6900338451620206
-Mean Squared Error (ish): 49.4702542565149
+Similarity (inverted): 0.8058584346878889
+Mean Squared Error (ish): 57.77400911314196
 

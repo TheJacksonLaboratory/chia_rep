@@ -23,7 +23,7 @@ def remove_noise(bedGraph_list, no_modify=False):
 
 
 def remove_noisy_peaks(bedGraph_name, chrom, no_modify=False):
-    if no_modify:
+    if not no_modify:
         print(f"Removing noisy peaks from {bedGraph_name}")
     else:
         print(f"Potentially noisy peaks in {bedGraph_name}")
@@ -86,8 +86,8 @@ def remove_noisy_peaks(bedGraph_name, chrom, no_modify=False):
                     else:
                         # nullify entry from BedGraph object for each interval
                         # in the group
-                        print([f"{chrom.intervals[0][x]}, {chrom.intervals[1][x]}"
-                               for x in interval_group], group_max_value)
+                        # print([f"{chrom.intervals[0][x]}, {chrom.intervals[1][x]}"
+                        #        for x in interval_group], group_max_value)
                         for x in interval_group:
                             chrom.value_map[x] = 0
 

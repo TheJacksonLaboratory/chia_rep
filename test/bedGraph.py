@@ -1,11 +1,12 @@
 import sys
 
-sys.path.append('../pyBedGraph')
+sys.path.append('../../pyBedGraph')
+sys.path.append('..')
 from pyBedGraph import BedGraph
 import numpy as np
 import os
-import matplotlib.pyplot as plt
 import remove_noise
+import matplotlib.pyplot as plt
 
 RANDOM_SEED = 1
 NUM_TESTS = 1000000
@@ -20,8 +21,8 @@ CHROM_END = chr1_size
 
 MAX_NOISE_VALUE = 100
 
-# DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet'
-DATA_DIR = '/home/hirwo/Documents/chia_pet'
+DATA_DIR = '../data'
+BIG_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet'
 
 
 def create_test_cases(interval_size=INTERVAL_SIZE):
@@ -145,7 +146,7 @@ def compare_dataset(bedGraph_list, datatype, test_cases=None):
 
     bedGraph_stats_list = []
     for bedGraph in bedGraph_list:
-        remove_noise.remove_noise([bedGraph], f'{DATA_DIR}/hg38.blacklist.bed')
+        remove_noise.remove_noise([bedGraph])
 
         bedGraph_stats = get_stats(bedGraph, test_cases)
         bedGraph_stats_list.append(bedGraph_stats)
@@ -161,16 +162,16 @@ def compare_dataset(bedGraph_list, datatype, test_cases=None):
 
 
 def read_bedGraphs(data_directory, min_value=-1):
-    bedGraph_list = []
+    bedGraph_dict = {}
     for filename in os.listdir(data_directory):
         if filename.endswith('.bedgraph'):
             file_path = data_directory + filename
             bedGraph = BedGraph(f'{DATA_DIR}/chrom_sizes/hg38.chrom.sizes',
                                 file_path, 'chr1', ignore_missing_bp=False,
                                 min_value=min_value)
-            bedGraph_list.append(bedGraph)
+            bedGraph_dict[bedGraph.name] = bedGraph
 
-    return bedGraph_list
+    return bedGraph_dict
 
 
 def read_small_bedGraphs(datatype):
@@ -181,7 +182,7 @@ def read_small_bedGraphs(datatype):
 
 
 def read_big_bedGraphs(datatype):
-    data_directory = f'{DATA_DIR}/{datatype}/big/'
+    data_directory = f'{BIG_DATA_DIR}/{datatype}/big/'
 
     #  return read_bedGraphs(data_directory, min_value=26)
     return read_bedGraphs(data_directory)
