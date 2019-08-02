@@ -75,6 +75,7 @@ class ChromLoopData:
     def add_loop(self, loop_start1, loop_start2, loop_end1, loop_end2,
                  loop_value):
 
+        self.bedGraph.
         loop_start = (loop_start2 + loop_start1) / 2
         loop_end = (loop_end1 + loop_end2) / 2
 
