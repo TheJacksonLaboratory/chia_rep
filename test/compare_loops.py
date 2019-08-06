@@ -2,6 +2,7 @@ import os
 import numpy as np
 import csv
 import sys
+
 sys.path.append('..')
 from genome_loop_data import GenomeLoopData, WINDOW_SIZE
 
@@ -16,69 +17,32 @@ CHROM_NAME = 'chr1'
 BIN_SIZE = 10000
 
 
-def output_csv(scores, output_file):
-    with open(output_file, 'w+') as out_file:
-        header = list(scores.keys())
-        header.insert(0, 'Sample Name')
-        writer = csv.DictWriter(out_file, fieldnames=header)
+def compare_loops(loop_1, loop_2, bin_size, window_size, window_index=None):
+    j_values = []
+    w_values = []
+    for k in range(int(chr_size / window_size)):
 
-        writer.writeheader()
-        for sample_name, sample_scores in scores.items():
-            writer.writerow(sample_scores)
+        if window_index is not None:
+            k = window_index
 
+        window_start = window_size * k
+        window_end = window_size * (k + 1)
+        if window_end > chr1_size:
+            window_end = chr1_size
 
-def compare_loops(loop_info_dict, interval_size, window_size, window_index=None):
-    len_loop = len(loop_info_dict)
-    keys = list(loop_info_dict.keys())
-    scores = {}
-    for key in keys:
-        scores[key] = {}
-        scores[key][key] = 1
-        scores[key]['Sample Name'] = key
+        values = loop_1.compare(loop_2, window_start, window_end, bin_size)
+        j_values.append(values[0])
 
-    for i in range(len_loop):
-        for j in range(i + 1, len_loop, 1):
-            key1 = keys[i]
-            key2 = keys[j]
-            print(f'Comparing {key1} vs. {key2}:')
-            loop1 = loop_info_dict[key1]
-            loop2 = loop_info_dict[key2]
+        if len(values) > 1:
+            w_values.append(values[1])
 
-            j_values = []
-            w_values = []
-            if window_index is None:
-                # misses comparing part of the chromosome
-                for k in range(int(chr_size / window_size)):
-                    values = loop1.compare(loop2, window_size * k,
-                                           window_size * (k + 1), interval_size)
-                    # print(f'Window Index: {k}\n'
-                    #       f'Jensen-Shannon: {values[0]}')
-                    #       f'Wasserstein: {values[1]}')
-                    # if values[0] != -1:
-                    #     pass
-                    j_values.append(values[0])
+        if window_index is not None:
+            break
 
-                    if len(values) > 1:
-                        w_values.append(values[1])
-            else:
-                values = loop1.compare(loop2, window_size * window_index,
-                                       window_size * (window_index + 1),
-                                       interval_size)
-                j_values.append(values[0])
+    # Make j_value range from -1 to 1
+    j_value = 2 * (1 - np.mean([x for x in j_values])) - 1
 
-            j_value = 2 * (1 - np.mean([x for x in j_values])) - 1
-            if len(w_values) > 0:
-                w_mean = np.mean(w_values)
-                # print(f'Wasserstein Average: {w_mean}')
-
-            # print(f'Jensen-Shannon value: {j_value}')
-
-            scores[key1][key2] = j_value
-            scores[key2][key1] = j_value
-
-        # print()
-
-    return scores
+    return j_value
 
 
 def read_loops(datatype, bin_size=BIN_SIZE, hiseq=False, min_loop_value=None):
@@ -102,10 +66,10 @@ def read_loops(datatype, bin_size=BIN_SIZE, hiseq=False, min_loop_value=None):
 def main():
     for datatype in ['CTCF', 'RNAPII']:
         loop_info_list = read_loops(datatype)
-        compare_loops(loop_info_list)
+        # compare_loops(loop_info_list)
 
         loop_info_list = read_loops(datatype, hiseq=True)
-        compare_loops(loop_info_list)
+        # compare_loops(loop_info_list)
         break
 
 

@@ -3,6 +3,7 @@ import numpy as np
 import scipy.stats as sp
 import time
 import matplotlib.pyplot as plt
+import heapq
 
 MAX_LOOP_LEN = 70000
 
@@ -39,34 +40,20 @@ def dot_product(p, q):
 
 
 def graph_similarity(p, q, base=2):
-    '''for i in range(p[0].size):
-        for j in range(p[0].size):
-            if ((p[i][j] == 0 and q[i][j] != 0) or
-                    (q[i][j] == 0 and p[i][j] != 0)) and \
-                    abs(p[i][j] - q[i][j]) > 100:
-                print(i * 1000 + 36000000, j * 1000 + 36000000, p[i][j],
-                      q[i][j])'''
-    p_array = p.flatten()
-    q_array = q.flatten()
-    j_divergence = jensen_shannon_divergence(p_array, q_array, base)
-    # w_value = wasserstein(p_array, q_array)
-    # print(f'Dot product: {dot_product(p, q)}')
-
-    return [j_divergence]  # , w_value
+    pass
 
 
 class ChromLoopData:
 
-    def __init__(self, chrom_name, chrom_size, sample_name, bedGraph):
+    def __init__(self, chrom_name, chrom_size, sample_name):
         self.name = chrom_name
         self.size = int(chrom_size)
         self.sample_name = sample_name
-        self.bedGraph = bedGraph
 
-        self.start_interval_list = [[], []]
-        self.end_interval_list = [[], []]
-        self.start_list = []
-        self.end_list = []
+        self.start_anchor_list = [[], []]
+        self.end_anchor_list = [[], []]
+        self.start_list = None
+        self.end_list = None
         self.value_list = []
         self.numb_values = 0
 
@@ -75,35 +62,85 @@ class ChromLoopData:
     def add_loop(self, loop_start1, loop_start2, loop_end1, loop_end2,
                  loop_value):
 
-        self.bedGraph.
-        loop_start = (loop_start2 + loop_start1) / 2
-        loop_end = (loop_end1 + loop_end2) / 2
+        self.start_anchor_list[0].append(loop_start1)
+        self.start_anchor_list[1].append(loop_start2)
+        self.end_anchor_list[0].append(loop_end1)
+        self.end_anchor_list[1].append(loop_end2)
 
-        self.start_interval_list[0].append(loop_start1)
-        self.start_interval_list[1].append(loop_start2)
-        self.end_interval_list[0].append(loop_end1)
-        self.end_interval_list[1].append(loop_end2)
-
-        loop_length = int(loop_end) - int(loop_start)
-
-        # loops over 1Mb are considered noise
-        if loop_length > MAX_LOOP_LEN:
-            return
-
-        if int(loop_value) < 4:
-            pass
-            # return
-
-        if int(loop_end) - int(loop_start) > self.largest_loop_len:
-            self.largest_loop_len = int(loop_end) - int(loop_start)
-
-        self.start_list.append(int(loop_start))
-        self.end_list.append(int(loop_end))
         self.value_list.append(int(loop_value))
 
         self.numb_values += 1
 
-    def create_graph(self, window_start, window_end, bin_size):
+    def finish_init(self):
+        self.value_list = np.asarray(self.value_list, dtype=np.int32)
+        self.start_anchor_list = np.asarray(self.start_anchor_list, dtype=np.int32)
+        self.end_anchor_list = np.asarray(self.end_anchor_list, dtype=np.int32)
+
+    def find_loop_anchor_points(self, bedGraph):
+
+        print(f'Finding anchor points for {self.sample_name}')
+
+        '''self.start_list = np.array(
+            (self.start_anchor_list[0] + self.start_anchor_list[1]) / 2,
+            dtype=np.int32)
+        self.end_list = np.array(
+            (self.end_anchor_list[0] + self.end_anchor_list[1]) / 2,
+            dtype=np.int32)
+
+        return'''
+
+        bedGraph.load_chrom_data('chr1')
+        self.start_list = bedGraph.stats(start_list=self.start_anchor_list[0],
+                                         end_list=self.start_anchor_list[1],
+                                         chrom_name='chr1', stat='max_index')
+
+        self.end_list = bedGraph.stats(start_list=self.end_anchor_list[0],
+                                       end_list=self.end_anchor_list[1],
+                                       chrom_name='chr1', stat='max_index')
+
+        start_list_peaks = bedGraph.stats(start_list=self.start_anchor_list[0],
+                                         end_list=self.start_anchor_list[1],
+                                         chrom_name='chr1', stat='max')
+
+        end_list_peaks = bedGraph.stats(start_list=self.end_anchor_list[0],
+                                       end_list=self.end_anchor_list[1],
+                                       chrom_name='chr1', stat='max')
+
+        for i in range(self.numb_values):
+            loop_start = self.start_list[i]
+            loop_end = self.end_list[i]
+
+            # peak_value = max(start_list_peaks[i], end_list_peaks)
+
+            if not loop_start < loop_end:
+                self.value_list[i] = 0
+                self.start_list[i] = -1
+                self.end_list[i] = -1
+                continue
+
+            loop_length = int(loop_end) - int(loop_start)
+
+            # loops over some threshold are considered noise
+            if loop_length > MAX_LOOP_LEN:
+                self.value_list[i] = 0
+
+        bedGraph.free_chrom_data('chr1')
+
+    def temp_func(self):
+        print("HI")
+        pass
+
+    def get_removed_area(self):
+        removed_area = np.full(self.size, False, dtype=bool)
+        for i in range(self.numb_values):
+            if self.start_list[i] == -1 or self.end_list[i] == -1:
+                start = self.start_anchor_list[0][i]
+                end = self.end_anchor_list[1][i]
+                removed_area[start:end] = True
+
+        return removed_area
+
+    def create_graph(self, window_start, window_end, bin_size, removed_area):
         window_size = window_end - window_start
         graph_len = ceil(window_size / bin_size)
 
@@ -113,13 +150,19 @@ class ChromLoopData:
         # loop_len = np.zeros(loop_len_len, dtype=np.uint16)
         # print(loop_len_len)
 
+        num_loops_used = 0
         for i in range(self.numb_values):
             start = self.start_list[i]
             end = self.end_list[i]
             value = self.value_list[i]
 
+            if removed_area[start] or removed_area[end]:
+                continue
+
             if start < window_start or end > window_end or value == 0:
                 continue
+
+            num_loops_used += 1
 
             start = start % window_size
             end = end % window_size
@@ -129,7 +172,12 @@ class ChromLoopData:
             bin_start = int(start / bin_size)
             bin_end = int(end / bin_size)
 
-            value = value * value
+            if self.sample_name == 'LHH0058H' and value == 36:
+                print(self.start_list[i], self.end_list[i])
+                print(graph[bin_start - 1][bin_end])
+                print(graph[bin_start][bin_end])
+                print()
+
             graph[bin_start][bin_end] += value
             for j in range(bin_start - 1, bin_start + 2, 1):
                 if j < 0 or j == graph_len:
@@ -138,6 +186,14 @@ class ChromLoopData:
                     if k < 0 or k == graph_len:
                         continue
                     graph[j][k] += value
+
+            if self.sample_name == 'LHH0058H' and value == 36:
+                print(self.start_list[i], self.end_list[i])
+                print(graph[bin_start - 1][bin_end])
+                print(graph[bin_start][bin_end])
+                print()
+
+        print(f"Number of loops in {self.sample_name} graph: {num_loops_used}")
 
         # plt.plot([x for x in range(len(loop_len))], [np.log(x) for x in loop_len])
         # plt.show()
@@ -149,18 +205,17 @@ class ChromLoopData:
         bedGraph_chrom.load_index_array()
 
         for i in range(2):
-            self.start_interval_list[i] = \
-                np.asarray(self.start_interval_list[i], dtype=np.int32)
-            self.end_interval_list[i] = \
-                np.asarray(self.end_interval_list[i], dtype=np.int32)
+            self.start_anchor_list[i] = \
+                np.asarray(self.start_anchor_list[i], dtype=np.int32)
+            self.end_anchor_list[i] = \
+                np.asarray(self.end_anchor_list[i], dtype=np.int32)
 
         start_mean_values = bedGraph_chrom.get_max(
-            self.start_interval_list[0], self.start_interval_list[1])
+            self.start_anchor_list[0], self.start_anchor_list[1])
         end_mean_values = bedGraph_chrom.get_max(
-            self.end_interval_list[0], self.end_interval_list[1])
+            self.end_anchor_list[0], self.end_anchor_list[1])
 
         for i in range(self.numb_values):
-
             # peak_value = (start_mean_values[i] + end_mean_values[i]) / 2
             peak_value = max(start_mean_values[i], end_mean_values[i])
             change = peak_value
@@ -171,15 +226,17 @@ class ChromLoopData:
         bedGraph_chrom.free_index_list()
 
     def filter_with_bedGraph(self, test_cases, bedGraph_mean_list):
+
+        start_time = time.time()
         assert len(test_cases[0]) == len(bedGraph_mean_list)
         num_test_cases = len(test_cases[0])
 
-        plt.close()
+        '''plt.close()
         plt.hist([np.log10(x) for x in bedGraph_mean_list], bins=20)
         plt.xlabel('log10(Max value in interval)')
         plt.ylabel('Frequency')
         plt.title(self.sample_name)
-        plt.savefig(f'{self.sample_name}.png')
+        plt.savefig(f'{self.sample_name}.png')'''
 
         peaks = []
         for i in range(num_test_cases):
@@ -189,7 +246,9 @@ class ChromLoopData:
                 'value': bedGraph_mean_list[i]
             })
 
-        peaks.sort(key=lambda k: k['value'], reverse=True)
+        num_wanted_peaks = int(len(peaks) / 200)
+        wanted_peaks = heapq.nlargest(num_wanted_peaks, peaks, key=lambda k: k['value'])
+        min_peak_value = min(wanted_peaks, key=lambda k: k['value'])['value']
 
         start = test_cases[0][0]
         end = test_cases[1][-1]
@@ -198,14 +257,11 @@ class ChromLoopData:
         # index_array = np.full(end - start, False, dtype=bool)
         index_array = np.full(end - start, -1, dtype=np.float64)
 
-        top_percentile = int(len(peaks) / 50)
-        print(top_percentile, peaks[top_percentile])
-        for i in range(top_percentile):
-            if peaks[i]['value'] < 50:
-                break
-            peak_start = peaks[i]['start'] - start
-            peak_end = peaks[i]['end'] - start
-            index_array[peak_start:peak_end] = peaks[i]['value']
+        print(num_wanted_peaks, min_peak_value)
+        for i in range(num_wanted_peaks):
+            peak_start = wanted_peaks[i]['start'] - start
+            peak_end = wanted_peaks[i]['end'] - start
+            index_array[peak_start:peak_end] = wanted_peaks[i]['value']
 
         numb_deleted = 0
         total_loops_inside_window = 0
@@ -217,6 +273,9 @@ class ChromLoopData:
             loop_start = self.start_list[i]
             loop_end = self.end_list[i]
 
+            if loop_start == -1 or loop_end == -1:
+                continue
+
             if loop_start < start or loop_end > end:
                 continue
 
@@ -226,8 +285,10 @@ class ChromLoopData:
                 removed_pet_count.append(self.value_list[i])
                 self.value_list[i] = 0
                 numb_deleted += 1
-                removed_loop_lengths.append(self.end_list[i] - self.start_list[i])
+                removed_loop_lengths.append(
+                    self.end_list[i] - self.start_list[i])
                 continue
+
             kept_pet_count.append(self.value_list[i])
             kept_loop_lengths.append(self.end_list[i] - self.start_list[i])
             '''else:
@@ -235,15 +296,42 @@ class ChromLoopData:
                                     index_array[loop_end - start])
                 self.value_list[i] *= loop_strength'''
 
+        print(f'Time taken: {time.time() - start_time}')
         print(f"Number of loops removed: {numb_deleted}")
         print(f'Total loops: {total_loops_inside_window}')
         print(f'Average loop length removed: {np.mean(removed_loop_lengths)}')
         print(f'Average PET count removed: {np.mean(removed_pet_count)}')
         print(f'Average loop length kept: {np.mean(kept_loop_lengths)}')
         print(f'Average PET count kept: {np.mean(kept_pet_count)}')
+        print()
 
     def compare(self, o_chromLoopData, window_start, window_end, bin_size):
-        graph = self.create_graph(window_start, window_end, bin_size)
+        removed1 = self.get_removed_area()
+        removed2 = o_chromLoopData.get_removed_area()
+        combined_removed = removed1 | removed2
+
+        graph = self.create_graph(window_start, window_end, bin_size,
+                                  combined_removed)
         o_graph = o_chromLoopData.create_graph(window_start, window_end,
-                                               bin_size)
-        return graph_similarity(graph, o_graph)
+                                               bin_size, combined_removed)
+
+        graph = graph
+        o_graph = o_graph
+        graph_len = graph.size
+        if self.sample_name == 'LHH0058H' and o_chromLoopData.sample_name == 'LHH0061H':
+            average_error = 0
+            for i in range(graph[0].size):
+                for j in range(graph[0].size):
+                    average_error += abs(graph[i][j] - o_graph[i][j])
+                    if abs(graph[i][j] - o_graph[i][j]) > 50:
+                        print(i * 3000 + 36000000, j * 3000 + 36000000, graph[i][j],
+                              o_graph[i][j])
+
+            print(f'Average error: {average_error / (graph_len * graph_len)}')
+        graph_flat = graph.flatten()
+        o_graph_flat = o_graph.flatten()
+        j_divergence = jensen_shannon_divergence(graph_flat, o_graph_flat)
+        # w_value = wasserstein(p_array, q_array)
+        # print(f'Dot product: {dot_product(p, q)}')
+
+        return [j_divergence]  # , w_value

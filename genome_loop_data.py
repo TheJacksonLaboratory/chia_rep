@@ -60,6 +60,12 @@ class GenomeLoopData:
 
             print(f'Anchor mean width: {np.mean(loop_anchor_list)}')
 
+        for chrom_name in self.chrom_dict:
+            self.chrom_dict[chrom_name].finish_init()
+
+    def find_loop_anchor_points(self, bedGraph, chrom_name=DEFAULT_CHROM_NAME):
+        self.chrom_dict[chrom_name].find_loop_anchor_points(bedGraph)
+
     def adjust_with_bedGraph(self, bedGraph):
         return
         print(f'Adjusting {self.name} with bedgraph file')
