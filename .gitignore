@@ -1,7 +1,4 @@
 *
 
 !*.py
-!*.txt
-!test/
-!test/*.py
 !.gitignore

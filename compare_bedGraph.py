@@ -9,6 +9,8 @@ import os
 import matplotlib.pyplot as plt
 from math import sqrt
 from copy import deepcopy
+import logging as log
+from prettytable import PrettyTable
 
 WINDOW_SIZE = 100000
 INTERVAL_SIZE = 1000
@@ -16,13 +18,13 @@ chr1_size = 248956422
 
 DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet'
 
+VERSION = 1
+
 
 def create_test_cases(interval_size=INTERVAL_SIZE, start=0, end=chr1_size,
                       step=INTERVAL_SIZE):
-    test_cases = np.empty(int((end - start) / step) - interval_size,
-                          dtype=np.int32)
-    for i in range(test_cases.size):
-        test_cases[i] = i * step + start
+    num_test_cases = int((end - start) / step) - interval_size
+    test_cases = np.arange(start, start + step * num_test_cases, step, dtype=np.int32)
     test_cases = np.vstack((test_cases, test_cases + interval_size))
 
     return test_cases
@@ -108,6 +110,12 @@ def my_pearson(stat_list1, stat_list2):
     x_sum = sqrt(x_sum)
     y_sum = sqrt(y_sum)
 
+    try:
+        assert x_sum * y_sum != 0
+    except AssertionError:
+        log.exception(f'{x_sum} {y_sum}')
+        return 0
+
     return xy_sum / (x_sum * y_sum)
 
 
@@ -129,12 +137,15 @@ def get_coefficients(bedGraph1_stat, bedGraph2_stat, min_value):
     stat_list1 = np.delete(stat_list1, to_remove)
     stat_list2 = np.delete(stat_list2, to_remove)
 
-    # pearson_value, pearson_p = pearsonr(stat_list1, stat_list2)
+    orig_pearson_value, pearson_p = pearsonr(stat_list1, stat_list2)
     pearson_value = my_pearson(stat_list1, stat_list2)
     a, b = linear_regression(np.array([stat_list1, stat_list2]))
     weighted_error = get_weighted_linear_error(a, b, np.array([stat_list1, stat_list2]))
     adjusted_r2 = get_adjusted_r2(pearson_value, stat_list1.size)
-    print(pearson_value, adjusted_r2, weighted_error)
+    table = PrettyTable(['orig_r', 'my_r', 'adj_r2', 'error'])
+    table.add_row([round(orig_pearson_value, 4), round(pearson_value, 4),
+                  round(adjusted_r2, 4), round(weighted_error/1000000000, 4)])
+    print(table)
 
     scatter_plot_dir = f'scatter_plots_{min_value}'
     if not os.path.isdir(scatter_plot_dir):
@@ -144,8 +155,6 @@ def get_coefficients(bedGraph1_stat, bedGraph2_stat, min_value):
     name2 = bedGraph2_stat['name']
     plt.scatter(stat_list1, stat_list2)
     plt.title(f'{name1} vs. {name2}, r={round(pearson_value, 3)}')
-    plt.ylim(top=500)
-    plt.xlim(right=500)
     plt.savefig(f'{scatter_plot_dir}/{name1}__v__{name2}')
     plt.close()
 
@@ -237,19 +246,30 @@ def compare_bedGraphs_with_window(bedGraph1_stat, bedGraph2_stat, out_file, test
 
 
 def compare_bedGraph_stats(bedGraph1_stat, bedGraph2_stat, min_value=0):
-    return get_coefficients(bedGraph1_stat, bedGraph2_stat, min_value)
+    pearson_value = get_coefficients(bedGraph1_stat, bedGraph2_stat, min_value)
+    results = {'pearson_value': pearson_value}
+
+    results['main_value'] = results['pearson_value']
+    return results
 
 
-def read_bedGraphs(datatype, hiseq=False, min_value=-1):
+def read_bedGraphs(datatype=None, hiseq=False, data_directory=None, min_value=-1):
     bedGraph_dict = {}
-    if hiseq:
-        data_directory = f'{DATA_DIR}/{datatype}/hiseq/'
-    else:
-        data_directory = f'{DATA_DIR}/{datatype}/miseq/'
+    if data_directory is None:
+        try:
+            assert datatype is not None
+        except AssertionError:
+            log.error("Missing data_directory and datatype")
+            return bedGraph_dict
+
+        if hiseq:
+            data_directory = f'{DATA_DIR}/{datatype}/hiseq/'
+        else:
+            data_directory = f'{DATA_DIR}/{datatype}/miseq/'
 
     for filename in os.listdir(data_directory):
         if filename.endswith('.bedgraph'):
-            file_path = data_directory + filename
+            file_path = os.path.join(data_directory, filename)
             bedGraph = BedGraph(f'{DATA_DIR}/chrom_sizes/hg38.chrom.sizes',
                                 file_path, 'chr1', ignore_missing_bp=False,
                                 min_value=min_value)
