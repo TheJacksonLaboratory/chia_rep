@@ -1,4 +1,10 @@
 *
 
+!Reproducibility
+!Reproducibility/*.py
+!Reproducibility/*.pyx
+!test
+!test/*.py
+!test/*.conf
 !*.py
 !.gitignore

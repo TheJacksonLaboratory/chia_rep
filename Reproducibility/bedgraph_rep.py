@@ -1,16 +1,12 @@
-import sys
-
-sys.path.append('../../pyBedGraph')
-sys.path.append('..')
-from pyBedGraph import BedGraph
-from scipy.stats import pearsonr, spearmanr
+from scipy.stats import pearsonr
 import numpy as np
 import os
 import matplotlib.pyplot as plt
 from math import sqrt
 from copy import deepcopy
-import logging as log
+import logging
 from prettytable import PrettyTable
+from pyBedGraph import BedGraph
 
 WINDOW_SIZE = 100000
 INTERVAL_SIZE = 1000
@@ -19,6 +15,8 @@ chr1_size = 248956422
 DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet'
 
 VERSION = 1
+
+log = logging.getLogger(__name__.split('.')[-1])
 
 
 def create_test_cases(interval_size=INTERVAL_SIZE, start=0, end=chr1_size,
@@ -245,34 +243,10 @@ def compare_bedGraphs_with_window(bedGraph1_stat, bedGraph2_stat, out_file, test
     return 2 * (1 - np.median(similarity_list)) - 1
 
 
-def compare_bedGraph_stats(bedGraph1_stat, bedGraph2_stat, min_value=0):
+def compare(bedGraph1_stat, bedGraph2_stat, min_value=0):
     pearson_value = get_coefficients(bedGraph1_stat, bedGraph2_stat, min_value)
     results = {'pearson_value': pearson_value}
 
     results['main_value'] = results['pearson_value']
     return results
 
-
-def read_bedGraphs(datatype=None, hiseq=False, data_directory=None, min_value=-1):
-    bedGraph_dict = {}
-    if data_directory is None:
-        try:
-            assert datatype is not None
-        except AssertionError:
-            log.error("Missing data_directory and datatype")
-            return bedGraph_dict
-
-        if hiseq:
-            data_directory = f'{DATA_DIR}/{datatype}/hiseq/'
-        else:
-            data_directory = f'{DATA_DIR}/{datatype}/miseq/'
-
-    for filename in os.listdir(data_directory):
-        if filename.endswith('.bedgraph'):
-            file_path = os.path.join(data_directory, filename)
-            bedGraph = BedGraph(f'{DATA_DIR}/chrom_sizes/hg38.chrom.sizes',
-                                file_path, 'chr1', ignore_missing_bp=False,
-                                min_value=min_value)
-            bedGraph_dict[bedGraph.name] = bedGraph
-
-    return bedGraph_dict

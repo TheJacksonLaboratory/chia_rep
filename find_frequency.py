@@ -1,2 +1,0 @@
-from pyBedGraph import BedGraph
-

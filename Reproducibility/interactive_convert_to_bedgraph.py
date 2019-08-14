@@ -31,7 +31,7 @@ b = combined.read_bedGraph_data(True)
 g1 = copy.deepcopy(g)
 for name in b:
     g1[name].find_loop_anchor_points(b[name])
-    g1[name].filter_with_bedGraph('chr1')
+    g1[name].filter_with_peaks('chr1')
     arr = convert_loop_to_bedGraph.get_bedgraph_array(g1[name].chrom_dict['chr1'])
     intervals = convert_loop_to_bedGraph.get_intervals(arr)
     convert_loop_to_bedGraph.output_as_bedgraph(intervals,
