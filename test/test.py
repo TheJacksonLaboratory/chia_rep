@@ -6,36 +6,32 @@ import sys
 import logging
 from logging.config import fileConfig
 sys.path.append('..')
-from Reproducibility import reproducibility
-from Reproducibility import loop_rep
-from Reproducibility import all_loop_data
-from Reproducibility import chrom_loop_data
+from chiapet_rep import all_loop_data
+from chiapet_rep import chrom_loop_data
+from chiapet_rep import reproducibility
+from chiapet_rep import loop_rep
 
+TEST_DATA_DIR = 'data'
 DATA_PATH = '/media/hirwo/extra/jax/data/chia_pet'
+BIN_SIZE = 10000  # 10kb
+WINDOW_SIZE = 3000000  # 3mb
 
+# To see log info statements (optional)
+from logging.config import fileConfig
 fileConfig('test.conf')
 
-'''bedgraph_dict = reproducibility.read_bedGraphs(f'{DATA_PATH}/bedgraphs',
-                                               'data/hg38.chrom.sizes',
-                                               chrom_to_load=None)
 
-loop_dict = reproducibility.read_data(loop_data_dir=f'{DATA_PATH}/loops',
-                                      peak_data_dir=f'{DATA_PATH}/peaks',
-                                      chrom_size_file='data/hg38.chrom.sizes',
-                                      bedgraph_dict=bedgraph_dict)'''
+# Since reading in bedgraph file can take a long time, load them first if in an interactive session
+bedgraph_dict = reproducibility.read_bedGraphs(TEST_DATA_DIR, f'{TEST_DATA_DIR}/hg38.chrom.sizes')
 
-bedgraph_dict = reproducibility.read_bedGraphs(f'data/small',
-                                               'data/hg38.chrom.sizes',
-                                               chrom_to_load=None)
-
-loop_dict = reproducibility.read_data(loop_data_dir=f'data/small',
-                                      peak_data_dir=f'data/small',
-                                      chrom_size_file='data/hg38.chrom.sizes',
-                                      bedgraph_dict=bedgraph_dict,
-                                      is_hiseq=False)
+loop_dict = reproducibility.read_data(loop_data_dir=TEST_DATA_DIR,
+                                      peak_data_dir=TEST_DATA_DIR,
+                                      chrom_size_file=f'{TEST_DATA_DIR}/hg38.chrom.sizes',
+                                      is_hiseq=False,  # Determines if match comparison is made (TODO)
+                                      bedgraph_dict=bedgraph_dict)
 
 rep, non_rep, scores = reproducibility.compare(loop_dict, loop_rep.compare,
-                                               bin_size=10000,
-                                               window_size=3000000)
+                                               bin_size=BIN_SIZE,
+                                               window_size=WINDOW_SIZE)
 
 reproducibility.output_results(rep, non_rep)

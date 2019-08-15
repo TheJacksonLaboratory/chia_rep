@@ -1,10 +1,16 @@
 *
 
-!Reproducibility
-!Reproducibility/*.py
-!Reproducibility/*.pyx
-!test
+!chiapet_rep/
+!chiapet_rep/*.py
+!chiapet_rep/*.pyx
+!chiapet_rep/*.c
+!test/
 !test/*.py
 !test/*.conf
+!test/data/
+!test/data/*
 !*.py
 !.gitignore
+!LICENSE
+!README.md
+!MANIFEST.in
