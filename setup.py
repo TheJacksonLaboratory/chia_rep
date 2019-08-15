@@ -30,7 +30,7 @@ setuptools.setup(
 
     packages=setuptools.find_packages(),
 
-    install_requires=['numpy', 'scipy'],
+    install_requires=['numpy', 'scipy', 'prettytable', 'pybedgraph', 'matplotlib'],
 
     ext_modules=extensions,
 
