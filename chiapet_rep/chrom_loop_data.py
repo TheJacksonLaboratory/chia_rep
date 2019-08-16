@@ -1,3 +1,4 @@
+import math
 from math import ceil
 import numpy as np
 import scipy.stats as sp
@@ -9,8 +10,12 @@ from .chiapet_rep_util import *
 
 from prettytable import PrettyTable
 
-log = logging.getLogger(__name__.split('.')[-1])
+log = logging.getLogger()
+log_bin = logging.getLogger('bin')
+log_all = logging.getLogger('all')
 
+EMD_WEIGHT = 0.5
+J_WEIGHT = 0.5
 MAX_LOOP_LEN = 1000000
 
 VERSION = 0
@@ -126,10 +131,10 @@ class ChromLoopData:
         self.find_loop_anchor_points(bedgraph)
         return self.filter_with_peaks(peak_file_path, peak_percent_kept)
 
-    def find_loop_anchor_points(self, bedGraph):
+    def find_loop_anchor_points(self, bedgraph):
 
         log.info(f'Finding anchor points for {self.sample_name}\'s {self.name}'
-                 f' from {bedGraph.name}')
+                 f' from {bedgraph.name}')
 
         '''self.start_list = np.array(
             (self.start_anchor_list[0] + self.start_anchor_list[1]) / 2,
@@ -140,20 +145,20 @@ class ChromLoopData:
 
         return'''
 
-        bedGraph.load_chrom_data(self.name)
-        self.start_list = bedGraph.stats(start_list=self.start_anchor_list[0],
+        bedgraph.load_chrom_data(self.name)
+        self.start_list = bedgraph.stats(start_list=self.start_anchor_list[0],
                                          end_list=self.start_anchor_list[1],
                                          chrom_name=self.name, stat='max_index')
 
-        self.end_list = bedGraph.stats(start_list=self.end_anchor_list[0],
+        self.end_list = bedgraph.stats(start_list=self.end_anchor_list[0],
                                        end_list=self.end_anchor_list[1],
                                        chrom_name=self.name, stat='max_index')
 
-        start_list_peaks = bedGraph.stats(start_list=self.start_anchor_list[0],
+        start_list_peaks = bedgraph.stats(start_list=self.start_anchor_list[0],
                                           end_list=self.start_anchor_list[1],
                                           chrom_name=self.name, stat='max')
 
-        end_list_peaks = bedGraph.stats(start_list=self.end_anchor_list[0],
+        end_list_peaks = bedgraph.stats(start_list=self.end_anchor_list[0],
                                         end_list=self.end_anchor_list[1],
                                         chrom_name=self.name, stat='max')
 
@@ -185,18 +190,20 @@ class ChromLoopData:
             if loop_length > MAX_LOOP_LEN:
                 self.value_list[i] = 0
 
-        bedGraph.free_chrom_data(self.name)
+        bedgraph.free_chrom_data(self.name)
 
     def filter_with_peaks(self, peak_file, peak_percent_kept, start=0,
                           end=None):
         if end is None:
             end = self.size
 
+        log.info(f"Filtering {self.sample_name}'s {self.name} ...")
+
         start_time = time.time()
         peaks = []
         peak_length = []
         with open(peak_file) as in_file:
-            log.info(f"Reading {peak_file} ...")
+            log.debug(f"Reading {peak_file} ...")
             for line in in_file:
                 line = line.split()
                 chrom_name = line[0]
@@ -210,8 +217,8 @@ class ChromLoopData:
                 peak_length.append(peak_end - peak_start)
 
         median_peak_len = np.median(peak_length)
-        log.info(f"Median length of all peaks: {median_peak_len}")
-        log.info(f'Number of peaks: {len(peaks)}')
+        log.debug(f"Median length of all peaks: {median_peak_len}")
+        log.debug(f'Number of peaks: {len(peaks)}')
 
         num_wanted_peaks = int(len(peaks) * peak_percent_kept)
 
@@ -225,9 +232,9 @@ class ChromLoopData:
         peak_length = peak_length[:num_wanted_peaks]
         min_peak_value = wanted_peaks[-1][2]
 
-        log.info(f"Median length of wanted peaks: {np.median(peak_length)}")
-        log.info(f"Num wanted peaks: {num_wanted_peaks}")
-        log.info(f'Min peak value: {min_peak_value}')
+        log.debug(f"Median length of wanted peaks: {np.median(peak_length)}")
+        log.debug(f"Num wanted peaks: {num_wanted_peaks}")
+        log.debug(f'Min peak value: {min_peak_value}')
 
         index_array = np.full(self.size, False, dtype=bool)
         for i in range(num_wanted_peaks):
@@ -312,13 +319,13 @@ class ChromLoopData:
         self.end_anchor_list = np.delete(self.end_anchor_list, to_remove, -1)
         self.numb_values -= len(to_remove)
 
-        log.info(f'Total loops: {total_loops}')
-        log.info(f"Number of loops removed: {numb_deleted}")
-        log.info(f"Number of loops kept: {total_loops - numb_deleted}")
-        log.info(f'Avg loop length removed: {np.mean(removed_loop_lengths)}')
-        log.info(f'Avg loop length kept: {np.mean(kept_loop_lengths)}')
-        log.info(f'Avg PET count removed: {np.mean(removed_pet_count)}')
-        log.info(f'Avg PET count kept: {np.mean(kept_pet_count)}')
+        log.debug(f'Total loops: {total_loops}')
+        log.debug(f"Number of loops removed: {numb_deleted}")
+        log.debug(f"Number of loops kept: {total_loops - numb_deleted}")
+        log.debug(f'Avg loop length removed: {np.mean(removed_loop_lengths)}')
+        log.debug(f'Avg loop length kept: {np.mean(kept_loop_lengths)}')
+        log.debug(f'Avg PET count removed: {np.mean(removed_pet_count)}')
+        log.debug(f'Avg PET count kept: {np.mean(kept_pet_count)}')
         log.debug(f'Time taken: {time.time() - start_time}\n')
 
         # Success
@@ -394,11 +401,14 @@ class ChromLoopData:
 
         return loops
 
-    def get_stats(self, graph, o_graph, o_chromLoopData, graph_type):
+    def get_stats(self, graph, o_graph, o_chromLoopData, graph_type, table):
         start_time = time.time()
 
         graph_flat = graph.flatten()
         o_graph_flat = o_graph.flatten()
+
+        max_emd = graph[0].size - 1
+        log.debug(f'Graph size: {max_emd + 1}')
 
         result = {'graph_type': graph_type}
 
@@ -406,7 +416,7 @@ class ChromLoopData:
         log.debug(f'Shannon time: {time.time() - start_time}')
 
         # Make j_value range from -1 to 1
-        result['j-s_value'] = 2 * (1 - j_divergence) - 1
+        j_value = 2 * (1 - j_divergence) - 1
 
         emd_distance_list = []
         emd_weight_list = []
@@ -425,88 +435,76 @@ class ChromLoopData:
         else:
             emd_distance = np.average(emd_distance_list,
                                       weights=emd_weight_list)'''
-        emd_distance = np.mean(emd_distance_list)
-        result['earth_mover'] = emd_distance
+        emd_dist = np.mean(emd_distance_list)
+
+        # Scale from -1 to 1
+        # Since most values are in bottom half, don't scale linearly
+        emd_value = 2 * math.pow(emd_dist - max_emd, 4) / \
+                    math.pow(max_emd, 4) - 1
 
         total_weight = np.max(graph) / self.max_loop_value + \
                        np.max(o_graph) / o_chromLoopData.max_loop_value
 
+        result['rep'] = emd_value * EMD_WEIGHT + j_value * J_WEIGHT
         result['w'] = total_weight
+        table.add_row([graph_type, j_value, emd_value, total_weight])
 
         return result
 
     def compare_randomly_choose(self, loops, o_loops, o_chromLoopData, bin_size,
-                                window_size, num_iterations=10):
+                                window_size, inner_table, num_iterations=10):
         start_time = time.time()
 
         num_loops_to_choose = min(len(loops), len(o_loops))
 
-        value_table = PrettyTable(['graph_type', 'j_value', 'emd', 'weight'])
+        value_table = PrettyTable(['graph_type', 'rep', 'weight'])
         results = []
         for _ in range(num_iterations):
             graph = self.create_graph(loops, num_loops_to_choose, bin_size,
                                       window_size)
             o_graph = o_chromLoopData.create_graph(o_loops, num_loops_to_choose,
                                                    bin_size, window_size)
-            result = self.get_stats(graph, o_graph, o_chromLoopData, 'random')
+            result = self.get_stats(graph, o_graph, o_chromLoopData, 'random',
+                                    inner_table)
             results.append(result)
 
             value_table.add_row([x for x in list(result.values())])
 
-        log.info(value_table)
+        log_bin.info(value_table)
 
-        final_result = {'graph_type': 'random'}
-        for result in results:
-            for key in result:
-                if key == 'graph_type':
-                    continue
+        final_result = {
+            'graph_type': 'random',
+            'w': sum(x['w'] for x in results) / num_iterations,
+            'rep': sum(x['rep'] for x in results) / num_iterations
+        }
 
-                if key not in final_result:
-                    final_result[key] = 0
-                final_result[key] += result[key]
-
-        for key in final_result:
-            if key == 'graph_type':
-                continue
-            final_result[key] /= len(results)
-
-        log.debug(f'Random time: {time.time() - start_time}')
+        log.debug(f'Random time: {time.time() - start_time} ------------------')
         return final_result
 
-    def compare_only_match(self, graph, o_graph, o_chromLoopData):
+    def compare_only_match(self, graph, o_graph, o_chromLoopData, inner_table):
         start_time = time.time()
 
         graph_type = ['mod', 'orig']
         new_graph_list = get_graphs(graph, o_graph)
-        value_table = PrettyTable(['graph_type', 'j_value', 'emd', 'weight'])
+        value_table = PrettyTable(['graph_type', 'rep', 'weight'])
         results = []
 
         for i in range(2):
-            # Only compare originals for now
-            # if i == 0:
-            #    continue
+            j = 1 - i
 
-            for j in range(2):
-                # Don't compare mod vs. mod
-                if i == 0 and j == 0:
-                    continue
+            new_graph = new_graph_list[0][i]
+            new_o_graph = new_graph_list[1][j]
 
-                # Only compare originals for now
-                # if j == 0:
-                #   continue
+            result = self.get_stats(new_graph, new_o_graph, o_chromLoopData,
+                                    f'{graph_type[i]}_{graph_type[j]}',
+                                    inner_table)
+            results.append(result)
 
-                new_graph = new_graph_list[0][i]
-                new_o_graph = new_graph_list[1][j]
+            value_table.add_row([x for x in list(result.values())])
 
-                result = self.get_stats(new_graph, new_o_graph, o_chromLoopData,
-                                        f'{graph_type[i]}_{graph_type[j]}')
-                results.append(result)
-
-                value_table.add_row([x for x in list(result.values())])
-
-        log.info(value_table)
-        log.debug(f'Match time: {time.time() - start_time}')
-        return results[-1]
+        log_bin.info(value_table)
+        log.debug(f'Match time: {time.time() - start_time} ------------------')
+        return results[-1]  # Only use original for now
 
     @staticmethod
     def get_removed_area(chrom_size, to_remove):
@@ -522,8 +520,8 @@ class ChromLoopData:
                 same_seq):
         start_time = time.time()
 
-        log.info(f'{self.sample_name} vs. {o_chromLoopData.sample_name} '
-                 f'{self.name} Window: {window_start} - {window_end}')
+        log_all.info(f'{self.sample_name} vs. {o_chromLoopData.sample_name} '
+                     f'{self.name}:{window_start} - {window_end}')
         window_size = window_end - window_start
 
         # Get areas removed due to overlapping start/end anchors
@@ -546,35 +544,47 @@ class ChromLoopData:
         log.debug(f"Numb of loops in {o_chromLoopData.sample_name}: "
                   f"{len(o_loops)}")
 
-        value_table = PrettyTable(['graph_type', 'j_value', 'emd', 'weight'])
-        all_results = []
+        value_table = PrettyTable(['graph_type', 'rep', 'weight'])
+        inner_value_table = \
+            PrettyTable(['graph_type', 'j_value', 'emd', 'weight'])
 
+        all_results = []
         # Randomly subsample from larger sample to better match miseq vs. hiseq
         '''result = self.compare_randomly_choose(loops, o_loops, o_chromLoopData,
-                                              bin_size, window_size)
+                                              bin_size, window_size, 
+                                              inner_value_table)
+        log_bin.info(inner_value_table)
+        inner_value_table.clear_rows()
         all_results.append(result)
         value_table.add_row([x for x in list(result.values())])'''
 
-        # Normal comparison
-        norm_time = time.time()
         graph = self.create_graph(loops, 0, bin_size, window_size)
         o_graph = \
             o_chromLoopData.create_graph(o_loops, 0, bin_size, window_size)
-        result = self.get_stats(graph, o_graph, o_chromLoopData, 'norm')
-        all_results.append(result)
-        value_table.add_row([x for x in list(result.values())])
-        log.debug(f'Norm time: {time.time() - norm_time}')
+
+        # Normal comparison
+        norm_time = time.time()
+        norm_result = self.get_stats(graph, o_graph, o_chromLoopData, 'norm',
+                                     inner_value_table)
+        log.debug(f'Norm time: {time.time() - norm_time} ------------------')
+        log_bin.info(inner_value_table)
+        inner_value_table.clear_rows()
+        all_results.append(norm_result)
+        value_table.add_row([x for x in list(norm_result.values())])
 
         # Match graphs only where loops overlap
-        if not same_seq:
+        '''if not same_seq:
             pass
-        result = self.compare_only_match(graph, o_graph, o_chromLoopData)
+        result = self.compare_only_match(graph, o_graph, o_chromLoopData,
+                                         inner_value_table)
+        log_bin.info(inner_value_table)
+        inner_value_table.clear_rows()
         all_results.append(result)
-        value_table.add_row([x for x in list(result.values())])
+        value_table.add_row([x for x in list(result.values())])'''
 
-        log.info(value_table)
+        log_bin.info(value_table)
         log.debug(f'Total time: {time.time() - start_time}')
-        log.info(
-            '---------------------------------------------------------------\n')
+        log_all.info(
+            '-----------------------------------------------------------------')
 
-        return all_results
+        return norm_result

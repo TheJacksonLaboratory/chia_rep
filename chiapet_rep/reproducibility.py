@@ -7,13 +7,7 @@ import logging
 from pyBedGraph import BedGraph
 from .all_loop_data import AllLoopData
 
-log = logging.getLogger(__name__.split('.')[-1])
-
-CHROM_START = 36000000
-CHROM_END = 39000000
-CHROM_START = 0
-WINDOW_SIZE = 3000000
-BIN_SIZE = 10000
+log = logging.getLogger()
 
 VERSION = 2
 
@@ -122,8 +116,8 @@ def compare(data_dict, compare_func, compare_all=True, **kwargs):
             log.info(f'{key1} vs. {key2}:')
             data1 = data_dict[key1]
             data2 = data_dict[key2]
-            reproducibility_values = compare_func(data1, data2, **kwargs)
-            main_value = reproducibility_values[0]['main_value']
+            rep_dict = compare_func(data1, data2, **kwargs)
+            main_value = rep_dict['w_rep']
 
             scores[key1][key2] = main_value
             scores[key2][key1] = main_value
@@ -131,16 +125,13 @@ def compare(data_dict, compare_func, compare_all=True, **kwargs):
             is_rep = False
             for rep in REPLICATES:
                 if key1 in rep and key2 in rep:
-                    replicates[combined_keys] = reproducibility_values
+                    replicates[combined_keys] = rep_dict
                     is_rep = True
                     break
             if not is_rep:
-                non_replicates[combined_keys] = reproducibility_values
+                non_replicates[combined_keys] = rep_dict
 
-            log.info(
-                f'{combined_keys} Reproducibility: {main_value}\n'
-                '-----------------------------------------------------------'
-                '-----------------------------------------------------------')
+            log.info(f'{combined_keys} Reproducibility: {main_value}')
 
     comp_str = f"Compared {[x for x in data_dict]}\n" \
                f"Function: {compare_func}\n" \
@@ -153,53 +144,41 @@ def compare(data_dict, compare_func, compare_all=True, **kwargs):
 def output_results(rep, non_rep):
     print(f"Number of replicates found: {len(rep)}")
     print(f"Number of non-replicates found: {len(non_rep)}")
-    num_stats = len(list(rep.values())[0])
-    # Dictionaries with value as list of dictionaries
-    for i in range(num_stats):
-        print(f'Stat_{i}')
-        value_keys = list(list(rep.values())[0][i].keys())
-        value_table = PrettyTable(['output'] + value_keys)
-        value_table.sortby = 'main_value'
-        value_table.reversesort = True
 
-        rep_value_dict = {x: rep[x][i] for x in rep}
-        for k, rep_value in rep_value_dict.items():
-            value_table.add_row([k] + [x if isinstance(x, str) else round(x, 6)
-                                       for x in rep_value.values()])
-        print('Replicates\n' + value_table.get_string())
-        value_table.clear_rows()
-        non_rep_value_dict = {x: non_rep[x][i] for x in non_rep}
-        for k, rep_value in non_rep_value_dict.items():
-            value_table.add_row([k] + [x if isinstance(x, str) else round(x, 6)
-                                       for x in rep_value.values()])
-        print('Non-Replicates\n' + value_table.get_string())
+    # Dictionaries of dictionaries
+    value_keys = ['graph_type', 'rep', 'w_rep']
+    value_table = PrettyTable(['output'] + value_keys)
+    value_table.sortby = 'w_rep'
+    value_table.reversesort = True
 
-        replicate_values = [x['main_value'] for x in
-                            list(rep_value_dict.values())]
-        non_replicate_values = [x['main_value'] for x in
-                                list(non_rep_value_dict.values())]
+    for k, value_dict in rep.items():
+        value_table.add_row([k] + [x if isinstance(x, str) else round(x, 6)
+                                   for x in value_dict.values()])
+    print('Replicates\n' + value_table.get_string())
 
-        replicate_main_values = {key: x['main_value'] for key, x in
-                                 rep_value_dict.items()}
-        non_replicate_main_values = {key: x['main_value'] for key, x in
-                                     non_rep_value_dict.items()}
+    value_table.clear_rows()
+    for k, value_dict in non_rep.items():
+        value_table.add_row([k] + [x if isinstance(x, str) else round(x, 6)
+                                   for x in value_dict.values()])
+    print('Non-Replicates\n' + value_table.get_string())
 
-        if len(non_replicate_values) == 0 or len(replicate_values) == 0:
-            return
+    replicate_values = [x['w_rep'] for x in rep.values()]
+    non_replicate_values = [x['w_rep'] for x in non_rep.values()]
 
-        min_diff = np.min(replicate_values) - np.max(non_replicate_values)
-        avg_diff = np.mean(replicate_values) - np.mean(non_replicate_values)
-        min_rep = np.min(replicate_values)
-        max_non_rep = np.max(non_replicate_values)
-        print(f"Min replicate value: "
-                 f"{min(replicate_main_values, key=replicate_main_values.get)}"
-                 f" -> {min_rep}")
-        print(f"Max non-replicate value: "
-                 f"{max(non_replicate_main_values, key=non_replicate_main_values.get)}"
-                 f" -> {max_non_rep}")
-        print(f"Min diff between replicates and non-replicates: {min_diff}")
-        print(
-            f"Diff between replicate and non-replicate average: {avg_diff}\n")
+    if len(non_replicate_values) == 0 or len(replicate_values) == 0:
+        return
+
+    min_diff = np.min(replicate_values) - np.max(non_replicate_values)
+    avg_diff = np.mean(replicate_values) - np.mean(non_replicate_values)
+    min_rep = np.min(replicate_values)
+    max_non_rep = np.max(non_replicate_values)
+    print(f"Min replicate value: {min(rep, key=lambda x: rep[x]['w_rep'])} -> "
+          f"{min_rep}")
+    print(f"Max non-replicate value: "
+          f"{max(non_rep, key=lambda x: non_rep[x]['w_rep'])} -> {max_non_rep}")
+    print(f"Min diff between replicates and non-replicates: {min_diff}")
+    print(
+        f"Diff between replicate and non-replicate average: {avg_diff}\n")
 
 
 # Only uses loop files with .cis and .BE3 endings

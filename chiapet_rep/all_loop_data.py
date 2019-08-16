@@ -1,10 +1,12 @@
+from collections import OrderedDict
+
 from .chrom_loop_data import ChromLoopData
 import numpy as np
 import os
 import logging
 
 VERSION = 1
-log = logging.getLogger(__name__.split('.')[-1])
+log = logging.getLogger()
 
 # Missing in many miseq peak files
 CHROM_TO_IGNORE = 'chrY'
@@ -16,7 +18,7 @@ class AllLoopData:
                  bedgraph, is_hiseq, peak_percent_kept=0.2,
                  wanted_chroms=None, min_loop_value=0):
 
-        log.info(locals())
+        log.debug(locals())
 
         self.is_hiseq = is_hiseq
 
@@ -63,7 +65,7 @@ class AllLoopData:
                 loop_anchor_list.append(start_interval)
                 loop_anchor_list.append(end_interval)
 
-            log.info(f'Anchor mean width: {np.mean(loop_anchor_list)}')
+            log.debug(f'Anchor mean width: {np.mean(loop_anchor_list)}')
 
         to_remove = []
         for chrom_name in self.chrom_dict:
@@ -75,15 +77,14 @@ class AllLoopData:
         for chrom_name in to_remove:
             del self.chrom_dict[chrom_name]
 
-    def compare(self, o_loop_data, window_start, window_end,
-                bin_size, wanted_chroms=None):
+    def compare(self, o_loop_data, bin_size, window_size, window_index=None,
+                wanted_chroms=None):
 
         # Compare all the chromosomes
         if wanted_chroms is None:
             wanted_chroms = list(self.chrom_dict.keys())
 
-        chrom_rep = {}
-
+        chrom_value_list = []
         for chrom_name in wanted_chroms:
 
             if chrom_name not in self.chrom_dict:
@@ -96,39 +97,55 @@ class AllLoopData:
                             f'not in {o_loop_data.sample_name}')
                 continue
 
-            chrom_rep[chrom_name] = \
-                self.chrom_dict[chrom_name].compare(
-                    o_loop_data.chrom_dict[chrom_name], window_start,
-                    window_end, bin_size, self.is_hiseq == o_loop_data.is_hiseq)
+            log.info(f"Comparing {chrom_name} ...")
 
-        value_dict_list = []
-        for chrom in chrom_rep:
-            log.debug(chrom)
-            for i in range(0, len(chrom_rep[chrom])):
-                if len(value_dict_list) == i:
-                    value_dict_list.append([])
-                value_dict_list[i].append(chrom_rep[chrom][i])
+            # Compare for all windows in chrom
+            chrom_size = self.chrom_dict[chrom_name].size
+            value_dict_list = []
+            for k in range(int(chrom_size / window_size)):
 
-        log.debug(value_dict_list)
-        genome_rep_values = []
-        for value_type_list in value_dict_list:
-            log.debug(value_type_list)
-            avg_value = dict.fromkeys(value_type_list[0].keys(), 0)
-            for value_dict in value_type_list:
-                for k in value_dict:
-                    if isinstance(value_dict[k], str):
-                        avg_value[k] = value_dict[k]
-                        continue
-                    avg_value[k] += value_dict[k]
+                if window_index is not None:
+                    k = window_index
 
-            for k in avg_value:
-                if isinstance(avg_value[k], str):
-                    continue
+                window_start = window_size * k
+                window_end = window_size * (k + 1)
+                if window_end > chrom_size:
+                    window_end = chrom_size
 
-                avg_value[k] /= len(value_type_list)
+                value_dict_list.append(
+                    self.chrom_dict[chrom_name].compare(
+                        o_loop_data.chrom_dict[chrom_name], window_start,
+                        window_end, bin_size,
+                        self.is_hiseq == o_loop_data.is_hiseq))
 
-            log.debug(avg_value)
-            genome_rep_values.append(avg_value)
+                if window_index is not None:
+                    break
 
-        log.debug(genome_rep_values)
-        return genome_rep_values
+            # Weigh value from each bin according to max loop in graph
+            values = [x['rep'] for x in value_dict_list]
+            chrom_value = {
+                'graph_type': value_dict_list[0]['graph_type'],
+                'rep': np.mean(values),
+            }
+            try:
+                chrom_value['w_rep'] = \
+                    np.average(values, weights=[x['w'] for x in
+                                                value_dict_list])
+            except ZeroDivisionError:  # sum of weights == 0
+                log.exception("No loops were found in either graphs")
+                chrom_value['w_rep'] = chrom_value['rep']
+
+            log.debug(chrom_value)
+            chrom_value_list.append(chrom_value)
+
+        log.debug(chrom_value_list)
+
+        # Weigh value from each chromosome equally
+        avg_value = {
+            'graph_type': chrom_value_list[0]['graph_type'],
+            'rep': np.mean([x['rep'] for x in chrom_value_list]),
+            'w_rep': np.mean([x['w_rep'] for x in chrom_value_list])
+        }
+        log.debug(avg_value)
+
+        return avg_value

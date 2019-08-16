@@ -8,19 +8,15 @@ import logging
 from prettytable import PrettyTable
 from pyBedGraph import BedGraph
 
-WINDOW_SIZE = 100000
-INTERVAL_SIZE = 1000
-chr1_size = 248956422
-
-DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet'
+TEST_CASE_INTERVAL_SIZE = 1000
 
 VERSION = 1
 
-log = logging.getLogger(__name__.split('.')[-1])
+log = logging.getLogger()
 
 
-def create_test_cases(interval_size=INTERVAL_SIZE, start=0, end=chr1_size,
-                      step=INTERVAL_SIZE):
+def create_test_cases(end, interval_size=TEST_CASE_INTERVAL_SIZE, start=0,
+                      step=TEST_CASE_INTERVAL_SIZE):
     num_test_cases = int((end - start) / step) - interval_size
     test_cases = np.arange(start, start + step * num_test_cases, step, dtype=np.int32)
     test_cases = np.vstack((test_cases, test_cases + interval_size))
@@ -157,90 +153,6 @@ def get_coefficients(bedGraph1_stat, bedGraph2_stat, min_value):
     plt.close()
 
     return pearson_value
-
-
-def compare_bedGraphs_with_window(bedGraph1_stat, bedGraph2_stat, out_file, test_cases,
-                      window_index):
-    info_str = f"Comparing {bedGraph1_stat['name']} vs. {bedGraph2_stat['name']}"
-    # print(info_str)
-    out_file.write(info_str + '\n')
-
-    mean1_list = bedGraph1_stat['mean_list']
-    mean2_list = bedGraph2_stat['mean_list']
-
-    window_start = window_index * WINDOW_SIZE
-    window_end = (window_index + 1) * WINDOW_SIZE
-
-    mean_start = int(window_start / INTERVAL_SIZE)
-    mean_end = int(window_end / INTERVAL_SIZE)
-    mean_length = mean_end - mean_start
-
-    assert len(mean1_list) == len(mean2_list)
-
-    # ratio = bedGraph1_stat['num_samples'] / bedGraph2_stat['num_samples']
-    mean1_sample_size = np.mean(mean1_list[mean_start:mean_end])
-    mean2_sample_size = np.mean(mean2_list[mean_start:mean_end])
-    if mean2_sample_size == 0 and mean1_sample_size == 0:
-        return 1
-    elif mean2_sample_size == 0:
-        return -1
-
-    mean1_window_max = np.max(mean1_list[mean_start:mean_end])
-    mean2_window_max = np.max(mean2_list[mean_start:mean_end])
-    mean_window_max = max(mean1_window_max, mean2_window_max)
-    mean_window_max = max(bedGraph1_stat['max_value'], bedGraph2_stat['max_value'])
-
-    ratio = mean1_sample_size / mean2_sample_size
-
-    similarity_list = []
-    ms_error_list = []
-    num_counted = 0
-    mean1_bigger = 0
-    for i in range(mean_start, mean_end, 1):
-        m1 = mean1_list[i]
-        m2 = mean2_list[i]
-
-        # account for bedGraphs that were sampled more
-        m2 *= ratio
-        max_m = max(m1, m2)
-
-        if m1 > m2:
-            mean1_bigger += 1
-
-        if max_m != 0:
-            # higher value == more error
-            similarity_error = sqrt(abs(m1 - m2)) * \
-                               (mean_window_max - max_m) / \
-                               (sqrt(mean_window_max) * mean_window_max)
-            mse = (m1 - m2) * (m1 - m2) * max_m
-
-            if bedGraph1_stat['name'] == 'LHH0083H' and similarity_error > 0.5:
-                out_file.write(
-                    f'{test_cases[0][i]} - {test_cases[1][i]}, {similarity_error}\n')
-
-            # test_case_str = f'{test_cases[0][i]} {test_cases[1][i]}\n{m1} ' \
-            #                f'{m2}\n{percentage_error} {mse}\n'
-            # print(test_case_str)
-            # out_file.write(test_case_str + '\n')
-        else:
-            similarity_error = 0
-            mse = 0
-
-        num_counted += 1
-        similarity_list.append(similarity_error)
-        ms_error_list.append(mse)
-
-    stat_str = f'{bedGraph1_stat["name"]} bigger: {mean1_bigger / mean_length}\n' \
-               f'Num Counted: {num_counted}\n' \
-               f'Ratio: {ratio}\n' \
-               f'Window: {window_start} - {window_end}\n' \
-               f'Max in window: {mean_window_max}\n' \
-               f'Similarity: {2 * (1 - np.mean(similarity_list)) - 1}\n' \
-               f'Mean Squared Error (ish): {np.mean(ms_error_list)}\n'
-    # print(stat_str)
-    out_file.write(stat_str + '\n')
-
-    return 2 * (1 - np.median(similarity_list)) - 1
 
 
 def compare(bedGraph1_stat, bedGraph2_stat, min_value=0):
