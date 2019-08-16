@@ -11,22 +11,22 @@ from chiapet_rep import chrom_loop_data
 from chiapet_rep import reproducibility
 from chiapet_rep import loop_rep
 
-TEST_DATA_DIR = 'data'
-DATA_PATH = '/media/hirwo/extra/jax/data/chia_pet'
+DATA_DIR = 'data'
+DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/miseq'
 BIN_SIZE = 10000  # 10kb
 WINDOW_SIZE = 3000000  # 3mb
 
 # To see log info statements (optional)
 from logging.config import fileConfig
-fileConfig('test.conf')
+fileConfig('chiapet_rep.conf')
 
 
 # Since reading in bedgraph file can take a long time, load them first if in an interactive session
-bedgraph_dict = reproducibility.read_bedGraphs(TEST_DATA_DIR, f'{TEST_DATA_DIR}/hg38.chrom.sizes')
+bedgraph_dict = reproducibility.read_bedGraphs(DATA_DIR, f'{DATA_DIR}/hg38.chrom.sizes')
 
-loop_dict = reproducibility.read_data(loop_data_dir=TEST_DATA_DIR,
-                                      peak_data_dir=TEST_DATA_DIR,
-                                      chrom_size_file=f'{TEST_DATA_DIR}/hg38.chrom.sizes',
+loop_dict = reproducibility.read_data(loop_data_dir=DATA_DIR,
+                                      peak_data_dir=DATA_DIR,
+                                      chrom_size_file=f'{DATA_DIR}/hg38.chrom.sizes',
                                       is_hiseq=False,  # Determines if match comparison is made (TODO)
                                       bedgraph_dict=bedgraph_dict)
 

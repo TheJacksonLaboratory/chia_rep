@@ -5,7 +5,7 @@ import numpy as np
 import os
 import logging
 
-VERSION = 1
+VERSION = 2
 log = logging.getLogger()
 
 # Missing in many miseq peak files
@@ -93,7 +93,7 @@ class AllLoopData:
 
             # Check that chrom name is also in other
             if chrom_name not in o_loop_data.chrom_dict:
-                log.warning(f'{chrom_name} is in {self.sample_name} but'
+                log.warning(f'{chrom_name} is in {self.sample_name} but '
                             f'not in {o_loop_data.sample_name}')
                 continue
 
@@ -102,7 +102,10 @@ class AllLoopData:
             # Compare for all windows in chrom
             chrom_size = self.chrom_dict[chrom_name].size
             value_dict_list = []
-            for k in range(int(chrom_size / window_size)):
+            numb_windows = int(chrom_size / window_size)
+            if numb_windows == 0:
+                numb_windows = 1
+            for k in range(numb_windows):
 
                 if window_index is not None:
                     k = window_index
@@ -132,8 +135,9 @@ class AllLoopData:
                     np.average(values, weights=[x['w'] for x in
                                                 value_dict_list])
             except ZeroDivisionError:  # sum of weights == 0
-                log.exception("No loops were found in either graphs")
-                chrom_value['w_rep'] = chrom_value['rep']
+                log.exception(f"No loops were found in either graphs. Skipping"
+                              f"{chrom_name}")
+                continue
 
             log.debug(chrom_value)
             chrom_value_list.append(chrom_value)
