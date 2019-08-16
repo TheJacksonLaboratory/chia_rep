@@ -9,6 +9,7 @@ from prettytable import PrettyTable
 from pyBedGraph import BedGraph
 
 TEST_CASE_INTERVAL_SIZE = 1000
+DEFAULT_CHROM = 'chr1'
 
 VERSION = 1
 
@@ -17,6 +18,8 @@ log = logging.getLogger()
 
 def create_test_cases(end, interval_size=TEST_CASE_INTERVAL_SIZE, start=0,
                       step=TEST_CASE_INTERVAL_SIZE):
+    log.info(f"Made test cases from {start} - {end} with interval sizes: "
+             f"{interval_size} and step size: {step}")
     num_test_cases = int((end - start) / step) - interval_size
     test_cases = np.arange(start, start + step * num_test_cases, step, dtype=np.int32)
     test_cases = np.vstack((test_cases, test_cases + interval_size))
@@ -24,27 +27,27 @@ def create_test_cases(end, interval_size=TEST_CASE_INTERVAL_SIZE, start=0,
     return test_cases
 
 
-def get_stats(bedGraph_dict, test_cases, stat='mean'):
+def get_stats(bedgraph_dict, test_cases, stat='mean'):
 
-    bedGraph_stats_dict = {}
-    for name in bedGraph_dict:
-        print(f'Getting stats for {name}')
-        bedGraph = bedGraph_dict[name]
-        bedGraph.load_chrom_data('chr1')
-        chrom = bedGraph.chromosome_map['chr1']
+    bedgraph_stats_dict = {}
+    for name in bedgraph_dict:
+        log.info(f'Getting {stat} for {name}')
+        bedgraph = bedgraph_dict[name]
+        bedgraph.load_chrom_data(DEFAULT_CHROM)
+        chrom = bedgraph.chromosome_map[DEFAULT_CHROM]
 
-        bedGraph_stats_dict[name] = {
+        bedgraph_stats_dict[name] = {
             'num_samples': chrom.num_samples,
-            'mean_list': bedGraph.stats(start_list=test_cases[0],
+            'stat_list': bedgraph.stats(start_list=test_cases[0],
                                         end_list=test_cases[1],
-                                        chrom_name='chr1',
+                                        chrom_name=DEFAULT_CHROM,
                                         stat=stat),
-            'name': bedGraph.name,
+            'name': bedgraph.name,
             'max_value': np.max(chrom.value_map)
         }
-        bedGraph.free_chrom_data('chr1')
+        bedgraph.free_chrom_data(DEFAULT_CHROM)
 
-    return bedGraph_stats_dict
+    return bedgraph_stats_dict
 
 
 def linear_regression(stat_lists):
@@ -113,14 +116,17 @@ def my_pearson(stat_list1, stat_list2):
     return xy_sum / (x_sum * y_sum)
 
 
-def get_coefficients(bedGraph1_stat, bedGraph2_stat, min_value):
+# min_value > 0 cuts a square in the bottom left corner of scatter plot
+# Rationale: It's too dense there
+def get_coefficients(bedgraph1_stat, bedgraph2_stat, min_value):
 
-    stat_list1 = bedGraph1_stat['mean_list']
-    stat_list2 = bedGraph2_stat['mean_list']
+    stat_list1 = bedgraph1_stat['stat_list']
+    stat_list2 = bedgraph2_stat['stat_list']
     assert stat_list1.size == stat_list2.size
 
-    num_samples1 = bedGraph1_stat['num_samples']
-    num_samples2 = bedGraph2_stat['num_samples']
+    # Cut a rectangle instead of a square?
+    num_samples1 = bedgraph1_stat['num_samples']
+    num_samples2 = bedgraph2_stat['num_samples']
     ratio = num_samples1 / num_samples2
     modified_min_value = min_value * ratio
 
@@ -131,11 +137,15 @@ def get_coefficients(bedGraph1_stat, bedGraph2_stat, min_value):
     stat_list1 = np.delete(stat_list1, to_remove)
     stat_list2 = np.delete(stat_list2, to_remove)
 
+    # scipy pearson
     orig_pearson_value, pearson_p = pearsonr(stat_list1, stat_list2)
+
+    # An attempt at a weighted value
     pearson_value = my_pearson(stat_list1, stat_list2)
     a, b = linear_regression(np.array([stat_list1, stat_list2]))
     weighted_error = get_weighted_linear_error(a, b, np.array([stat_list1, stat_list2]))
     adjusted_r2 = get_adjusted_r2(pearson_value, stat_list1.size)
+
     table = PrettyTable(['orig_r', 'my_r', 'adj_r2', 'error'])
     table.add_row([round(orig_pearson_value, 4), round(pearson_value, 4),
                   round(adjusted_r2, 4), round(weighted_error/1000000000, 4)])
@@ -145,8 +155,8 @@ def get_coefficients(bedGraph1_stat, bedGraph2_stat, min_value):
     if not os.path.isdir(scatter_plot_dir):
         os.mkdir(scatter_plot_dir)
 
-    name1 = bedGraph1_stat['name']
-    name2 = bedGraph2_stat['name']
+    name1 = bedgraph1_stat['name']
+    name2 = bedgraph2_stat['name']
     plt.scatter(stat_list1, stat_list2)
     plt.title(f'{name1} vs. {name2}, r={round(pearson_value, 3)}')
     plt.savefig(f'{scatter_plot_dir}/{name1}__v__{name2}')
@@ -155,10 +165,12 @@ def get_coefficients(bedGraph1_stat, bedGraph2_stat, min_value):
     return pearson_value
 
 
-def compare(bedGraph1_stat, bedGraph2_stat, min_value=0):
-    pearson_value = get_coefficients(bedGraph1_stat, bedGraph2_stat, min_value)
-    results = {'pearson_value': pearson_value}
+def compare(bedgraph1_stat, bedgraph2_stat, min_value=0):
+    pearson_value = get_coefficients(bedgraph1_stat, bedgraph2_stat, min_value)
+    results = {
+        'graph_type': 'pearson',
+        'rep': pearson_value,
+        'w_rep': pearson_value}
 
-    results['main_value'] = results['pearson_value']
     return results
 

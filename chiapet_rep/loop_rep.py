@@ -1,18 +1,5 @@
-import os
-from collections import OrderedDict
-import numpy as np
-import csv
-import sys
-import matplotlib.pyplot as plt
-from prettytable import PrettyTable
 import logging
 
-DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet'
-CHROM_SIZES_FILE = f'{DATA_DIR}/chrom_sizes/hg38.chrom.sizes'
-
-chr1_size = 248956422
-chr2_size = 242193529
-chr_size = chr1_size
 VERSION = 5
 
 log = logging.getLogger()

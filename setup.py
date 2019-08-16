@@ -8,7 +8,7 @@ extensions = [
 ]
 
 NAME = 'chiapet_rep'
-VERSION = '0.0.01'
+VERSION = '0.0.1'
 
 setuptools.setup(
 
@@ -30,7 +30,11 @@ setuptools.setup(
 
     packages=setuptools.find_packages(),
 
-    install_requires=['numpy', 'scipy', 'prettytable', 'pybedgraph', 'matplotlib'],
+    install_requires=['numpy>=1.17.0',
+                      'scipy>=1.3.1',
+                      'prettytable>=0.7.2',
+                      'pybedgraph>=0.5.22',
+                      'matplotlib>=3.1.1'],
 
     ext_modules=extensions,
 

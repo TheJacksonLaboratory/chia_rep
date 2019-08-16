@@ -11,7 +11,8 @@ fileConfig('chiapet_rep/test/chiapet_rep.conf')
 
 
 # Since reading in bedgraph file can take a long time, load them first if in an interactive session
-bedgraph_dict = reproducibility.read_bedGraphs(TEST_DATA_DIR, f'{TEST_DATA_DIR}/hg38.chrom.sizes')
+# CAREFUL WHEN READING LARGE BEDGRAPH FILES
+bedgraph_dict = reproducibility.read_bedgraphs(TEST_DATA_DIR, f'{TEST_DATA_DIR}/hg38.chrom.sizes')
 
 loop_dict = reproducibility.read_data(loop_data_dir=TEST_DATA_DIR,
                                       peak_data_dir=TEST_DATA_DIR,

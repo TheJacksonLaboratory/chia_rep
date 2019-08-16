@@ -1,5 +1,7 @@
 from collections import OrderedDict
 
+from prettytable import PrettyTable
+
 from .chrom_loop_data import ChromLoopData
 import numpy as np
 import os
@@ -7,15 +9,18 @@ import logging
 
 VERSION = 2
 log = logging.getLogger()
+log_bin = logging.getLogger('bin')
 
 # Missing in many miseq peak files
 CHROM_TO_IGNORE = 'chrY'
+
+DEFAULT_PEAK_PERCENT = 0.2
 
 
 class AllLoopData:
 
     def __init__(self, chrom_size_file_path, in_file_path, peak_file_path,
-                 bedgraph, is_hiseq, peak_percent_kept=0.2,
+                 bedgraph, is_hiseq, peak_percent_kept=DEFAULT_PEAK_PERCENT,
                  wanted_chroms=None, min_loop_value=0):
 
         log.debug(locals())
@@ -38,6 +43,7 @@ class AllLoopData:
                 self.chrom_dict[chrom_name] = \
                     ChromLoopData(chrom_name, line[1], self.sample_name)
 
+        # Read in loops
         with open(in_file_path) as in_file:
             loop_anchor_list = []
             for line in in_file:
@@ -74,27 +80,39 @@ class AllLoopData:
                                                            peak_percent_kept):
                 to_remove.append(chrom_name)
 
+        # Chromosomes with no loops or other random problems
         for chrom_name in to_remove:
             del self.chrom_dict[chrom_name]
+
+    # To speed up testing process by avoiding loading bedgraphs every time
+    # Untested
+    def preprocess(self, peak_file_path,
+                   peak_percent_kept=DEFAULT_PEAK_PERCENT):
+        for chrom in self.chrom_dict.values():
+            chrom.preprocess(peak_file_path, peak_percent_kept)
 
     def compare(self, o_loop_data, bin_size, window_size, window_index=None,
                 wanted_chroms=None):
 
-        # Compare all the chromosomes
+        # Default: Compare all the chromosomes
         if wanted_chroms is None:
             wanted_chroms = list(self.chrom_dict.keys())
+
+        chrom_value_table = \
+            PrettyTable(['chrom', 'graph_type', 'rep', 'w_rep'])
 
         chrom_value_list = []
         for chrom_name in wanted_chroms:
 
             if chrom_name not in self.chrom_dict:
-                log.warning(f'{chrom_name} is not in {self.sample_name}')
+                log.warning(f'{chrom_name} is not in {self.sample_name}. '
+                            f'Skipping {chrom_name}')
                 continue
 
-            # Check that chrom name is also in other
             if chrom_name not in o_loop_data.chrom_dict:
                 log.warning(f'{chrom_name} is in {self.sample_name} but '
-                            f'not in {o_loop_data.sample_name}')
+                            f'not in {o_loop_data.sample_name}. Skipping '
+                            f'{chrom_name}')
                 continue
 
             log.info(f"Comparing {chrom_name} ...")
@@ -107,6 +125,7 @@ class AllLoopData:
                 numb_windows = 1
             for k in range(numb_windows):
 
+                # If there is a specified window, just compare that
                 if window_index is not None:
                     k = window_index
 
@@ -124,13 +143,12 @@ class AllLoopData:
                 if window_index is not None:
                     break
 
-            # Weigh value from each bin according to max loop in graph
             values = [x['rep'] for x in value_dict_list]
             chrom_value = {
                 'graph_type': value_dict_list[0]['graph_type'],
                 'rep': np.mean(values),
             }
-            try:
+            try:  # Weigh value from each bin according to max loop in graph
                 chrom_value['w_rep'] = \
                     np.average(values, weights=[x['w'] for x in
                                                 value_dict_list])
@@ -139,8 +157,12 @@ class AllLoopData:
                               f"{chrom_name}")
                 continue
 
-            log.debug(chrom_value)
             chrom_value_list.append(chrom_value)
+
+            log.debug(chrom_value)
+            chrom_value_table.add_row([chrom_name] + list(chrom_value.values()))
+            log_bin.info(chrom_value_table)
+            chrom_value_table.clear_rows()
 
         log.debug(chrom_value_list)
 

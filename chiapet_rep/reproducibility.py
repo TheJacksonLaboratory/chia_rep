@@ -82,6 +82,7 @@ def output_to_csv(scores, output_file):
             writer.writerow(sample_scores)
 
 
+# Make compare_all == False to save time by not comparing known reproducibility
 def compare(data_dict, compare_func, compare_all=True, **kwargs):
     log.info(f"Comparing {[x for x in data_dict]}\n"
              f"Function: {compare_func}\n"
@@ -92,7 +93,7 @@ def compare(data_dict, compare_func, compare_all=True, **kwargs):
 
     len_dict = len(data_dict)
     keys = list(data_dict.keys())
-    scores = {}
+    scores = {}  # To easily output in .csv format
     for key in keys:
         scores[key] = {}
         scores[key][key] = 1
@@ -122,6 +123,7 @@ def compare(data_dict, compare_func, compare_all=True, **kwargs):
             scores[key1][key2] = main_value
             scores[key2][key1] = main_value
 
+            # Separate reproducibility values into replicates and non-replicates
             is_rep = False
             for rep in REPLICATES:
                 if key1 in rep and key2 in rep:
@@ -141,9 +143,13 @@ def compare(data_dict, compare_func, compare_all=True, **kwargs):
     return replicates, non_replicates, scores
 
 
-def output_results(rep, non_rep):
+def output_results(rep, non_rep, out_file_path=None):
     print(f"Number of replicates found: {len(rep)}")
     print(f"Number of non-replicates found: {len(non_rep)}")
+
+    out_file = None
+    if out_file_path:
+        out_file = open(out_file_path, 'w')
 
     # Dictionaries of dictionaries
     value_keys = ['graph_type', 'rep', 'w_rep']
@@ -154,13 +160,19 @@ def output_results(rep, non_rep):
     for k, value_dict in rep.items():
         value_table.add_row([k] + [x if isinstance(x, str) else round(x, 6)
                                    for x in value_dict.values()])
-    print('Replicates\n' + value_table.get_string())
+    temp_str = 'Replicates\n' + value_table.get_string()
+    if out_file:
+        out_file.write(temp_str + '\n')
+    print(temp_str)
 
     value_table.clear_rows()
     for k, value_dict in non_rep.items():
         value_table.add_row([k] + [x if isinstance(x, str) else round(x, 6)
                                    for x in value_dict.values()])
-    print('Non-Replicates\n' + value_table.get_string())
+    temp_str = 'Non-Replicates\n' + value_table.get_string()
+    if out_file:
+        out_file.write(temp_str + '\n')
+    print(temp_str)
 
     replicate_values = [x['w_rep'] for x in rep.values()]
     non_replicate_values = [x['w_rep'] for x in non_rep.values()]
@@ -172,13 +184,16 @@ def output_results(rep, non_rep):
     avg_diff = np.mean(replicate_values) - np.mean(non_replicate_values)
     min_rep = np.min(replicate_values)
     max_non_rep = np.max(non_replicate_values)
-    print(f"Min replicate value: {min(rep, key=lambda x: rep[x]['w_rep'])} -> "
-          f"{min_rep}")
-    print(f"Max non-replicate value: "
-          f"{max(non_rep, key=lambda x: non_rep[x]['w_rep'])} -> {max_non_rep}")
-    print(f"Min diff between replicates and non-replicates: {min_diff}")
-    print(
-        f"Diff between replicate and non-replicate average: {avg_diff}\n")
+    temp_str = f"Min replicate value: " \
+               f"{min(rep, key=lambda x: rep[x]['w_rep'])} -> {min_rep}\n" \
+               f"Max non-replicate value: " \
+               f"{max(non_rep, key=lambda x: non_rep[x]['w_rep'])} -> {max_non_rep}\n" \
+               f"Min diff between replicates and non-replicates: {min_diff}\n" \
+               f"Diff between replicate and non-replicate average: {avg_diff}"
+    print(temp_str)
+    if out_file:
+        out_file.write(temp_str + '\n')
+        log.info(f"Results have been written to {out_file_path}")
 
 
 # Only uses loop files with .cis and .BE3 endings
@@ -196,7 +211,7 @@ def read_data(loop_data_dir, peak_data_dir, chrom_size_file, is_hiseq,
         if bedgraph_data_dir is None:
             log.error(f"Missing directory for bedgraph_data_dir")
             return
-        bedgraph_dict = read_bedGraphs(bedgraph_data_dir, chrom_size_file,
+        bedgraph_dict = read_bedgraphs(bedgraph_data_dir, chrom_size_file,
                                        min_bedgraph_value)
 
     for loop_file_name in os.listdir(loop_data_dir):
@@ -235,15 +250,15 @@ def read_data(loop_data_dir, peak_data_dir, chrom_size_file, is_hiseq,
     return loop_info_dict
 
 
-def read_bedGraphs(data_directory, chrom_size_file, min_value=-1,
+def read_bedgraphs(data_directory, chrom_size_file, min_value=-1,
                    chrom_to_load=None):
-    bedGraph_dict = {}
+    bedgraph_dict = {}
 
     for filename in os.listdir(data_directory):
         if filename.endswith('.bedgraph') or filename.endswith('.bedGraph'):
             file_path = os.path.join(data_directory, filename)
-            bedGraph = BedGraph(chrom_size_file, file_path, chrom_to_load,
+            bedgraph = BedGraph(chrom_size_file, file_path, chrom_to_load,
                                 ignore_missing_bp=False, min_value=min_value)
-            bedGraph_dict[bedGraph.name] = bedGraph
+            bedgraph_dict[bedgraph.name] = bedgraph
 
-    return bedGraph_dict
+    return bedgraph_dict
