@@ -1,9 +1,9 @@
 *
 
-!chiapet_rep/
-!chiapet_rep/*.py
-!chiapet_rep/*.pyx
-!chiapet_rep/*.c
+!chia_rep/
+!chia_rep/*.py
+!chia_rep/*.pyx
+!chia_rep/*.c
 !test/
 !test/*.py
 !test/*.conf

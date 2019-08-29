@@ -3,11 +3,11 @@ from distutils.core import setup
 from distutils.extension import Extension
 
 extensions = [
-    Extension('chiapet_rep.chiapet_rep_util',
-              ['chiapet_rep/chiapet_rep_util.c']),
+    Extension('chia_rep.chiapet_rep_util',
+              ['chia_rep/chiapet_rep_util.c']),
 ]
 
-NAME = 'chiapet_rep'
+NAME = 'chia_rep'
 VERSION = '0.0.1'
 
 setuptools.setup(

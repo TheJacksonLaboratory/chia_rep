@@ -1,13 +1,13 @@
-from chiapet_rep import reproducibility
-from chiapet_rep import loop_rep
+from chia_rep import reproducibility
+from chia_rep import loop_rep
 
-TEST_DATA_DIR = 'chiapet_rep/test/data'
+TEST_DATA_DIR = 'chia_rep/test/data'
 BIN_SIZE = 10000  # 10kb
 WINDOW_SIZE = 3000000  # 3mb
 
 # To see log info statements (optional)
 from logging.config import fileConfig
-fileConfig('chiapet_rep/test/chiapet_rep.conf')
+fileConfig('chia_rep/test/chia_rep.conf')
 
 
 # Since reading in bedgraph file can take a long time, load them first if in an interactive session

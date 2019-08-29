@@ -13,11 +13,11 @@ pip install chiapet_rep/
 
 ### Input data and compare:
 ```python
-from chiapet_rep import reproducibility
-from chiapet_rep import loop_rep
+from chia_rep import reproducibility
+from chia_rep import loop_rep
 
 # Test data provided in github repository
-TEST_DATA_DIR = 'chiapet_rep/test/data'
+TEST_DATA_DIR = chia_rep
 BIN_SIZE = 10000  # 10kb
 WINDOW_SIZE = 3000000  # 3mb
 
