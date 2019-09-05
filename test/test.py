@@ -17,6 +17,7 @@ from chia_rep import loop_rep
 MOUSE_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/mouse'
 PEAK_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/peaks'
 MY_PEAK_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/my_peaks'
+MY_FULL_PEAK_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/my_full_peaks'
 HUMAN_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/human'
 BEDGRAPH_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/bedgraphs'
 CHROM_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/chrom_sizes'
@@ -35,40 +36,41 @@ fileConfig('chia_rep.conf')
 main_formatter = logging.Formatter(LOG_MAIN_FORMAT, datefmt=LOG_TIME_FORMAT)
 bin_formatter = logging.Formatter(LOG_BIN_FORMAT, datefmt=LOG_TIME_FORMAT)
 
-main_handler = logging.FileHandler(f'tmp/input.log', mode='w')
-main_handler.setFormatter(main_formatter)
-main_handler.setLevel(logging.DEBUG)
-
-log = logging.getLogger()
-log.handlers = []
-
 # Since reading in bedgraph file can take a long time, load them first if in an interactive session
 # bedgraph_dict = reproducibility.read_bedgraphs(DATA_DIR, f'{DATA_DIR}/hg38.chrom.sizes')
 
 loop_dict = reproducibility.read_data(loop_data_dir=HUMAN_DATA_DIR,
                                       chrom_size_file=f'{CHROM_DATA_DIR}/hg38.chrom.sizes',
-                                      is_hiseq=True,
+                                      bedgraph_data_dir=BEDGRAPH_DATA_DIR)
+
+loop_dict.update(reproducibility.read_data(loop_data_dir=MOUSE_DATA_DIR,
+                                           chrom_size_file=f'{CHROM_DATA_DIR}/mm10.chrom.sizes',
+                                           bedgraph_data_dir=BEDGRAPH_DATA_DIR))
+
+'''loop_dict = reproducibility.read_data(loop_data_dir=HUMAN_DATA_DIR,
+                                      chrom_size_file=f'{CHROM_DATA_DIR}/hg38.chrom.sizes',
                                       bedgraph_data_dir=BEDGRAPH_DATA_DIR,
                                       chrom_to_read='chr1')
 
 loop_dict.update(reproducibility.read_data(loop_data_dir=MOUSE_DATA_DIR,
                                            chrom_size_file=f'{CHROM_DATA_DIR}/mm10.chrom.sizes',
-                                           is_hiseq=True,
                                            bedgraph_data_dir=BEDGRAPH_DATA_DIR,
-                                           chrom_to_read='chr1'))
+                                           chrom_to_read='chr1'))'''
 
 '''loop_dict = reproducibility.read_data(loop_data_dir=DATA_DIR,
                                       chrom_size_file=f'{DATA_DIR}/hg38.chrom.sizes',
                                       is_hiseq=False,  # Determines if match comparison is made (TODO)
                                       bedgraph_data_dir=DATA_DIR)'''
 
-for i in [1, 5, 10, 50]:
-    i *= 1000  # bin size
-    for j in [1, 3, 5, 10]:
-        j *= 1000000  # window size
-        for k in [0.005, 0.01, 0.025, 0.05, 0.1]:
+for i in [1, 5, 10]:  # bin size
+# for i in [1]:
+    i *= 1000
+    for j in [3, 5, 7, 10]:  # window size:
+    # for j in [3]:
+        j *= 1000000
+        for k in [0.05]:  # Peak percentage kept
 
-            temp_str = f'both_peak_weight.{k * 100}.{i}.{j}'
+            temp_str = f'both_peak_weight.100emd_half_spread.{k * 100}.{i}.{j}'
             main_handler = logging.FileHandler(f'tmp/main.{temp_str}.log', mode='w')
             main_handler.setFormatter(main_formatter)
             main_handler.setLevel(logging.DEBUG)
@@ -90,7 +92,7 @@ for i in [1, 5, 10, 50]:
             log_bin.handlers = [bin_handler]
 
             l = deepcopy(loop_dict)
-            reproducibility.preprocess(l, MY_PEAK_DATA_DIR,
+            reproducibility.preprocess(l, MY_FULL_PEAK_DATA_DIR,
                                        peak_percentage_kept=k,
                                        window_size=None)
 

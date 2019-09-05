@@ -153,8 +153,8 @@ class AllLoopData:
                 'graph_type': value_dict_list[0]['graph_type'],
                 'rep': np.mean(values),
             }
-            for value_dict in value_dict_list:
-                assert chrom_value['graph_type'] == value_dict['graph_type']
+            # for value_dict in value_dict_list:
+            #    assert chrom_value['graph_type'] == value_dict['graph_type']
             try:  # Weigh value from each bin according to max loop in graph
                 chrom_value['w_rep'] = \
                     np.average(values, weights=[x['w'] for x in

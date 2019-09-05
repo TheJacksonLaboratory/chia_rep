@@ -193,7 +193,7 @@ def output_results(rep, non_rep, out_file_path=None):
 
 
 # Only uses loop files with .cis and .BE3 endings
-def read_data(loop_data_dir, chrom_size_file, is_hiseq, bedgraph_data_dir,
+def read_data(loop_data_dir, chrom_size_file, bedgraph_data_dir, is_hiseq=True,
               min_loop_value=0, min_bedgraph_value=-1, chrom_to_read=None):
     if not os.path.isfile(chrom_size_file):
         log.error(f"{chrom_size_file} is not a valid file")

@@ -49,3 +49,10 @@ def get_loops(unsigned int window_start, unsigned int window_end,
         counter = counter + 1
 
     return loops[:counter]
+
+def complete_graph(double[:, :] graph, int graph_size):
+    cdef size_t i, j
+
+    for i in range(graph_size):
+        for j in range(i):
+            graph[i][j] = graph[j][i]
