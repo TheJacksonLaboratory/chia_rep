@@ -1,5 +1,6 @@
 import os
 from collections import OrderedDict
+import multiprocessing
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -7,58 +8,36 @@ import csv
 from prettytable import PrettyTable
 import logging
 from pyBedGraph import BedGraph
-from .all_loop_data import AllLoopData, DEFAULT_PEAK_PERCENT
+from .all_loop_data import AllLoopData, DEFAULT_NUM_PEAKS
 
 log = logging.getLogger()
 
-VERSION = 8
+VERSION = 9
 
 REPLICATES = [
-    ['LHH0054', 'LHH0048'],
-    ['LHH0084', 'LHH0086'],
-    ['LHH0083', 'LHH0085'],
-    ['LHH0058', 'LHH0061'],
-    ['LME0028', 'LME0034'],
-    # ['LME0031', 'LME0033'],
-    ['LHM0008', 'LHM0012'],
-    ['LHM0010', 'LHM0007'],
-    ['LHM0011', 'LHM0014'],
-    ['LHM0009', 'LHM0013'],
-    ['LMP0001', 'LMP0002'],
-    ['LMP0003', 'LMP0004'],
-    ['sampleA1', 'sampleA2']
+    ['LHM0011_0011H', 'LHM0014_0014H'],
+    ['LHM0009_0009H', 'LHM0013_0013H'],
+    ['LMP0002_0002V', 'LMP0001_0001V'],
+    ['LHH0083_0083H', 'LHH0085_0085V'],
+    ['LMP0004_0004V', 'LMP0003_0003V'],
+    ['LHM0007_0007H', 'LHM0010H'],
+    ['LHM0008_0008H', 'LHM0012_0012H'],
+    ['LME0034_0034V', 'LME0028_0028N'],
+    ['LHH0084_0084H', 'LHH0086_0086V'],
+    ['LHH0048_0048H', 'LHH0054L_0054H'],
+    ['LHH0061_0061H', 'LHH0058_0058H']
 ]
 
 # Non-replicates that had high reproducibility values (> -0.5)
 NON_REP_PROB = [
-    ['LHH0054H', 'LHH0084H'],
-    ['LHH0054H', 'LHH0086V'],
-    ['LHH0054H', 'LHH0086'],
-    ['LHH0054H', 'LHH0084'],
-    ['LHH0048H', 'LHH0084H'],
-    ['LHH0048H', 'LHH0086V'],
-    ['LHH0048H', 'LHH0086'],
-    ['LHH0048H', 'LHH0084'],
-    ['LHH0083H', 'LHH0058H'],
-    ['LHH0083H', 'LHH0061H'],
-    ['LHH0085V', 'LHH0058H'],
-    ['LHH0085V', 'LHH0061H'],
-    ['LHH0058H', 'LHH0083'],
-    ['LHH0058H', 'LHH0085'],
-    ['LHH0061H', 'LHH0085'],
-    ['LHH0086', 'LHH0054L'],
-    ['LHH0084', 'LHH0054L']
+    'LMP0002_0002V', 'LME0033_0033V',
+    'LMP0001_0001V', 'LME0033_0033V',
+    'LMP0003_0003V', 'LME0028_0028N'
 ]
 
 TO_CHECK = REPLICATES + NON_REP_PROB
 
 TO_CHECK_SET = set([sample for pair in TO_CHECK for sample in pair])
-
-
-def test_log_func():
-    log.info('info log')
-    log.warning('warning log')
-    print("normal print statement")
 
 
 def output_to_csv(scores, output_file):
@@ -75,9 +54,8 @@ def output_to_csv(scores, output_file):
 
 
 # Make compare_all == False to save time by not comparing known reproducibility
-def compare(data_dict, compare_func, compare_all=True, **kwargs):
+def compare(data_dict, compare_all=True, **kwargs):
     log.info(f"Comparing {[x for x in data_dict]}\n"
-             f"Function: {compare_func}\n"
              f"Arguments: {kwargs}")
 
     non_replicates = {}
@@ -113,34 +91,28 @@ def compare(data_dict, compare_func, compare_all=True, **kwargs):
 
             is_rep = False
             for rep in REPLICATES:
-                if (rep[0] in key1 or rep[0] in key2) and (rep[1] in key1
-                                                           or rep[1] in key2):
+                if key1 in rep and key2 in rep:
                     is_rep = True
                     break
 
             log.info(f'{key1} vs. {key2}:')
+            rep_dict = data1.compare(data2, **kwargs, is_rep=is_rep)
 
-            rep_dict = compare_func(data1, data2, **kwargs, is_rep=is_rep)
+            # rep_dict = compare_func(data1, data2, **kwargs, is_rep=is_rep)
             main_value = rep_dict['main']
 
             scores[key1][key2] = main_value
             scores[key2][key1] = main_value
 
             # Separate reproducibility values into replicates and non-replicates
-            is_rep = False
-            for rep in REPLICATES:
-                if (rep[0] in key1 or rep[0] in key2) and (rep[1] in key1
-                                                           or rep[1] in key2):
-                    replicates[combined_keys] = rep_dict
-                    is_rep = True
-                    break
-            if not is_rep:
+            if is_rep:
+                replicates[combined_keys] = rep_dict
+            else:
                 non_replicates[combined_keys] = rep_dict
 
             log.info(f'{combined_keys} Reproducibility: {main_value}')
 
     comp_str = f"Compared {[x for x in data_dict]}\n" \
-               f"Function: {compare_func}\n" \
                f"Arguments: {kwargs}"
     log.info(comp_str)
 
@@ -193,22 +165,55 @@ def output_results(rep, non_rep, out_file_path=None):
 
 
 # Only uses loop files with .cis and .BE3 endings
-def read_data(loop_data_dir, chrom_size_file, bedgraph_data_dir, is_hiseq=True,
-              min_loop_value=0, min_bedgraph_value=-1, chrom_to_read=None):
+def read_data(loop_data_dir, chrom_size_file, bedgraph_data_dir, peak_data_dir,
+              min_loop_value=0, min_bedgraph_value=0, chrom_to_load=None):
     if not os.path.isfile(chrom_size_file):
-        log.error(f"{chrom_size_file} is not a valid file")
+        log.error(f"Chrom size file: {chrom_size_file} is not a valid file")
+        return
+
+    if not os.path.isdir(loop_data_dir):
+        log.error(f"Loop dir: {loop_data_dir} is not a valid directory")
+        return
+
+    if not os.path.isdir(bedgraph_data_dir):
+        log.error(f"bedgraph dir: {bedgraph_data_dir} is not a valid directory")
+        return
+
+    if not os.path.isdir(peak_data_dir):
+        log.error(f"Peak dir: {peak_data_dir} is not a valid directory")
         return
 
     loop_info_dict = OrderedDict()
 
     log.info(os.listdir(loop_data_dir))
-    log.info(len(os.listdir(loop_data_dir)))
+    log.info(f'Number of samples: {len(os.listdir(loop_data_dir))}')
     for loop_file_name in os.listdir(loop_data_dir):
         if loop_file_name.endswith('.BE3') or loop_file_name.endswith('.cis'):
             sample_name = loop_file_name.split('.')[0]
-            log.info(f'Reading {sample_name}')
+            log.info(f'Loading {sample_name} ...')
 
             loop_file_path = os.path.join(loop_data_dir, loop_file_name)
+
+            peak_dict = None
+            for peak_file_name in os.listdir(peak_data_dir):
+                if 'peak' not in peak_file_name.lower() or \
+                        sample_name not in peak_file_name:
+                    continue
+
+                is_narrowPeak = False
+                if 'narrowpeak' in peak_file_name.lower():
+                    is_narrowPeak = True
+                elif 'broadpeak' in peak_file_name.lower():
+                    is_narrowPeak = False
+                else:
+                    log.error(f"{peak_file_name} is an unknown peak file")
+                peak_file_path = os.path.join(peak_data_dir, peak_file_name)
+                peak_dict = read_peak_file(peak_file_path, is_narrowPeak)
+                break
+
+            if peak_dict is None:
+                log.error(f"{sample_name} not in {peak_data_dir}. Skipping ...")
+                continue
 
             bedgraph = None
             for bedgraph_file_name in os.listdir(bedgraph_data_dir):
@@ -218,42 +223,27 @@ def read_data(loop_data_dir, chrom_size_file, bedgraph_data_dir, is_hiseq=True,
                                                       bedgraph_file_name)
 
                     bedgraph = BedGraph(chrom_size_file, bedgraph_file_path,
-                                        chrom_wanted=chrom_to_read,
+                                        chrom_wanted=chrom_to_load,
                                         ignore_missing_bp=False,
                                         min_value=min_bedgraph_value)
                     break
 
             if bedgraph is None:
-                log.error(f"{sample_name} not in {bedgraph_data_dir}. Skipping "
-                          f"...")
+                log.error(f"{sample_name}. not in {bedgraph_data_dir}. "
+                          f"Skipping")
                 continue
 
             loop_data = AllLoopData(chrom_size_file, loop_file_path, bedgraph,
-                                    is_hiseq, min_loop_value=min_loop_value,
-                                    wanted_chroms=[chrom_to_read])
+                                    peak_dict, min_loop_value=min_loop_value,
+                                    chrom_to_load=chrom_to_load)
             loop_info_dict[loop_data.sample_name] = loop_data
 
     return loop_info_dict
 
 
-def preprocess(loop_dict, peak_data_dir,
-               peak_percentage_kept=DEFAULT_PEAK_PERCENT, window_size=None):
+def preprocess(loop_dict, num_peaks=DEFAULT_NUM_PEAKS):
     for sample_name in loop_dict:
-        peak_file_path = None
-        for peak_file_name in os.listdir(peak_data_dir):
-            if f'{sample_name}.' in peak_file_name and \
-                    'peak' in peak_file_name.lower():
-                peak_file_path = os.path.join(peak_data_dir, peak_file_name)
-                break
-
-        if peak_file_path is None:
-            log.error(f"Sample name from loop dict |{sample_name}| not "
-                      f"found in peak directory: \n"
-                      f"{os.listdir(peak_data_dir)}")
-            continue
-
-        loop_dict[sample_name].preprocess(peak_file_path,
-                                          peak_percentage_kept, window_size)
+        loop_dict[sample_name].preprocess(num_peaks)
 
 
 def read_bedgraphs(data_directory, chrom_size_file, min_value=-1,
@@ -268,3 +258,33 @@ def read_bedgraphs(data_directory, chrom_size_file, min_value=-1,
             bedgraph_dict[bedgraph.name] = bedgraph
 
     return bedgraph_dict
+
+
+def read_peak_file(peak_file_path, is_narrowPeak):
+    peak_dict = {}
+
+    if is_narrowPeak:
+        value_index = 8
+    else:  # .broadPeak files
+        value_index = 6
+
+    with open(peak_file_path) as peak_file:
+        for line in peak_file:
+            data = line.split()
+            chrom_name = data[0]
+
+            try:
+                peak_start = int(data[1])
+                peak_end = int(data[2])
+                peak_value = float(data[value_index])
+            except ValueError:
+                print("Error:", line)
+                continue
+
+            if chrom_name not in peak_dict:
+                peak_dict[chrom_name] = []
+
+            peak_dict[chrom_name].append([peak_start, peak_end,
+                                          peak_end - peak_start])
+
+    return peak_dict

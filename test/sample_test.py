@@ -1,28 +1,29 @@
+import sys
+sys.path.append('..')
+
 from chia_rep import reproducibility
 from chia_rep import loop_rep
 
-TEST_DATA_DIR = 'chia_rep/test/data'
+TEST_DATA_DIR = 'data'
 BIN_SIZE = 10000  # 10kb
-WINDOW_SIZE = 3000000  # 3mb
+WINDOW_SIZE = 10000000  # 10mb
+NUM_PEAKS = 20
 
 # To see log info statements (optional)
 from logging.config import fileConfig
-fileConfig('chia_rep/test/chia_rep.conf')
+fileConfig('chia_rep.conf')
 
-
-# Since reading in bedgraph file can take a long time, load them first if in an interactive session
-# CAREFUL WHEN READING LARGE BEDGRAPH FILES
-bedgraph_dict = reproducibility.read_bedgraphs(TEST_DATA_DIR, f'{TEST_DATA_DIR}/hg38.chrom.sizes')
 
 loop_dict = reproducibility.read_data(loop_data_dir=TEST_DATA_DIR,
-                                      peak_data_dir=TEST_DATA_DIR,
                                       chrom_size_file=f'{TEST_DATA_DIR}/hg38.chrom.sizes',
-                                      is_hiseq=False,  # Determines if match comparison is made (TODO)
-                                      bedgraph_dict=bedgraph_dict)
+                                      bedgraph_data_dir=TEST_DATA_DIR,
+                                      peak_data_dir=TEST_DATA_DIR)
 
-rep, non_rep, scores = reproducibility.compare(loop_dict, loop_rep.compare,
-                                               bin_size=BIN_SIZE,
+reproducibility.preprocess(loop_dict, num_peaks=NUM_PEAKS)
+
+rep, non_rep, scores = reproducibility.compare(loop_dict, bin_size=BIN_SIZE,
                                                window_size=WINDOW_SIZE)
 
 reproducibility.output_results(rep, non_rep)
+reproducibility.output_to_csv(scores, f'sample_test.csv')
 

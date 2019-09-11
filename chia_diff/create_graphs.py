@@ -285,8 +285,8 @@ def main(loop_dict):
 
 if __name__ == '__main__':
     loop_dict = read_data(HUMAN_DATA_DIR, f'{CHROM_DATA_DIR}/hg38.chrom.sizes',
-                          BEDGRAPH_DATA_DIR, chrom_to_read='chr1')
+                          BEDGRAPH_DATA_DIR, chrom_to_load='chr1')
     loop_dict.update(read_data(MOUSE_DATA_DIR,
                                f'{CHROM_DATA_DIR}/mm10.chrom.sizes',
-                               BEDGRAPH_DATA_DIR, chrom_to_read='chr1'))
+                               BEDGRAPH_DATA_DIR, chrom_to_load='chr1'))
     main(loop_dict)

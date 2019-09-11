@@ -2,6 +2,26 @@ from libc.math cimport fabs
 import numpy as np
 
 def c_emd(double[:] p, double[:] q, unsigned int size):
+    """
+    Calculates Earth Mover's Distance in Cython
+
+    Iterates through array, keeping track of the differences
+
+    Parameters
+    ----------
+    p
+        The row or column of sample1
+    q
+        The matching row or column of sample2
+    size
+        The size of p,q. They should be the same size.
+
+    Returns
+    -------
+    float
+        The EMD
+    """
+
     cdef Py_ssize_t i
 
     cdef double to_move = 0, dist = 0
@@ -26,6 +46,29 @@ def match_graphs(double[:, :] p, double[:, :] q, double[:, :] p1,
 def get_loops(unsigned int window_start, unsigned int window_end,
               unsigned char[:] removed_area, int[:] start_list,
               int[:] end_list, double[:] value_list):
+    """
+    Gets all loops within the window but not in the removed area.
+
+    Iterates through every filtered loop
+
+    Parameters
+    ----------
+    window_start
+    window_end
+    removed_area
+        Same size of chromosome
+    start_list
+        Numpy array of anchor starts for loops
+    end_list
+        Numpy array of anchor ends for loops
+    value_list
+        Numpy array of loop values
+
+    Returns
+    -------
+    Numpy 1D array
+        Array of indexes that contains wanted loops from filtered_loops
+    """
 
     assert end_list.size == value_list.size == start_list.size
     cdef Py_ssize_t numb_values = end_list.size, counter = 0, i, start, end

@@ -6,12 +6,16 @@ log = logging.getLogger()
 
 
 def compare(loop_1, loop_2, bin_size, window_size, window_index=None,
-            wanted_chroms=None, is_rep=False):
+            wanted_chroms=None, is_rep=False, num_peaks=None):
 
-    result = loop_1.compare(loop_2, bin_size, window_size, window_index,
-                            wanted_chroms, is_rep=is_rep)
+    result = loop_1.compare(loop_2, bin_size, window_size, window_index=window_index,
+                            chroms_to_compare=wanted_chroms, is_rep=is_rep,
+                            num_peaks=num_peaks)
 
-    result['main'] = result['w_rep']
+    if 'w_rep' in result:
+        result['main'] = result['w_rep']
+    else:
+        result['main'] = result['rep']
 
     '''plt.close()
     plt.hist(j_values, bins=20)

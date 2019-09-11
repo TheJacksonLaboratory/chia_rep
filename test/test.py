@@ -14,16 +14,15 @@ from chia_rep import chrom_loop_data
 from chia_rep import reproducibility
 from chia_rep import loop_rep
 
+MOUSE_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/prob_mouse'
 MOUSE_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/mouse'
 PEAK_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/peaks'
 MY_PEAK_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/my_peaks'
 MY_FULL_PEAK_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/my_full_peaks'
+HUMAN_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/prob_human'
 HUMAN_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/human'
 BEDGRAPH_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/bedgraphs'
 CHROM_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/chrom_sizes'
-DATA_DIR = 'data'
-BIN_SIZE = 10000  # 10kb
-WINDOW_SIZE = 3000000  # 3mb
 
 LOG_MAIN_FORMAT = '%(levelname)s - %(asctime)s - %(name)s:%(filename)s:%(lineno)d - %(message)s'
 LOG_BIN_FORMAT = '%(asctime)s - %(filename)s:%(lineno)d\n%(message)s'
@@ -41,11 +40,13 @@ bin_formatter = logging.Formatter(LOG_BIN_FORMAT, datefmt=LOG_TIME_FORMAT)
 
 loop_dict = reproducibility.read_data(loop_data_dir=HUMAN_DATA_DIR,
                                       chrom_size_file=f'{CHROM_DATA_DIR}/hg38.chrom.sizes',
-                                      bedgraph_data_dir=BEDGRAPH_DATA_DIR)
+                                      bedgraph_data_dir=BEDGRAPH_DATA_DIR,
+                                      peak_data_dir=PEAK_DATA_DIR)
 
 loop_dict.update(reproducibility.read_data(loop_data_dir=MOUSE_DATA_DIR,
                                            chrom_size_file=f'{CHROM_DATA_DIR}/mm10.chrom.sizes',
-                                           bedgraph_data_dir=BEDGRAPH_DATA_DIR))
+                                           bedgraph_data_dir=BEDGRAPH_DATA_DIR,
+                                           peak_data_dir=PEAK_DATA_DIR))
 
 '''loop_dict = reproducibility.read_data(loop_data_dir=HUMAN_DATA_DIR,
                                       chrom_size_file=f'{CHROM_DATA_DIR}/hg38.chrom.sizes',
@@ -61,44 +62,49 @@ loop_dict.update(reproducibility.read_data(loop_data_dir=MOUSE_DATA_DIR,
                                       chrom_size_file=f'{DATA_DIR}/hg38.chrom.sizes',
                                       is_hiseq=False,  # Determines if match comparison is made (TODO)
                                       bedgraph_data_dir=DATA_DIR)'''
+asdf.exit()
 
-for i in [1, 5, 10]:  # bin size
+'''for name in loop_dict:
+    for chrom in loop_dict[name].peak_dict:
+        peaks = []
+        chrom_peak_dict = loop_dict[name].peak_dict[chrom]
+        for x in range(chrom_peak_dict['num']):
+            peaks.append([chrom_peak_dict['start_list'][x],
+                          chrom_peak_dict['end_list'][x],
+                          chrom_peak_dict['peak_len'][x],
+                          chrom_peak_dict['value_list'][x]])
+        loop_dict[name].peak_dict[chrom] = peaks'''
+
+parent_dir = 'all_complete'
+parent_dir = 'small_complete'
+for i in [40, 50]:  # bin size
 # for i in [1]:
     i *= 1000
-    for j in [3, 5, 7, 10]:  # window size:
+    for j in [10]:  # window size:
     # for j in [3]:
         j *= 1000000
-        for k in [0.05]:  # Peak percentage kept
+        for k in [20, 30, 40]:  # Peaks kept
 
-            temp_str = f'both_peak_weight.100emd_half_spread.{k * 100}.{i}.{j}'
-            main_handler = logging.FileHandler(f'tmp/main.{temp_str}.log', mode='w')
+            temp_str = f'both_peak_weight.emd.half.max_loop_len.{k}peaks.{i}.{j}'
+            main_handler = logging.FileHandler(f'{parent_dir}/tmp/main.{temp_str}.log', mode='w')
             main_handler.setFormatter(main_formatter)
             main_handler.setLevel(logging.DEBUG)
-
-            bin_handler = logging.FileHandler(f'tmp/bin.{temp_str}.log', mode='w')
-            bin_handler.setFormatter(bin_formatter)
-            bin_handler.setLevel(logging.DEBUG)
 
             stream_handler = logging.StreamHandler(sys.stdout)
             stream_handler.setFormatter(main_formatter)
             stream_handler.setLevel(logging.INFO)
 
             log = logging.getLogger()
-            log_bin = logging.getLogger('bin')
             log_all = logging.getLogger('all')
 
             log.handlers = [main_handler, stream_handler]
-            log_all.handlers = [main_handler, bin_handler]
-            log_bin.handlers = [bin_handler]
+            log_all.handlers = [main_handler]
 
             l = deepcopy(loop_dict)
-            reproducibility.preprocess(l, MY_FULL_PEAK_DATA_DIR,
-                                       peak_percentage_kept=k,
-                                       window_size=None)
+            reproducibility.preprocess(l, num_peaks=k)
 
-            rep, non_rep, scores = reproducibility.compare(l, loop_rep.compare,
-                                                           bin_size=i,
+            rep, non_rep, scores = reproducibility.compare(l, bin_size=i,
                                                            window_size=j)
             # reproducibility.output_results(rep, non_rep)
-            reproducibility.output_results(rep, non_rep, f'results/info/{temp_str}.txt')
-            reproducibility.output_to_csv(scores, f'results/{temp_str}.csv')
+            reproducibility.output_results(rep, non_rep, f'{parent_dir}/results/info/{temp_str}.txt')
+            reproducibility.output_to_csv(scores, f'{parent_dir}/results/{temp_str}.csv')

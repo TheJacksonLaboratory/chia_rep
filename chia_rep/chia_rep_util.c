@@ -4,12 +4,12 @@
 {
     "distutils": {
         "depends": [],
-        "name": "chia_rep_util",
+        "name": "chia_rep.chia_rep_util",
         "sources": [
-            "chia_rep_util.pyx"
+            "chia_rep/chia_rep_util.pyx"
         ]
     },
-    "module_name": "chia_rep_util"
+    "module_name": "chia_rep.chia_rep_util"
 }
 END: Cython Metadata */
 
@@ -603,8 +603,8 @@ static CYTHON_INLINE float __PYX_NAN() {
   #endif
 #endif
 
-#define __PYX_HAVE__chia_rep_util
-#define __PYX_HAVE_API__chia_rep_util
+#define __PYX_HAVE__chia_rep__chia_rep_util
+#define __PYX_HAVE_API__chia_rep__chia_rep_util
 /* Early includes */
 #include <math.h>
 #include "pythread.h"
@@ -820,7 +820,7 @@ static const char *__pyx_filename;
 
 
 static const char *__pyx_f[] = {
-  "chia_rep_util.pyx",
+  "chia_rep/chia_rep_util.pyx",
   "stringsource",
 };
 /* MemviewSliceStruct.proto */
@@ -1721,7 +1721,7 @@ static PyObject *__pyx_memoryviewslice_assign_item_from_object(struct __pyx_memo
 
 /* Module declarations from 'libc.math' */
 
-/* Module declarations from 'chia_rep_util' */
+/* Module declarations from 'chia_rep.chia_rep_util' */
 static PyTypeObject *__pyx_array_type = 0;
 static PyTypeObject *__pyx_MemviewEnum_type = 0;
 static PyTypeObject *__pyx_memoryview_type = 0;
@@ -1770,11 +1770,11 @@ static __Pyx_TypeInfo __Pyx_TypeInfo_double = { "double", NULL, sizeof(double), 
 static __Pyx_TypeInfo __Pyx_TypeInfo_unsigned_char = { "unsigned char", NULL, sizeof(unsigned char), { 0 }, 0, IS_UNSIGNED(unsigned char) ? 'U' : 'I', IS_UNSIGNED(unsigned char), 0 };
 static __Pyx_TypeInfo __Pyx_TypeInfo_int = { "int", NULL, sizeof(int), { 0 }, 0, IS_UNSIGNED(int) ? 'U' : 'I', IS_UNSIGNED(int), 0 };
 static __Pyx_TypeInfo __Pyx_TypeInfo_unsigned_int = { "unsigned int", NULL, sizeof(unsigned int), { 0 }, 0, IS_UNSIGNED(unsigned int) ? 'U' : 'I', IS_UNSIGNED(unsigned int), 0 };
-#define __Pyx_MODULE_NAME "chia_rep_util"
-extern int __pyx_module_is_main_chia_rep_util;
-int __pyx_module_is_main_chia_rep_util = 0;
+#define __Pyx_MODULE_NAME "chia_rep.chia_rep_util"
+extern int __pyx_module_is_main_chia_rep__chia_rep_util;
+int __pyx_module_is_main_chia_rep__chia_rep_util = 0;
 
-/* Implementation of 'chia_rep_util' */
+/* Implementation of 'chia_rep.chia_rep_util' */
 static PyObject *__pyx_builtin_range;
 static PyObject *__pyx_builtin_ValueError;
 static PyObject *__pyx_builtin_MemoryError;
@@ -1864,7 +1864,6 @@ static const char __pyx_k_pyx_checksum[] = "__pyx_checksum";
 static const char __pyx_k_removed_area[] = "removed_area";
 static const char __pyx_k_stringsource[] = "stringsource";
 static const char __pyx_k_window_start[] = "window_start";
-static const char __pyx_k_chia_rep_util[] = "chia_rep_util";
 static const char __pyx_k_pyx_getbuffer[] = "__pyx_getbuffer";
 static const char __pyx_k_reduce_cython[] = "__reduce_cython__";
 static const char __pyx_k_complete_graph[] = "complete_graph";
@@ -1873,17 +1872,18 @@ static const char __pyx_k_allocate_buffer[] = "allocate_buffer";
 static const char __pyx_k_dtype_is_object[] = "dtype_is_object";
 static const char __pyx_k_pyx_PickleError[] = "__pyx_PickleError";
 static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
-static const char __pyx_k_chia_rep_util_pyx[] = "chia_rep_util.pyx";
 static const char __pyx_k_pyx_unpickle_Enum[] = "__pyx_unpickle_Enum";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_strided_and_direct[] = "<strided and direct>";
 static const char __pyx_k_strided_and_indirect[] = "<strided and indirect>";
 static const char __pyx_k_contiguous_and_direct[] = "<contiguous and direct>";
 static const char __pyx_k_MemoryView_of_r_object[] = "<MemoryView of %r object>";
+static const char __pyx_k_chia_rep_chia_rep_util[] = "chia_rep.chia_rep_util";
 static const char __pyx_k_MemoryView_of_r_at_0x_x[] = "<MemoryView of %r at 0x%x>";
 static const char __pyx_k_contiguous_and_indirect[] = "<contiguous and indirect>";
 static const char __pyx_k_Cannot_index_with_type_s[] = "Cannot index with type '%s'";
 static const char __pyx_k_Invalid_shape_in_axis_d_d[] = "Invalid shape in axis %d: %d.";
+static const char __pyx_k_chia_rep_chia_rep_util_pyx[] = "chia_rep/chia_rep_util.pyx";
 static const char __pyx_k_itemsize_0_for_cython_array[] = "itemsize <= 0 for cython.array";
 static const char __pyx_k_unable_to_allocate_array_data[] = "unable to allocate array data.";
 static const char __pyx_k_strided_and_direct_or_indirect[] = "<strided and direct or indirect>";
@@ -1928,8 +1928,8 @@ static PyObject *__pyx_n_s_base;
 static PyObject *__pyx_n_s_c;
 static PyObject *__pyx_n_u_c;
 static PyObject *__pyx_n_s_c_emd;
-static PyObject *__pyx_n_s_chia_rep_util;
-static PyObject *__pyx_kp_s_chia_rep_util_pyx;
+static PyObject *__pyx_n_s_chia_rep_chia_rep_util;
+static PyObject *__pyx_kp_s_chia_rep_chia_rep_util_pyx;
 static PyObject *__pyx_n_s_class;
 static PyObject *__pyx_n_s_cline_in_traceback;
 static PyObject *__pyx_n_s_complete_graph;
@@ -2019,10 +2019,10 @@ static PyObject *__pyx_n_s_value;
 static PyObject *__pyx_n_s_value_list;
 static PyObject *__pyx_n_s_window_end;
 static PyObject *__pyx_n_s_window_start;
-static PyObject *__pyx_pf_13chia_rep_util_c_emd(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_p, __Pyx_memviewslice __pyx_v_q, unsigned int __pyx_v_size); /* proto */
-static PyObject *__pyx_pf_13chia_rep_util_2match_graphs(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_p, __Pyx_memviewslice __pyx_v_q, __Pyx_memviewslice __pyx_v_p1, __Pyx_memviewslice __pyx_v_q1, unsigned int __pyx_v_size); /* proto */
-static PyObject *__pyx_pf_13chia_rep_util_4get_loops(CYTHON_UNUSED PyObject *__pyx_self, unsigned int __pyx_v_window_start, unsigned int __pyx_v_window_end, __Pyx_memviewslice __pyx_v_removed_area, __Pyx_memviewslice __pyx_v_start_list, __Pyx_memviewslice __pyx_v_end_list, __Pyx_memviewslice __pyx_v_value_list); /* proto */
-static PyObject *__pyx_pf_13chia_rep_util_6complete_graph(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_graph, int __pyx_v_graph_size); /* proto */
+static PyObject *__pyx_pf_8chia_rep_13chia_rep_util_c_emd(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_p, __Pyx_memviewslice __pyx_v_q, unsigned int __pyx_v_size); /* proto */
+static PyObject *__pyx_pf_8chia_rep_13chia_rep_util_2match_graphs(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_p, __Pyx_memviewslice __pyx_v_q, __Pyx_memviewslice __pyx_v_p1, __Pyx_memviewslice __pyx_v_q1, unsigned int __pyx_v_size); /* proto */
+static PyObject *__pyx_pf_8chia_rep_13chia_rep_util_4get_loops(CYTHON_UNUSED PyObject *__pyx_self, unsigned int __pyx_v_window_start, unsigned int __pyx_v_window_end, __Pyx_memviewslice __pyx_v_removed_area, __Pyx_memviewslice __pyx_v_start_list, __Pyx_memviewslice __pyx_v_end_list, __Pyx_memviewslice __pyx_v_value_list); /* proto */
+static PyObject *__pyx_pf_8chia_rep_13chia_rep_util_6complete_graph(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_graph, int __pyx_v_graph_size); /* proto */
 static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __pyx_array_obj *__pyx_v_self, PyObject *__pyx_v_shape, Py_ssize_t __pyx_v_itemsize, PyObject *__pyx_v_format, PyObject *__pyx_v_mode, int __pyx_v_allocate_buffer); /* proto */
 static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array_2__getbuffer__(struct __pyx_array_obj *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_array___pyx_pf_15View_dot_MemoryView_5array_4__dealloc__(struct __pyx_array_obj *__pyx_v_self); /* proto */
@@ -2108,18 +2108,19 @@ static PyObject *__pyx_codeobj__26;
 static PyObject *__pyx_codeobj__33;
 /* Late includes */
 
-/* "chia_rep_util.pyx":4
+/* "chia_rep/chia_rep_util.pyx":4
  * import numpy as np
  * 
  * def c_emd(double[:] p, double[:] q, unsigned int size):             # <<<<<<<<<<<<<<
- *     cdef Py_ssize_t i
- * 
+ *     """
+ *     Calculates Earth Mover's Distance in Cython
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_13chia_rep_util_1c_emd(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_13chia_rep_util_1c_emd = {"c_emd", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_13chia_rep_util_1c_emd, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_13chia_rep_util_1c_emd(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_8chia_rep_13chia_rep_util_1c_emd(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_8chia_rep_13chia_rep_util_c_emd[] = "\n    Calculates Earth Mover's Distance in Cython\n\n    Iterates through array, keeping track of the differences\n\n    Parameters\n    ----------\n    p\n        The row or column of sample1\n    q\n        The matching row or column of sample2\n    size\n        The size of p,q. They should be the same size.\n\n    Returns\n    -------\n    float\n        The EMD\n    ";
+static PyMethodDef __pyx_mdef_8chia_rep_13chia_rep_util_1c_emd = {"c_emd", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_8chia_rep_13chia_rep_util_1c_emd, METH_VARARGS|METH_KEYWORDS, __pyx_doc_8chia_rep_13chia_rep_util_c_emd};
+static PyObject *__pyx_pw_8chia_rep_13chia_rep_util_1c_emd(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   __Pyx_memviewslice __pyx_v_p = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_v_q = { 0, 0, { 0 }, { 0 }, { 0 } };
   unsigned int __pyx_v_size;
@@ -2178,18 +2179,18 @@ static PyObject *__pyx_pw_13chia_rep_util_1c_emd(PyObject *__pyx_self, PyObject 
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("c_emd", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 4, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("chia_rep_util.c_emd", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("chia_rep.chia_rep_util.c_emd", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_13chia_rep_util_c_emd(__pyx_self, __pyx_v_p, __pyx_v_q, __pyx_v_size);
+  __pyx_r = __pyx_pf_8chia_rep_13chia_rep_util_c_emd(__pyx_self, __pyx_v_p, __pyx_v_q, __pyx_v_size);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_13chia_rep_util_c_emd(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_p, __Pyx_memviewslice __pyx_v_q, unsigned int __pyx_v_size) {
+static PyObject *__pyx_pf_8chia_rep_13chia_rep_util_c_emd(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_p, __Pyx_memviewslice __pyx_v_q, unsigned int __pyx_v_size) {
   Py_ssize_t __pyx_v_i;
   double __pyx_v_to_move;
   double __pyx_v_dist;
@@ -2204,7 +2205,7 @@ static PyObject *__pyx_pf_13chia_rep_util_c_emd(CYTHON_UNUSED PyObject *__pyx_se
   PyObject *__pyx_t_7 = NULL;
   __Pyx_RefNannySetupContext("c_emd", 0);
 
-  /* "chia_rep_util.pyx":7
+  /* "chia_rep/chia_rep_util.pyx":27
  *     cdef Py_ssize_t i
  * 
  *     cdef double to_move = 0, dist = 0             # <<<<<<<<<<<<<<
@@ -2214,7 +2215,7 @@ static PyObject *__pyx_pf_13chia_rep_util_c_emd(CYTHON_UNUSED PyObject *__pyx_se
   __pyx_v_to_move = 0.0;
   __pyx_v_dist = 0.0;
 
-  /* "chia_rep_util.pyx":8
+  /* "chia_rep/chia_rep_util.pyx":28
  * 
  *     cdef double to_move = 0, dist = 0
  *     for i in range(size):             # <<<<<<<<<<<<<<
@@ -2226,7 +2227,7 @@ static PyObject *__pyx_pf_13chia_rep_util_c_emd(CYTHON_UNUSED PyObject *__pyx_se
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "chia_rep_util.pyx":9
+    /* "chia_rep/chia_rep_util.pyx":29
  *     cdef double to_move = 0, dist = 0
  *     for i in range(size):
  *         to_move += p[i] - q[i]             # <<<<<<<<<<<<<<
@@ -2241,7 +2242,7 @@ static PyObject *__pyx_pf_13chia_rep_util_c_emd(CYTHON_UNUSED PyObject *__pyx_se
     } else if (unlikely(__pyx_t_4 >= __pyx_v_p.shape[0])) __pyx_t_5 = 0;
     if (unlikely(__pyx_t_5 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_5);
-      __PYX_ERR(0, 9, __pyx_L1_error)
+      __PYX_ERR(0, 29, __pyx_L1_error)
     }
     __pyx_t_6 = __pyx_v_i;
     __pyx_t_5 = -1;
@@ -2251,11 +2252,11 @@ static PyObject *__pyx_pf_13chia_rep_util_c_emd(CYTHON_UNUSED PyObject *__pyx_se
     } else if (unlikely(__pyx_t_6 >= __pyx_v_q.shape[0])) __pyx_t_5 = 0;
     if (unlikely(__pyx_t_5 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_5);
-      __PYX_ERR(0, 9, __pyx_L1_error)
+      __PYX_ERR(0, 29, __pyx_L1_error)
     }
     __pyx_v_to_move = (__pyx_v_to_move + ((*((double *) ( /* dim=0 */ (__pyx_v_p.data + __pyx_t_4 * __pyx_v_p.strides[0]) ))) - (*((double *) ( /* dim=0 */ (__pyx_v_q.data + __pyx_t_6 * __pyx_v_q.strides[0]) )))));
 
-    /* "chia_rep_util.pyx":10
+    /* "chia_rep/chia_rep_util.pyx":30
  *     for i in range(size):
  *         to_move += p[i] - q[i]
  *         dist += fabs(to_move)             # <<<<<<<<<<<<<<
@@ -2265,7 +2266,7 @@ static PyObject *__pyx_pf_13chia_rep_util_c_emd(CYTHON_UNUSED PyObject *__pyx_se
     __pyx_v_dist = (__pyx_v_dist + fabs(__pyx_v_to_move));
   }
 
-  /* "chia_rep_util.pyx":12
+  /* "chia_rep/chia_rep_util.pyx":32
  *         dist += fabs(to_move)
  * 
  *     return dist             # <<<<<<<<<<<<<<
@@ -2273,24 +2274,24 @@ static PyObject *__pyx_pf_13chia_rep_util_c_emd(CYTHON_UNUSED PyObject *__pyx_se
  * def match_graphs(double[:, :] p, double[:, :] q, double[:, :] p1,
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_7 = PyFloat_FromDouble(__pyx_v_dist); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 12, __pyx_L1_error)
+  __pyx_t_7 = PyFloat_FromDouble(__pyx_v_dist); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 32, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __pyx_r = __pyx_t_7;
   __pyx_t_7 = 0;
   goto __pyx_L0;
 
-  /* "chia_rep_util.pyx":4
+  /* "chia_rep/chia_rep_util.pyx":4
  * import numpy as np
  * 
  * def c_emd(double[:] p, double[:] q, unsigned int size):             # <<<<<<<<<<<<<<
- *     cdef Py_ssize_t i
- * 
+ *     """
+ *     Calculates Earth Mover's Distance in Cython
  */
 
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_7);
-  __Pyx_AddTraceback("chia_rep_util.c_emd", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("chia_rep.chia_rep_util.c_emd", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&__pyx_v_p, 1);
@@ -2300,7 +2301,7 @@ static PyObject *__pyx_pf_13chia_rep_util_c_emd(CYTHON_UNUSED PyObject *__pyx_se
   return __pyx_r;
 }
 
-/* "chia_rep_util.pyx":14
+/* "chia_rep/chia_rep_util.pyx":34
  *     return dist
  * 
  * def match_graphs(double[:, :] p, double[:, :] q, double[:, :] p1,             # <<<<<<<<<<<<<<
@@ -2309,9 +2310,9 @@ static PyObject *__pyx_pf_13chia_rep_util_c_emd(CYTHON_UNUSED PyObject *__pyx_se
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_13chia_rep_util_3match_graphs(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_13chia_rep_util_3match_graphs = {"match_graphs", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_13chia_rep_util_3match_graphs, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_13chia_rep_util_3match_graphs(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_8chia_rep_13chia_rep_util_3match_graphs(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_8chia_rep_13chia_rep_util_3match_graphs = {"match_graphs", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_8chia_rep_13chia_rep_util_3match_graphs, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_8chia_rep_13chia_rep_util_3match_graphs(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   __Pyx_memviewslice __pyx_v_p = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_v_q = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_v_p1 = { 0, 0, { 0 }, { 0 }, { 0 } };
@@ -2349,29 +2350,29 @@ static PyObject *__pyx_pw_13chia_rep_util_3match_graphs(PyObject *__pyx_self, Py
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_q)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("match_graphs", 1, 5, 5, 1); __PYX_ERR(0, 14, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("match_graphs", 1, 5, 5, 1); __PYX_ERR(0, 34, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_p1)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("match_graphs", 1, 5, 5, 2); __PYX_ERR(0, 14, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("match_graphs", 1, 5, 5, 2); __PYX_ERR(0, 34, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_q1)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("match_graphs", 1, 5, 5, 3); __PYX_ERR(0, 14, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("match_graphs", 1, 5, 5, 3); __PYX_ERR(0, 34, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  4:
         if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_size)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("match_graphs", 1, 5, 5, 4); __PYX_ERR(0, 14, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("match_graphs", 1, 5, 5, 4); __PYX_ERR(0, 34, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "match_graphs") < 0)) __PYX_ERR(0, 14, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "match_graphs") < 0)) __PYX_ERR(0, 34, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 5) {
       goto __pyx_L5_argtuple_error;
@@ -2382,28 +2383,28 @@ static PyObject *__pyx_pw_13chia_rep_util_3match_graphs(PyObject *__pyx_self, Py
       values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
       values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
     }
-    __pyx_v_p = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_p.memview)) __PYX_ERR(0, 14, __pyx_L3_error)
-    __pyx_v_q = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_q.memview)) __PYX_ERR(0, 14, __pyx_L3_error)
-    __pyx_v_p1 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(values[2], PyBUF_WRITABLE); if (unlikely(!__pyx_v_p1.memview)) __PYX_ERR(0, 14, __pyx_L3_error)
-    __pyx_v_q1 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(values[3], PyBUF_WRITABLE); if (unlikely(!__pyx_v_q1.memview)) __PYX_ERR(0, 15, __pyx_L3_error)
-    __pyx_v_size = __Pyx_PyInt_As_unsigned_int(values[4]); if (unlikely((__pyx_v_size == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 15, __pyx_L3_error)
+    __pyx_v_p = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_p.memview)) __PYX_ERR(0, 34, __pyx_L3_error)
+    __pyx_v_q = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_q.memview)) __PYX_ERR(0, 34, __pyx_L3_error)
+    __pyx_v_p1 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(values[2], PyBUF_WRITABLE); if (unlikely(!__pyx_v_p1.memview)) __PYX_ERR(0, 34, __pyx_L3_error)
+    __pyx_v_q1 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(values[3], PyBUF_WRITABLE); if (unlikely(!__pyx_v_q1.memview)) __PYX_ERR(0, 35, __pyx_L3_error)
+    __pyx_v_size = __Pyx_PyInt_As_unsigned_int(values[4]); if (unlikely((__pyx_v_size == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 35, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("match_graphs", 1, 5, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 14, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("match_graphs", 1, 5, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 34, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("chia_rep_util.match_graphs", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("chia_rep.chia_rep_util.match_graphs", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_13chia_rep_util_2match_graphs(__pyx_self, __pyx_v_p, __pyx_v_q, __pyx_v_p1, __pyx_v_q1, __pyx_v_size);
+  __pyx_r = __pyx_pf_8chia_rep_13chia_rep_util_2match_graphs(__pyx_self, __pyx_v_p, __pyx_v_q, __pyx_v_p1, __pyx_v_q1, __pyx_v_size);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_13chia_rep_util_2match_graphs(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_p, __Pyx_memviewslice __pyx_v_q, __Pyx_memviewslice __pyx_v_p1, __Pyx_memviewslice __pyx_v_q1, unsigned int __pyx_v_size) {
+static PyObject *__pyx_pf_8chia_rep_13chia_rep_util_2match_graphs(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_p, __Pyx_memviewslice __pyx_v_q, __Pyx_memviewslice __pyx_v_p1, __Pyx_memviewslice __pyx_v_q1, unsigned int __pyx_v_size) {
   Py_ssize_t __pyx_v_i;
   Py_ssize_t __pyx_v_j;
   PyObject *__pyx_r = NULL;
@@ -2426,7 +2427,7 @@ static PyObject *__pyx_pf_13chia_rep_util_2match_graphs(CYTHON_UNUSED PyObject *
   Py_ssize_t __pyx_t_16;
   __Pyx_RefNannySetupContext("match_graphs", 0);
 
-  /* "chia_rep_util.pyx":18
+  /* "chia_rep/chia_rep_util.pyx":38
  *     cdef Py_ssize_t i, j
  * 
  *     for i in range(size):             # <<<<<<<<<<<<<<
@@ -2438,7 +2439,7 @@ static PyObject *__pyx_pf_13chia_rep_util_2match_graphs(CYTHON_UNUSED PyObject *
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "chia_rep_util.pyx":19
+    /* "chia_rep/chia_rep_util.pyx":39
  * 
  *     for i in range(size):
  *         for j in range(size):             # <<<<<<<<<<<<<<
@@ -2450,7 +2451,7 @@ static PyObject *__pyx_pf_13chia_rep_util_2match_graphs(CYTHON_UNUSED PyObject *
     for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
       __pyx_v_j = __pyx_t_6;
 
-      /* "chia_rep_util.pyx":20
+      /* "chia_rep/chia_rep_util.pyx":40
  *     for i in range(size):
  *         for j in range(size):
  *             if p[i][j] == 0:             # <<<<<<<<<<<<<<
@@ -2470,12 +2471,12 @@ static PyObject *__pyx_pf_13chia_rep_util_2match_graphs(CYTHON_UNUSED PyObject *
       } else if (unlikely(__pyx_t_8 >= __pyx_v_p.shape[1])) __pyx_t_9 = 1;
       if (unlikely(__pyx_t_9 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_9);
-        __PYX_ERR(0, 20, __pyx_L1_error)
+        __PYX_ERR(0, 40, __pyx_L1_error)
       }
       __pyx_t_10 = (((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p.data + __pyx_t_7 * __pyx_v_p.strides[0]) ) + __pyx_t_8 * __pyx_v_p.strides[1]) ))) == 0.0) != 0);
       if (__pyx_t_10) {
 
-        /* "chia_rep_util.pyx":21
+        /* "chia_rep/chia_rep_util.pyx":41
  *         for j in range(size):
  *             if p[i][j] == 0:
  *                 q1[i][j] = 0             # <<<<<<<<<<<<<<
@@ -2495,11 +2496,11 @@ static PyObject *__pyx_pf_13chia_rep_util_2match_graphs(CYTHON_UNUSED PyObject *
         } else if (unlikely(__pyx_t_12 >= __pyx_v_q1.shape[1])) __pyx_t_9 = 1;
         if (unlikely(__pyx_t_9 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_9);
-          __PYX_ERR(0, 21, __pyx_L1_error)
+          __PYX_ERR(0, 41, __pyx_L1_error)
         }
         *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_q1.data + __pyx_t_11 * __pyx_v_q1.strides[0]) ) + __pyx_t_12 * __pyx_v_q1.strides[1]) )) = 0.0;
 
-        /* "chia_rep_util.pyx":20
+        /* "chia_rep/chia_rep_util.pyx":40
  *     for i in range(size):
  *         for j in range(size):
  *             if p[i][j] == 0:             # <<<<<<<<<<<<<<
@@ -2508,7 +2509,7 @@ static PyObject *__pyx_pf_13chia_rep_util_2match_graphs(CYTHON_UNUSED PyObject *
  */
       }
 
-      /* "chia_rep_util.pyx":23
+      /* "chia_rep/chia_rep_util.pyx":43
  *                 q1[i][j] = 0
  * 
  *             if q[i][j] == 0:             # <<<<<<<<<<<<<<
@@ -2528,12 +2529,12 @@ static PyObject *__pyx_pf_13chia_rep_util_2match_graphs(CYTHON_UNUSED PyObject *
       } else if (unlikely(__pyx_t_14 >= __pyx_v_q.shape[1])) __pyx_t_9 = 1;
       if (unlikely(__pyx_t_9 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_9);
-        __PYX_ERR(0, 23, __pyx_L1_error)
+        __PYX_ERR(0, 43, __pyx_L1_error)
       }
       __pyx_t_10 = (((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_q.data + __pyx_t_13 * __pyx_v_q.strides[0]) ) + __pyx_t_14 * __pyx_v_q.strides[1]) ))) == 0.0) != 0);
       if (__pyx_t_10) {
 
-        /* "chia_rep_util.pyx":24
+        /* "chia_rep/chia_rep_util.pyx":44
  * 
  *             if q[i][j] == 0:
  *                 p1[i][j] = 0             # <<<<<<<<<<<<<<
@@ -2553,11 +2554,11 @@ static PyObject *__pyx_pf_13chia_rep_util_2match_graphs(CYTHON_UNUSED PyObject *
         } else if (unlikely(__pyx_t_16 >= __pyx_v_p1.shape[1])) __pyx_t_9 = 1;
         if (unlikely(__pyx_t_9 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_9);
-          __PYX_ERR(0, 24, __pyx_L1_error)
+          __PYX_ERR(0, 44, __pyx_L1_error)
         }
         *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p1.data + __pyx_t_15 * __pyx_v_p1.strides[0]) ) + __pyx_t_16 * __pyx_v_p1.strides[1]) )) = 0.0;
 
-        /* "chia_rep_util.pyx":23
+        /* "chia_rep/chia_rep_util.pyx":43
  *                 q1[i][j] = 0
  * 
  *             if q[i][j] == 0:             # <<<<<<<<<<<<<<
@@ -2568,7 +2569,7 @@ static PyObject *__pyx_pf_13chia_rep_util_2match_graphs(CYTHON_UNUSED PyObject *
     }
   }
 
-  /* "chia_rep_util.pyx":14
+  /* "chia_rep/chia_rep_util.pyx":34
  *     return dist
  * 
  * def match_graphs(double[:, :] p, double[:, :] q, double[:, :] p1,             # <<<<<<<<<<<<<<
@@ -2580,7 +2581,7 @@ static PyObject *__pyx_pf_13chia_rep_util_2match_graphs(CYTHON_UNUSED PyObject *
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_AddTraceback("chia_rep_util.match_graphs", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("chia_rep.chia_rep_util.match_graphs", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&__pyx_v_p, 1);
@@ -2592,7 +2593,7 @@ static PyObject *__pyx_pf_13chia_rep_util_2match_graphs(CYTHON_UNUSED PyObject *
   return __pyx_r;
 }
 
-/* "chia_rep_util.pyx":26
+/* "chia_rep/chia_rep_util.pyx":46
  *                 p1[i][j] = 0
  * 
  * def get_loops(unsigned int window_start, unsigned int window_end,             # <<<<<<<<<<<<<<
@@ -2601,9 +2602,10 @@ static PyObject *__pyx_pf_13chia_rep_util_2match_graphs(CYTHON_UNUSED PyObject *
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_13chia_rep_util_5get_loops(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_13chia_rep_util_5get_loops = {"get_loops", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_13chia_rep_util_5get_loops, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_13chia_rep_util_5get_loops(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_8chia_rep_13chia_rep_util_5get_loops(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_8chia_rep_13chia_rep_util_4get_loops[] = "\n    Gets all loops within the window but not in the removed area.\n\n    Iterates through every filtered loop\n\n    Parameters\n    ----------\n    window_start\n    window_end\n    removed_area\n        Same size of chromosome\n    start_list\n        Numpy array of anchor starts for loops\n    end_list\n        Numpy array of anchor ends for loops\n    value_list\n        Numpy array of loop values\n\n    Returns\n    -------\n    Numpy 1D array\n        Array of indexes that contains wanted loops from filtered_loops\n    ";
+static PyMethodDef __pyx_mdef_8chia_rep_13chia_rep_util_5get_loops = {"get_loops", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_8chia_rep_13chia_rep_util_5get_loops, METH_VARARGS|METH_KEYWORDS, __pyx_doc_8chia_rep_13chia_rep_util_4get_loops};
+static PyObject *__pyx_pw_8chia_rep_13chia_rep_util_5get_loops(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   unsigned int __pyx_v_window_start;
   unsigned int __pyx_v_window_end;
   __Pyx_memviewslice __pyx_v_removed_area = { 0, 0, { 0 }, { 0 }, { 0 } };
@@ -2644,35 +2646,35 @@ static PyObject *__pyx_pw_13chia_rep_util_5get_loops(PyObject *__pyx_self, PyObj
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_window_end)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("get_loops", 1, 6, 6, 1); __PYX_ERR(0, 26, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("get_loops", 1, 6, 6, 1); __PYX_ERR(0, 46, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_removed_area)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("get_loops", 1, 6, 6, 2); __PYX_ERR(0, 26, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("get_loops", 1, 6, 6, 2); __PYX_ERR(0, 46, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_start_list)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("get_loops", 1, 6, 6, 3); __PYX_ERR(0, 26, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("get_loops", 1, 6, 6, 3); __PYX_ERR(0, 46, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  4:
         if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_end_list)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("get_loops", 1, 6, 6, 4); __PYX_ERR(0, 26, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("get_loops", 1, 6, 6, 4); __PYX_ERR(0, 46, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  5:
         if (likely((values[5] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_value_list)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("get_loops", 1, 6, 6, 5); __PYX_ERR(0, 26, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("get_loops", 1, 6, 6, 5); __PYX_ERR(0, 46, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "get_loops") < 0)) __PYX_ERR(0, 26, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "get_loops") < 0)) __PYX_ERR(0, 46, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 6) {
       goto __pyx_L5_argtuple_error;
@@ -2684,29 +2686,29 @@ static PyObject *__pyx_pw_13chia_rep_util_5get_loops(PyObject *__pyx_self, PyObj
       values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
       values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
     }
-    __pyx_v_window_start = __Pyx_PyInt_As_unsigned_int(values[0]); if (unlikely((__pyx_v_window_start == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 26, __pyx_L3_error)
-    __pyx_v_window_end = __Pyx_PyInt_As_unsigned_int(values[1]); if (unlikely((__pyx_v_window_end == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 26, __pyx_L3_error)
-    __pyx_v_removed_area = __Pyx_PyObject_to_MemoryviewSlice_ds_unsigned_char(values[2], PyBUF_WRITABLE); if (unlikely(!__pyx_v_removed_area.memview)) __PYX_ERR(0, 27, __pyx_L3_error)
-    __pyx_v_start_list = __Pyx_PyObject_to_MemoryviewSlice_ds_int(values[3], PyBUF_WRITABLE); if (unlikely(!__pyx_v_start_list.memview)) __PYX_ERR(0, 27, __pyx_L3_error)
-    __pyx_v_end_list = __Pyx_PyObject_to_MemoryviewSlice_ds_int(values[4], PyBUF_WRITABLE); if (unlikely(!__pyx_v_end_list.memview)) __PYX_ERR(0, 28, __pyx_L3_error)
-    __pyx_v_value_list = __Pyx_PyObject_to_MemoryviewSlice_ds_double(values[5], PyBUF_WRITABLE); if (unlikely(!__pyx_v_value_list.memview)) __PYX_ERR(0, 28, __pyx_L3_error)
+    __pyx_v_window_start = __Pyx_PyInt_As_unsigned_int(values[0]); if (unlikely((__pyx_v_window_start == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 46, __pyx_L3_error)
+    __pyx_v_window_end = __Pyx_PyInt_As_unsigned_int(values[1]); if (unlikely((__pyx_v_window_end == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 46, __pyx_L3_error)
+    __pyx_v_removed_area = __Pyx_PyObject_to_MemoryviewSlice_ds_unsigned_char(values[2], PyBUF_WRITABLE); if (unlikely(!__pyx_v_removed_area.memview)) __PYX_ERR(0, 47, __pyx_L3_error)
+    __pyx_v_start_list = __Pyx_PyObject_to_MemoryviewSlice_ds_int(values[3], PyBUF_WRITABLE); if (unlikely(!__pyx_v_start_list.memview)) __PYX_ERR(0, 47, __pyx_L3_error)
+    __pyx_v_end_list = __Pyx_PyObject_to_MemoryviewSlice_ds_int(values[4], PyBUF_WRITABLE); if (unlikely(!__pyx_v_end_list.memview)) __PYX_ERR(0, 48, __pyx_L3_error)
+    __pyx_v_value_list = __Pyx_PyObject_to_MemoryviewSlice_ds_double(values[5], PyBUF_WRITABLE); if (unlikely(!__pyx_v_value_list.memview)) __PYX_ERR(0, 48, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("get_loops", 1, 6, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 26, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("get_loops", 1, 6, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 46, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("chia_rep_util.get_loops", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("chia_rep.chia_rep_util.get_loops", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_13chia_rep_util_4get_loops(__pyx_self, __pyx_v_window_start, __pyx_v_window_end, __pyx_v_removed_area, __pyx_v_start_list, __pyx_v_end_list, __pyx_v_value_list);
+  __pyx_r = __pyx_pf_8chia_rep_13chia_rep_util_4get_loops(__pyx_self, __pyx_v_window_start, __pyx_v_window_end, __pyx_v_removed_area, __pyx_v_start_list, __pyx_v_end_list, __pyx_v_value_list);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_13chia_rep_util_4get_loops(CYTHON_UNUSED PyObject *__pyx_self, unsigned int __pyx_v_window_start, unsigned int __pyx_v_window_end, __Pyx_memviewslice __pyx_v_removed_area, __Pyx_memviewslice __pyx_v_start_list, __Pyx_memviewslice __pyx_v_end_list, __Pyx_memviewslice __pyx_v_value_list) {
+static PyObject *__pyx_pf_8chia_rep_13chia_rep_util_4get_loops(CYTHON_UNUSED PyObject *__pyx_self, unsigned int __pyx_v_window_start, unsigned int __pyx_v_window_end, __Pyx_memviewslice __pyx_v_removed_area, __Pyx_memviewslice __pyx_v_start_list, __Pyx_memviewslice __pyx_v_end_list, __Pyx_memviewslice __pyx_v_value_list) {
   Py_ssize_t __pyx_v_numb_values;
   Py_ssize_t __pyx_v_counter;
   Py_ssize_t __pyx_v_i;
@@ -2737,8 +2739,8 @@ static PyObject *__pyx_pf_13chia_rep_util_4get_loops(CYTHON_UNUSED PyObject *__p
   Py_ssize_t __pyx_t_18;
   __Pyx_RefNannySetupContext("get_loops", 0);
 
-  /* "chia_rep_util.pyx":30
- *               int[:] end_list, double[:] value_list):
+  /* "chia_rep/chia_rep_util.pyx":73
+ *     """
  * 
  *     assert end_list.size == value_list.size == start_list.size             # <<<<<<<<<<<<<<
  *     cdef Py_ssize_t numb_values = end_list.size, counter = 0, i, start, end
@@ -2746,84 +2748,84 @@ static PyObject *__pyx_pf_13chia_rep_util_4get_loops(CYTHON_UNUSED PyObject *__p
  */
   #ifndef CYTHON_WITHOUT_ASSERTIONS
   if (unlikely(!Py_OptimizeFlag)) {
-    __pyx_t_1 = __pyx_memoryview_fromslice(__pyx_v_end_list, 1, (PyObject *(*)(char *)) __pyx_memview_get_int, (int (*)(char *, PyObject *)) __pyx_memview_set_int, 0);; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 30, __pyx_L1_error)
+    __pyx_t_1 = __pyx_memoryview_fromslice(__pyx_v_end_list, 1, (PyObject *(*)(char *)) __pyx_memview_get_int, (int (*)(char *, PyObject *)) __pyx_memview_set_int, 0);; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 73, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_size); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 30, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_size); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 73, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = __pyx_memoryview_fromslice(__pyx_v_value_list, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 30, __pyx_L1_error)
+    __pyx_t_1 = __pyx_memoryview_fromslice(__pyx_v_value_list, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 73, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_size); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 30, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_size); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 73, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = PyObject_RichCompare(__pyx_t_2, __pyx_t_3, Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 30, __pyx_L1_error)
+    __pyx_t_1 = PyObject_RichCompare(__pyx_t_2, __pyx_t_3, Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 73, __pyx_L1_error)
     if (__Pyx_PyObject_IsTrue(__pyx_t_1)) {
       __Pyx_DECREF(__pyx_t_1);
-      __pyx_t_4 = __pyx_memoryview_fromslice(__pyx_v_start_list, 1, (PyObject *(*)(char *)) __pyx_memview_get_int, (int (*)(char *, PyObject *)) __pyx_memview_set_int, 0);; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 30, __pyx_L1_error)
+      __pyx_t_4 = __pyx_memoryview_fromslice(__pyx_v_start_list, 1, (PyObject *(*)(char *)) __pyx_memview_get_int, (int (*)(char *, PyObject *)) __pyx_memview_set_int, 0);; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 73, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_size); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 30, __pyx_L1_error)
+      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_size); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 73, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_1 = PyObject_RichCompare(__pyx_t_3, __pyx_t_5, Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 30, __pyx_L1_error)
+      __pyx_t_1 = PyObject_RichCompare(__pyx_t_3, __pyx_t_5, Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 73, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     }
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 30, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 73, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     if (unlikely(!__pyx_t_6)) {
       PyErr_SetNone(PyExc_AssertionError);
-      __PYX_ERR(0, 30, __pyx_L1_error)
+      __PYX_ERR(0, 73, __pyx_L1_error)
     }
   }
   #endif
 
-  /* "chia_rep_util.pyx":31
+  /* "chia_rep/chia_rep_util.pyx":74
  * 
  *     assert end_list.size == value_list.size == start_list.size
  *     cdef Py_ssize_t numb_values = end_list.size, counter = 0, i, start, end             # <<<<<<<<<<<<<<
  *     cdef float value
  * 
  */
-  __pyx_t_1 = __pyx_memoryview_fromslice(__pyx_v_end_list, 1, (PyObject *(*)(char *)) __pyx_memview_get_int, (int (*)(char *, PyObject *)) __pyx_memview_set_int, 0);; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 31, __pyx_L1_error)
+  __pyx_t_1 = __pyx_memoryview_fromslice(__pyx_v_end_list, 1, (PyObject *(*)(char *)) __pyx_memview_get_int, (int (*)(char *, PyObject *)) __pyx_memview_set_int, 0);; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 74, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_size); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 31, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_size); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 74, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_t_3); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 31, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyIndex_AsSsize_t(__pyx_t_3); if (unlikely((__pyx_t_7 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 74, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_numb_values = __pyx_t_7;
   __pyx_v_counter = 0;
 
-  /* "chia_rep_util.pyx":34
+  /* "chia_rep/chia_rep_util.pyx":77
  *     cdef float value
  * 
  *     loops = np.empty(numb_values, dtype=np.uint32)             # <<<<<<<<<<<<<<
  *     cdef unsigned int[:] loops_view = loops
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 34, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_empty); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 34, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_empty); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyInt_FromSsize_t(__pyx_v_numb_values); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 34, __pyx_L1_error)
+  __pyx_t_3 = PyInt_FromSsize_t(__pyx_v_numb_values); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 34, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_GIVEREF(__pyx_t_3);
   PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_3);
   __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 34, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 34, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_uint32); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 34, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_uint32); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 34, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 34, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -2831,19 +2833,19 @@ static PyObject *__pyx_pf_13chia_rep_util_4get_loops(CYTHON_UNUSED PyObject *__p
   __pyx_v_loops = __pyx_t_4;
   __pyx_t_4 = 0;
 
-  /* "chia_rep_util.pyx":35
+  /* "chia_rep/chia_rep_util.pyx":78
  * 
  *     loops = np.empty(numb_values, dtype=np.uint32)
  *     cdef unsigned int[:] loops_view = loops             # <<<<<<<<<<<<<<
  * 
  *     for i in range(numb_values):
  */
-  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_ds_unsigned_int(__pyx_v_loops, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 35, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_ds_unsigned_int(__pyx_v_loops, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 78, __pyx_L1_error)
   __pyx_v_loops_view = __pyx_t_8;
   __pyx_t_8.memview = NULL;
   __pyx_t_8.data = NULL;
 
-  /* "chia_rep_util.pyx":37
+  /* "chia_rep/chia_rep_util.pyx":80
  *     cdef unsigned int[:] loops_view = loops
  * 
  *     for i in range(numb_values):             # <<<<<<<<<<<<<<
@@ -2855,7 +2857,7 @@ static PyObject *__pyx_pf_13chia_rep_util_4get_loops(CYTHON_UNUSED PyObject *__p
   for (__pyx_t_10 = 0; __pyx_t_10 < __pyx_t_9; __pyx_t_10+=1) {
     __pyx_v_i = __pyx_t_10;
 
-    /* "chia_rep_util.pyx":38
+    /* "chia_rep/chia_rep_util.pyx":81
  * 
  *     for i in range(numb_values):
  *         value = value_list[i]             # <<<<<<<<<<<<<<
@@ -2870,11 +2872,11 @@ static PyObject *__pyx_pf_13chia_rep_util_4get_loops(CYTHON_UNUSED PyObject *__p
     } else if (unlikely(__pyx_t_11 >= __pyx_v_value_list.shape[0])) __pyx_t_12 = 0;
     if (unlikely(__pyx_t_12 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_12);
-      __PYX_ERR(0, 38, __pyx_L1_error)
+      __PYX_ERR(0, 81, __pyx_L1_error)
     }
     __pyx_v_value = (*((double *) ( /* dim=0 */ (__pyx_v_value_list.data + __pyx_t_11 * __pyx_v_value_list.strides[0]) )));
 
-    /* "chia_rep_util.pyx":39
+    /* "chia_rep/chia_rep_util.pyx":82
  *     for i in range(numb_values):
  *         value = value_list[i]
  *         start = start_list[i]             # <<<<<<<<<<<<<<
@@ -2889,11 +2891,11 @@ static PyObject *__pyx_pf_13chia_rep_util_4get_loops(CYTHON_UNUSED PyObject *__p
     } else if (unlikely(__pyx_t_13 >= __pyx_v_start_list.shape[0])) __pyx_t_12 = 0;
     if (unlikely(__pyx_t_12 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_12);
-      __PYX_ERR(0, 39, __pyx_L1_error)
+      __PYX_ERR(0, 82, __pyx_L1_error)
     }
     __pyx_v_start = (*((int *) ( /* dim=0 */ (__pyx_v_start_list.data + __pyx_t_13 * __pyx_v_start_list.strides[0]) )));
 
-    /* "chia_rep_util.pyx":40
+    /* "chia_rep/chia_rep_util.pyx":83
  *         value = value_list[i]
  *         start = start_list[i]
  *         end = end_list[i]             # <<<<<<<<<<<<<<
@@ -2908,11 +2910,11 @@ static PyObject *__pyx_pf_13chia_rep_util_4get_loops(CYTHON_UNUSED PyObject *__p
     } else if (unlikely(__pyx_t_14 >= __pyx_v_end_list.shape[0])) __pyx_t_12 = 0;
     if (unlikely(__pyx_t_12 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_12);
-      __PYX_ERR(0, 40, __pyx_L1_error)
+      __PYX_ERR(0, 83, __pyx_L1_error)
     }
     __pyx_v_end = (*((int *) ( /* dim=0 */ (__pyx_v_end_list.data + __pyx_t_14 * __pyx_v_end_list.strides[0]) )));
 
-    /* "chia_rep_util.pyx":42
+    /* "chia_rep/chia_rep_util.pyx":85
  *         end = end_list[i]
  * 
  *         if start < window_start or end > window_end or value == 0:             # <<<<<<<<<<<<<<
@@ -2936,7 +2938,7 @@ static PyObject *__pyx_pf_13chia_rep_util_4get_loops(CYTHON_UNUSED PyObject *__p
     __pyx_L6_bool_binop_done:;
     if (__pyx_t_6) {
 
-      /* "chia_rep_util.pyx":43
+      /* "chia_rep/chia_rep_util.pyx":86
  * 
  *         if start < window_start or end > window_end or value == 0:
  *             continue             # <<<<<<<<<<<<<<
@@ -2945,7 +2947,7 @@ static PyObject *__pyx_pf_13chia_rep_util_4get_loops(CYTHON_UNUSED PyObject *__p
  */
       goto __pyx_L3_continue;
 
-      /* "chia_rep_util.pyx":42
+      /* "chia_rep/chia_rep_util.pyx":85
  *         end = end_list[i]
  * 
  *         if start < window_start or end > window_end or value == 0:             # <<<<<<<<<<<<<<
@@ -2954,7 +2956,7 @@ static PyObject *__pyx_pf_13chia_rep_util_4get_loops(CYTHON_UNUSED PyObject *__p
  */
     }
 
-    /* "chia_rep_util.pyx":45
+    /* "chia_rep/chia_rep_util.pyx":88
  *             continue
  * 
  *         if removed_area[start] or removed_area[end]:             # <<<<<<<<<<<<<<
@@ -2969,7 +2971,7 @@ static PyObject *__pyx_pf_13chia_rep_util_4get_loops(CYTHON_UNUSED PyObject *__p
     } else if (unlikely(__pyx_t_16 >= __pyx_v_removed_area.shape[0])) __pyx_t_12 = 0;
     if (unlikely(__pyx_t_12 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_12);
-      __PYX_ERR(0, 45, __pyx_L1_error)
+      __PYX_ERR(0, 88, __pyx_L1_error)
     }
     __pyx_t_15 = ((*((unsigned char *) ( /* dim=0 */ (__pyx_v_removed_area.data + __pyx_t_16 * __pyx_v_removed_area.strides[0]) ))) != 0);
     if (!__pyx_t_15) {
@@ -2985,14 +2987,14 @@ static PyObject *__pyx_pf_13chia_rep_util_4get_loops(CYTHON_UNUSED PyObject *__p
     } else if (unlikely(__pyx_t_17 >= __pyx_v_removed_area.shape[0])) __pyx_t_12 = 0;
     if (unlikely(__pyx_t_12 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_12);
-      __PYX_ERR(0, 45, __pyx_L1_error)
+      __PYX_ERR(0, 88, __pyx_L1_error)
     }
     __pyx_t_15 = ((*((unsigned char *) ( /* dim=0 */ (__pyx_v_removed_area.data + __pyx_t_17 * __pyx_v_removed_area.strides[0]) ))) != 0);
     __pyx_t_6 = __pyx_t_15;
     __pyx_L10_bool_binop_done:;
     if (__pyx_t_6) {
 
-      /* "chia_rep_util.pyx":46
+      /* "chia_rep/chia_rep_util.pyx":89
  * 
  *         if removed_area[start] or removed_area[end]:
  *             continue             # <<<<<<<<<<<<<<
@@ -3001,7 +3003,7 @@ static PyObject *__pyx_pf_13chia_rep_util_4get_loops(CYTHON_UNUSED PyObject *__p
  */
       goto __pyx_L3_continue;
 
-      /* "chia_rep_util.pyx":45
+      /* "chia_rep/chia_rep_util.pyx":88
  *             continue
  * 
  *         if removed_area[start] or removed_area[end]:             # <<<<<<<<<<<<<<
@@ -3010,7 +3012,7 @@ static PyObject *__pyx_pf_13chia_rep_util_4get_loops(CYTHON_UNUSED PyObject *__p
  */
     }
 
-    /* "chia_rep_util.pyx":48
+    /* "chia_rep/chia_rep_util.pyx":91
  *             continue
  * 
  *         loops_view[counter] = i             # <<<<<<<<<<<<<<
@@ -3025,11 +3027,11 @@ static PyObject *__pyx_pf_13chia_rep_util_4get_loops(CYTHON_UNUSED PyObject *__p
     } else if (unlikely(__pyx_t_18 >= __pyx_v_loops_view.shape[0])) __pyx_t_12 = 0;
     if (unlikely(__pyx_t_12 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_12);
-      __PYX_ERR(0, 48, __pyx_L1_error)
+      __PYX_ERR(0, 91, __pyx_L1_error)
     }
     *((unsigned int *) ( /* dim=0 */ (__pyx_v_loops_view.data + __pyx_t_18 * __pyx_v_loops_view.strides[0]) )) = __pyx_v_i;
 
-    /* "chia_rep_util.pyx":49
+    /* "chia_rep/chia_rep_util.pyx":92
  * 
  *         loops_view[counter] = i
  *         counter = counter + 1             # <<<<<<<<<<<<<<
@@ -3040,7 +3042,7 @@ static PyObject *__pyx_pf_13chia_rep_util_4get_loops(CYTHON_UNUSED PyObject *__p
     __pyx_L3_continue:;
   }
 
-  /* "chia_rep_util.pyx":51
+  /* "chia_rep/chia_rep_util.pyx":94
  *         counter = counter + 1
  * 
  *     return loops[:counter]             # <<<<<<<<<<<<<<
@@ -3048,13 +3050,13 @@ static PyObject *__pyx_pf_13chia_rep_util_4get_loops(CYTHON_UNUSED PyObject *__p
  * def complete_graph(double[:, :] graph, int graph_size):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_4 = __Pyx_PyObject_GetSlice(__pyx_v_loops, 0, __pyx_v_counter, NULL, NULL, NULL, 0, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 51, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetSlice(__pyx_v_loops, 0, __pyx_v_counter, NULL, NULL, NULL, 0, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 94, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_r = __pyx_t_4;
   __pyx_t_4 = 0;
   goto __pyx_L0;
 
-  /* "chia_rep_util.pyx":26
+  /* "chia_rep/chia_rep_util.pyx":46
  *                 p1[i][j] = 0
  * 
  * def get_loops(unsigned int window_start, unsigned int window_end,             # <<<<<<<<<<<<<<
@@ -3070,7 +3072,7 @@ static PyObject *__pyx_pf_13chia_rep_util_4get_loops(CYTHON_UNUSED PyObject *__p
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
   __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
-  __Pyx_AddTraceback("chia_rep_util.get_loops", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("chia_rep.chia_rep_util.get_loops", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_loops);
@@ -3084,7 +3086,7 @@ static PyObject *__pyx_pf_13chia_rep_util_4get_loops(CYTHON_UNUSED PyObject *__p
   return __pyx_r;
 }
 
-/* "chia_rep_util.pyx":53
+/* "chia_rep/chia_rep_util.pyx":96
  *     return loops[:counter]
  * 
  * def complete_graph(double[:, :] graph, int graph_size):             # <<<<<<<<<<<<<<
@@ -3093,9 +3095,9 @@ static PyObject *__pyx_pf_13chia_rep_util_4get_loops(CYTHON_UNUSED PyObject *__p
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_13chia_rep_util_7complete_graph(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_13chia_rep_util_7complete_graph = {"complete_graph", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_13chia_rep_util_7complete_graph, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_13chia_rep_util_7complete_graph(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_8chia_rep_13chia_rep_util_7complete_graph(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_8chia_rep_13chia_rep_util_7complete_graph = {"complete_graph", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_8chia_rep_13chia_rep_util_7complete_graph, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_8chia_rep_13chia_rep_util_7complete_graph(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   __Pyx_memviewslice __pyx_v_graph = { 0, 0, { 0 }, { 0 }, { 0 } };
   int __pyx_v_graph_size;
   PyObject *__pyx_r = 0;
@@ -3124,11 +3126,11 @@ static PyObject *__pyx_pw_13chia_rep_util_7complete_graph(PyObject *__pyx_self, 
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_graph_size)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("complete_graph", 1, 2, 2, 1); __PYX_ERR(0, 53, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("complete_graph", 1, 2, 2, 1); __PYX_ERR(0, 96, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "complete_graph") < 0)) __PYX_ERR(0, 53, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "complete_graph") < 0)) __PYX_ERR(0, 96, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -3136,25 +3138,25 @@ static PyObject *__pyx_pw_13chia_rep_util_7complete_graph(PyObject *__pyx_self, 
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
     }
-    __pyx_v_graph = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_graph.memview)) __PYX_ERR(0, 53, __pyx_L3_error)
-    __pyx_v_graph_size = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_graph_size == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 53, __pyx_L3_error)
+    __pyx_v_graph = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_graph.memview)) __PYX_ERR(0, 96, __pyx_L3_error)
+    __pyx_v_graph_size = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_graph_size == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 96, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("complete_graph", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 53, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("complete_graph", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 96, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("chia_rep_util.complete_graph", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("chia_rep.chia_rep_util.complete_graph", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_13chia_rep_util_6complete_graph(__pyx_self, __pyx_v_graph, __pyx_v_graph_size);
+  __pyx_r = __pyx_pf_8chia_rep_13chia_rep_util_6complete_graph(__pyx_self, __pyx_v_graph, __pyx_v_graph_size);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_13chia_rep_util_6complete_graph(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_graph, int __pyx_v_graph_size) {
+static PyObject *__pyx_pf_8chia_rep_13chia_rep_util_6complete_graph(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_graph, int __pyx_v_graph_size) {
   size_t __pyx_v_i;
   size_t __pyx_v_j;
   PyObject *__pyx_r = NULL;
@@ -3172,7 +3174,7 @@ static PyObject *__pyx_pf_13chia_rep_util_6complete_graph(CYTHON_UNUSED PyObject
   size_t __pyx_t_11;
   __Pyx_RefNannySetupContext("complete_graph", 0);
 
-  /* "chia_rep_util.pyx":56
+  /* "chia_rep/chia_rep_util.pyx":99
  *     cdef size_t i, j
  * 
  *     for i in range(graph_size):             # <<<<<<<<<<<<<<
@@ -3184,7 +3186,7 @@ static PyObject *__pyx_pf_13chia_rep_util_6complete_graph(CYTHON_UNUSED PyObject
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "chia_rep_util.pyx":57
+    /* "chia_rep/chia_rep_util.pyx":100
  * 
  *     for i in range(graph_size):
  *         for j in range(i):             # <<<<<<<<<<<<<<
@@ -3195,7 +3197,7 @@ static PyObject *__pyx_pf_13chia_rep_util_6complete_graph(CYTHON_UNUSED PyObject
     for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
       __pyx_v_j = __pyx_t_6;
 
-      /* "chia_rep_util.pyx":58
+      /* "chia_rep/chia_rep_util.pyx":101
  *     for i in range(graph_size):
  *         for j in range(i):
  *             graph[i][j] = graph[j][i]             # <<<<<<<<<<<<<<
@@ -3207,7 +3209,7 @@ static PyObject *__pyx_pf_13chia_rep_util_6complete_graph(CYTHON_UNUSED PyObject
       if (unlikely(__pyx_t_8 >= (size_t)__pyx_v_graph.shape[1])) __pyx_t_9 = 1;
       if (unlikely(__pyx_t_9 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_9);
-        __PYX_ERR(0, 58, __pyx_L1_error)
+        __PYX_ERR(0, 101, __pyx_L1_error)
       }
       __pyx_t_10 = __pyx_v_i;
       __pyx_t_11 = __pyx_v_j;
@@ -3216,13 +3218,13 @@ static PyObject *__pyx_pf_13chia_rep_util_6complete_graph(CYTHON_UNUSED PyObject
       if (unlikely(__pyx_t_11 >= (size_t)__pyx_v_graph.shape[1])) __pyx_t_9 = 1;
       if (unlikely(__pyx_t_9 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_9);
-        __PYX_ERR(0, 58, __pyx_L1_error)
+        __PYX_ERR(0, 101, __pyx_L1_error)
       }
       *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_graph.data + __pyx_t_10 * __pyx_v_graph.strides[0]) ) + __pyx_t_11 * __pyx_v_graph.strides[1]) )) = (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_graph.data + __pyx_t_7 * __pyx_v_graph.strides[0]) ) + __pyx_t_8 * __pyx_v_graph.strides[1]) )));
     }
   }
 
-  /* "chia_rep_util.pyx":53
+  /* "chia_rep/chia_rep_util.pyx":96
  *     return loops[:counter]
  * 
  * def complete_graph(double[:, :] graph, int graph_size):             # <<<<<<<<<<<<<<
@@ -3234,7 +3236,7 @@ static PyObject *__pyx_pf_13chia_rep_util_6complete_graph(CYTHON_UNUSED PyObject
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_AddTraceback("chia_rep_util.complete_graph", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("chia_rep.chia_rep_util.complete_graph", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&__pyx_v_graph, 1);
@@ -16178,7 +16180,7 @@ static PyBufferProcs __pyx_tp_as_buffer_array = {
 
 static PyTypeObject __pyx_type___pyx_array = {
   PyVarObject_HEAD_INIT(0, 0)
-  "chia_rep_util.array", /*tp_name*/
+  "chia_rep.chia_rep_util.array", /*tp_name*/
   sizeof(struct __pyx_array_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_array, /*tp_dealloc*/
@@ -16289,7 +16291,7 @@ static PyMethodDef __pyx_methods_Enum[] = {
 
 static PyTypeObject __pyx_type___pyx_MemviewEnum = {
   PyVarObject_HEAD_INIT(0, 0)
-  "chia_rep_util.Enum", /*tp_name*/
+  "chia_rep.chia_rep_util.Enum", /*tp_name*/
   sizeof(struct __pyx_MemviewEnum_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_Enum, /*tp_dealloc*/
@@ -16542,7 +16544,7 @@ static PyBufferProcs __pyx_tp_as_buffer_memoryview = {
 
 static PyTypeObject __pyx_type___pyx_memoryview = {
   PyVarObject_HEAD_INIT(0, 0)
-  "chia_rep_util.memoryview", /*tp_name*/
+  "chia_rep.chia_rep_util.memoryview", /*tp_name*/
   sizeof(struct __pyx_memoryview_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_memoryview, /*tp_dealloc*/
@@ -16672,7 +16674,7 @@ static struct PyGetSetDef __pyx_getsets__memoryviewslice[] = {
 
 static PyTypeObject __pyx_type___pyx_memoryviewslice = {
   PyVarObject_HEAD_INIT(0, 0)
-  "chia_rep_util._memoryviewslice", /*tp_name*/
+  "chia_rep.chia_rep_util._memoryviewslice", /*tp_name*/
   sizeof(struct __pyx_memoryviewslice_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc__memoryviewslice, /*tp_dealloc*/
@@ -16813,8 +16815,8 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_c, __pyx_k_c, sizeof(__pyx_k_c), 0, 0, 1, 1},
   {&__pyx_n_u_c, __pyx_k_c, sizeof(__pyx_k_c), 0, 1, 0, 1},
   {&__pyx_n_s_c_emd, __pyx_k_c_emd, sizeof(__pyx_k_c_emd), 0, 0, 1, 1},
-  {&__pyx_n_s_chia_rep_util, __pyx_k_chia_rep_util, sizeof(__pyx_k_chia_rep_util), 0, 0, 1, 1},
-  {&__pyx_kp_s_chia_rep_util_pyx, __pyx_k_chia_rep_util_pyx, sizeof(__pyx_k_chia_rep_util_pyx), 0, 0, 1, 0},
+  {&__pyx_n_s_chia_rep_chia_rep_util, __pyx_k_chia_rep_chia_rep_util, sizeof(__pyx_k_chia_rep_chia_rep_util), 0, 0, 1, 1},
+  {&__pyx_kp_s_chia_rep_chia_rep_util_pyx, __pyx_k_chia_rep_chia_rep_util_pyx, sizeof(__pyx_k_chia_rep_chia_rep_util_pyx), 0, 0, 1, 0},
   {&__pyx_n_s_class, __pyx_k_class, sizeof(__pyx_k_class), 0, 0, 1, 1},
   {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
   {&__pyx_n_s_complete_graph, __pyx_k_complete_graph, sizeof(__pyx_k_complete_graph), 0, 0, 1, 1},
@@ -16907,7 +16909,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 8, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 28, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(1, 133, __pyx_L1_error)
   __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(1, 148, __pyx_L1_error)
   __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_n_s_enumerate); if (!__pyx_builtin_enumerate) __PYX_ERR(1, 151, __pyx_L1_error)
@@ -17116,53 +17118,53 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__18);
   __Pyx_GIVEREF(__pyx_tuple__18);
 
-  /* "chia_rep_util.pyx":4
+  /* "chia_rep/chia_rep_util.pyx":4
  * import numpy as np
  * 
  * def c_emd(double[:] p, double[:] q, unsigned int size):             # <<<<<<<<<<<<<<
- *     cdef Py_ssize_t i
- * 
+ *     """
+ *     Calculates Earth Mover's Distance in Cython
  */
   __pyx_tuple__19 = PyTuple_Pack(6, __pyx_n_s_p, __pyx_n_s_q, __pyx_n_s_size, __pyx_n_s_i, __pyx_n_s_to_move, __pyx_n_s_dist); if (unlikely(!__pyx_tuple__19)) __PYX_ERR(0, 4, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__19);
   __Pyx_GIVEREF(__pyx_tuple__19);
-  __pyx_codeobj__20 = (PyObject*)__Pyx_PyCode_New(3, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__19, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_chia_rep_util_pyx, __pyx_n_s_c_emd, 4, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__20)) __PYX_ERR(0, 4, __pyx_L1_error)
+  __pyx_codeobj__20 = (PyObject*)__Pyx_PyCode_New(3, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__19, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_chia_rep_chia_rep_util_pyx, __pyx_n_s_c_emd, 4, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__20)) __PYX_ERR(0, 4, __pyx_L1_error)
 
-  /* "chia_rep_util.pyx":14
+  /* "chia_rep/chia_rep_util.pyx":34
  *     return dist
  * 
  * def match_graphs(double[:, :] p, double[:, :] q, double[:, :] p1,             # <<<<<<<<<<<<<<
  *                  double[:, :] q1, unsigned int size):
  *     cdef Py_ssize_t i, j
  */
-  __pyx_tuple__21 = PyTuple_Pack(7, __pyx_n_s_p, __pyx_n_s_q, __pyx_n_s_p1, __pyx_n_s_q1, __pyx_n_s_size, __pyx_n_s_i, __pyx_n_s_j); if (unlikely(!__pyx_tuple__21)) __PYX_ERR(0, 14, __pyx_L1_error)
+  __pyx_tuple__21 = PyTuple_Pack(7, __pyx_n_s_p, __pyx_n_s_q, __pyx_n_s_p1, __pyx_n_s_q1, __pyx_n_s_size, __pyx_n_s_i, __pyx_n_s_j); if (unlikely(!__pyx_tuple__21)) __PYX_ERR(0, 34, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__21);
   __Pyx_GIVEREF(__pyx_tuple__21);
-  __pyx_codeobj__22 = (PyObject*)__Pyx_PyCode_New(5, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__21, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_chia_rep_util_pyx, __pyx_n_s_match_graphs, 14, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__22)) __PYX_ERR(0, 14, __pyx_L1_error)
+  __pyx_codeobj__22 = (PyObject*)__Pyx_PyCode_New(5, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__21, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_chia_rep_chia_rep_util_pyx, __pyx_n_s_match_graphs, 34, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__22)) __PYX_ERR(0, 34, __pyx_L1_error)
 
-  /* "chia_rep_util.pyx":26
+  /* "chia_rep/chia_rep_util.pyx":46
  *                 p1[i][j] = 0
  * 
  * def get_loops(unsigned int window_start, unsigned int window_end,             # <<<<<<<<<<<<<<
  *               unsigned char[:] removed_area, int[:] start_list,
  *               int[:] end_list, double[:] value_list):
  */
-  __pyx_tuple__23 = PyTuple_Pack(14, __pyx_n_s_window_start, __pyx_n_s_window_end, __pyx_n_s_removed_area, __pyx_n_s_start_list, __pyx_n_s_end_list, __pyx_n_s_value_list, __pyx_n_s_numb_values, __pyx_n_s_counter, __pyx_n_s_i, __pyx_n_s_start, __pyx_n_s_end, __pyx_n_s_value, __pyx_n_s_loops, __pyx_n_s_loops_view); if (unlikely(!__pyx_tuple__23)) __PYX_ERR(0, 26, __pyx_L1_error)
+  __pyx_tuple__23 = PyTuple_Pack(14, __pyx_n_s_window_start, __pyx_n_s_window_end, __pyx_n_s_removed_area, __pyx_n_s_start_list, __pyx_n_s_end_list, __pyx_n_s_value_list, __pyx_n_s_numb_values, __pyx_n_s_counter, __pyx_n_s_i, __pyx_n_s_start, __pyx_n_s_end, __pyx_n_s_value, __pyx_n_s_loops, __pyx_n_s_loops_view); if (unlikely(!__pyx_tuple__23)) __PYX_ERR(0, 46, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__23);
   __Pyx_GIVEREF(__pyx_tuple__23);
-  __pyx_codeobj__24 = (PyObject*)__Pyx_PyCode_New(6, 0, 14, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_chia_rep_util_pyx, __pyx_n_s_get_loops, 26, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__24)) __PYX_ERR(0, 26, __pyx_L1_error)
+  __pyx_codeobj__24 = (PyObject*)__Pyx_PyCode_New(6, 0, 14, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__23, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_chia_rep_chia_rep_util_pyx, __pyx_n_s_get_loops, 46, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__24)) __PYX_ERR(0, 46, __pyx_L1_error)
 
-  /* "chia_rep_util.pyx":53
+  /* "chia_rep/chia_rep_util.pyx":96
  *     return loops[:counter]
  * 
  * def complete_graph(double[:, :] graph, int graph_size):             # <<<<<<<<<<<<<<
  *     cdef size_t i, j
  * 
  */
-  __pyx_tuple__25 = PyTuple_Pack(4, __pyx_n_s_graph, __pyx_n_s_graph_size, __pyx_n_s_i, __pyx_n_s_j); if (unlikely(!__pyx_tuple__25)) __PYX_ERR(0, 53, __pyx_L1_error)
+  __pyx_tuple__25 = PyTuple_Pack(4, __pyx_n_s_graph, __pyx_n_s_graph_size, __pyx_n_s_i, __pyx_n_s_j); if (unlikely(!__pyx_tuple__25)) __PYX_ERR(0, 96, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__25);
   __Pyx_GIVEREF(__pyx_tuple__25);
-  __pyx_codeobj__26 = (PyObject*)__Pyx_PyCode_New(2, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__25, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_chia_rep_util_pyx, __pyx_n_s_complete_graph, 53, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__26)) __PYX_ERR(0, 53, __pyx_L1_error)
+  __pyx_codeobj__26 = (PyObject*)__Pyx_PyCode_New(2, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__25, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_chia_rep_chia_rep_util_pyx, __pyx_n_s_complete_graph, 96, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__26)) __PYX_ERR(0, 96, __pyx_L1_error)
 
   /* "View.MemoryView":286
  *         return self.name
@@ -17539,14 +17541,14 @@ if (!__Pyx_RefNanny) {
   #if PY_MAJOR_VERSION < 3 && (__PYX_DEFAULT_STRING_ENCODING_IS_ASCII || __PYX_DEFAULT_STRING_ENCODING_IS_DEFAULT)
   if (__Pyx_init_sys_getdefaultencoding_params() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
-  if (__pyx_module_is_main_chia_rep_util) {
+  if (__pyx_module_is_main_chia_rep__chia_rep_util) {
     if (PyObject_SetAttr(__pyx_m, __pyx_n_s_name_2, __pyx_n_s_main) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   }
   #if PY_MAJOR_VERSION >= 3
   {
     PyObject *modules = PyImport_GetModuleDict(); if (unlikely(!modules)) __PYX_ERR(0, 1, __pyx_L1_error)
-    if (!PyDict_GetItemString(modules, "chia_rep_util")) {
-      if (unlikely(PyDict_SetItemString(modules, "chia_rep_util", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
+    if (!PyDict_GetItemString(modules, "chia_rep.chia_rep_util")) {
+      if (unlikely(PyDict_SetItemString(modules, "chia_rep.chia_rep_util", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
     }
   }
   #endif
@@ -17567,7 +17569,7 @@ if (!__Pyx_RefNanny) {
   if (__Pyx_patch_abc() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
 
-  /* "chia_rep_util.pyx":2
+  /* "chia_rep/chia_rep_util.pyx":2
  * from libc.math cimport fabs
  * import numpy as np             # <<<<<<<<<<<<<<
  * 
@@ -17578,55 +17580,55 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_np, __pyx_t_1) < 0) __PYX_ERR(0, 2, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "chia_rep_util.pyx":4
+  /* "chia_rep/chia_rep_util.pyx":4
  * import numpy as np
  * 
  * def c_emd(double[:] p, double[:] q, unsigned int size):             # <<<<<<<<<<<<<<
- *     cdef Py_ssize_t i
- * 
+ *     """
+ *     Calculates Earth Mover's Distance in Cython
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_13chia_rep_util_1c_emd, NULL, __pyx_n_s_chia_rep_util); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 4, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_8chia_rep_13chia_rep_util_1c_emd, NULL, __pyx_n_s_chia_rep_chia_rep_util); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 4, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_c_emd, __pyx_t_1) < 0) __PYX_ERR(0, 4, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "chia_rep_util.pyx":14
+  /* "chia_rep/chia_rep_util.pyx":34
  *     return dist
  * 
  * def match_graphs(double[:, :] p, double[:, :] q, double[:, :] p1,             # <<<<<<<<<<<<<<
  *                  double[:, :] q1, unsigned int size):
  *     cdef Py_ssize_t i, j
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_13chia_rep_util_3match_graphs, NULL, __pyx_n_s_chia_rep_util); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 14, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_8chia_rep_13chia_rep_util_3match_graphs, NULL, __pyx_n_s_chia_rep_chia_rep_util); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 34, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_match_graphs, __pyx_t_1) < 0) __PYX_ERR(0, 14, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_match_graphs, __pyx_t_1) < 0) __PYX_ERR(0, 34, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "chia_rep_util.pyx":26
+  /* "chia_rep/chia_rep_util.pyx":46
  *                 p1[i][j] = 0
  * 
  * def get_loops(unsigned int window_start, unsigned int window_end,             # <<<<<<<<<<<<<<
  *               unsigned char[:] removed_area, int[:] start_list,
  *               int[:] end_list, double[:] value_list):
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_13chia_rep_util_5get_loops, NULL, __pyx_n_s_chia_rep_util); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 26, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_8chia_rep_13chia_rep_util_5get_loops, NULL, __pyx_n_s_chia_rep_chia_rep_util); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 46, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_get_loops, __pyx_t_1) < 0) __PYX_ERR(0, 26, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_get_loops, __pyx_t_1) < 0) __PYX_ERR(0, 46, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "chia_rep_util.pyx":53
+  /* "chia_rep/chia_rep_util.pyx":96
  *     return loops[:counter]
  * 
  * def complete_graph(double[:, :] graph, int graph_size):             # <<<<<<<<<<<<<<
  *     cdef size_t i, j
  * 
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_13chia_rep_util_7complete_graph, NULL, __pyx_n_s_chia_rep_util); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 53, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_8chia_rep_13chia_rep_util_7complete_graph, NULL, __pyx_n_s_chia_rep_chia_rep_util); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 96, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_complete_graph, __pyx_t_1) < 0) __PYX_ERR(0, 53, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_complete_graph, __pyx_t_1) < 0) __PYX_ERR(0, 96, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "chia_rep_util.pyx":1
+  /* "chia_rep/chia_rep_util.pyx":1
  * from libc.math cimport fabs             # <<<<<<<<<<<<<<
  * import numpy as np
  * 
@@ -17796,11 +17798,11 @@ if (!__Pyx_RefNanny) {
   __Pyx_XDECREF(__pyx_t_1);
   if (__pyx_m) {
     if (__pyx_d) {
-      __Pyx_AddTraceback("init chia_rep_util", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      __Pyx_AddTraceback("init chia_rep.chia_rep_util", __pyx_clineno, __pyx_lineno, __pyx_filename);
     }
     Py_CLEAR(__pyx_m);
   } else if (!PyErr_Occurred()) {
-    PyErr_SetString(PyExc_ImportError, "init chia_rep_util");
+    PyErr_SetString(PyExc_ImportError, "init chia_rep.chia_rep_util");
   }
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
