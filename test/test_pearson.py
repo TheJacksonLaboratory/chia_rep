@@ -3,17 +3,11 @@ get_ipython().magic('load_ext autoreload')
 get_ipython().magic('autoreload 2')
 
 import sys
-import logging
-from logging.config import fileConfig
 from copy import deepcopy
-import time
 
 sys.path.append('..')
-from chia_rep import all_loop_data
-from chia_rep import chrom_loop_data
 from chia_rep import reproducibility
-from chia_rep import loop_rep
-from chia_rep import bedgraph_rep
+from misc import bedgraph_rep
 
 MOUSE_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/mouse'
 PEAK_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/peaks'

@@ -8,11 +8,11 @@ import csv
 from prettytable import PrettyTable
 import logging
 from pyBedGraph import BedGraph
-from .all_loop_data import AllLoopData, DEFAULT_NUM_PEAKS
+from .GenomeLoopData import GenomeLoopData, DEFAULT_NUM_PEAKS
 
 log = logging.getLogger()
 
-VERSION = 9
+VERSION = 10
 
 REPLICATES = [
     ['LHM0011_0011H', 'LHM0014_0014H'],
@@ -37,13 +37,10 @@ NON_REP_PROB = [
 
 TO_CHECK = REPLICATES + NON_REP_PROB
 
-TO_CHECK_SET = set([sample for pair in TO_CHECK for sample in pair])
-
 
 def output_to_csv(scores, output_file):
     with open(output_file, 'w+') as out_file:
-        header = list(scores.keys())
-        header.insert(0, 'Sample Name')
+        header = ['Sample Name'] + list(scores.keys())
         writer = csv.DictWriter(out_file, fieldnames=header)
 
         writer.writeheader()
@@ -53,115 +50,197 @@ def output_to_csv(scores, output_file):
     log.info(f"Results have been written to {output_file}")
 
 
-# Make compare_all == False to save time by not comparing known reproducibility
-def compare(data_dict, compare_all=True, **kwargs):
-    log.info(f"Comparing {[x for x in data_dict]}\n"
+def compare(sample_dict, known_replicates=None, specified_comparisons=None,
+            **kwargs):
+    """
+    Compares all samples in the dictionary against each other.
+
+    Parameters
+    ----------
+    sample_dict : dict(str, GenomeLoopData)
+        Key: Name of sample
+        Value: Sample data
+    known_replicates: list, optional
+        2D List of known replicates in format:
+        [[sample1, sample2], [sample1, sample3], ...]
+        Default is None
+    specified_comparisons : list, optional
+        2D List of comparisons to make in format:
+        [[sample1, sample2], [sample1, sample3], ...]
+        Default is None
+    kwargs :
+        Extra arguments for compare function in GenomeLoopData
+
+    Returns
+    -------
+    dict
+        Contains reproducibility values for known replicates
+    dict
+        Contains reproducibility values for unknown samples
+    OrderedDict
+        Contains emd_values for every comparison made
+    OrderedDict
+        Contains j_values for every comparison made
+    """
+    log.info(f"Comparing {[x for x in sample_dict]}\n"
              f"Arguments: {kwargs}")
 
-    non_replicates = {}
-    replicates = {}
+    non_rep_values = {}
+    rep_values = {}
 
-    len_dict = len(data_dict)
-    keys = list(data_dict.keys())
-    scores = OrderedDict()  # To easily output in .csv format
+    if known_replicates is None:
+        known_replicates = REPLICATES
+
+    len_dict = len(sample_dict)
+    keys = list(sample_dict.keys())
+    emd_scores = OrderedDict()  # To easily output in .csv format
+    j_scores = OrderedDict()  # To easily output in .csv format
     for key in keys:
-        scores[key] = OrderedDict()
-        scores[key][key] = 1
-        scores[key]['Sample Name'] = key
+        emd_scores[key] = OrderedDict()
+        emd_scores[key][key] = 1
+        emd_scores[key]['Sample Name'] = key
+
+        j_scores[key] = OrderedDict()
+        j_scores[key][key] = 1
+        j_scores[key]['Sample Name'] = key
 
     for i in range(len_dict):
         for j in range(i + 1, len_dict):
             key1 = keys[i]
             key2 = keys[j]
             combined_keys = key1 + '_' + key2
-            data1 = data_dict[key1]
-            data2 = data_dict[key2]
+            data1 = sample_dict[key1]
+            data2 = sample_dict[key2]
 
             if data2.species_name != data1.species_name:
                 continue
 
-            if not compare_all:
+            if specified_comparisons:
                 want_to_check = False
-                for to_check in TO_CHECK:
+                for to_check in specified_comparisons:
                     if key1 in to_check and key2 in to_check:
                         want_to_check = True
                         break
                 if not want_to_check:
                     continue
 
-            is_rep = False
-            for rep in REPLICATES:
+            is_known_rep = False
+            for rep in known_replicates:
                 if key1 in rep and key2 in rep:
-                    is_rep = True
+                    is_known_rep = True
                     break
 
             log.info(f'{key1} vs. {key2}:')
-            rep_dict = data1.compare(data2, **kwargs, is_rep=is_rep)
+            rep_dict = data1.compare(data2, **kwargs, is_rep=is_known_rep)
 
             # rep_dict = compare_func(data1, data2, **kwargs, is_rep=is_rep)
-            main_value = rep_dict['main']
 
-            scores[key1][key2] = main_value
-            scores[key2][key1] = main_value
+            emd_scores[key1][key2] = rep_dict['emd_value']
+            emd_scores[key2][key1] = rep_dict['emd_value']
+            emd_scores[key1][key2] = rep_dict['j_value']
+            emd_scores[key2][key1] = rep_dict['j_value']
 
             # Separate reproducibility values into replicates and non-replicates
-            if is_rep:
-                replicates[combined_keys] = rep_dict
+            if is_known_rep:
+                rep_values[combined_keys] = rep_dict
             else:
-                non_replicates[combined_keys] = rep_dict
+                non_rep_values[combined_keys] = rep_dict
 
-            log.info(f'{combined_keys} Reproducibility: {main_value}')
+            log.info(f'{combined_keys} EMD: {rep_dict["emd_value"]}')
+            log.info(f'{combined_keys} j_value: {rep_dict["j_value"]}')
 
-    comp_str = f"Compared {[x for x in data_dict]}\n" \
+    comp_str = f"Compared {[x for x in sample_dict]}\n" \
                f"Arguments: {kwargs}"
     log.info(comp_str)
 
-    return replicates, non_replicates, scores
+    return rep_values, non_rep_values, emd_scores, j_scores
 
 
-def output_results(rep, non_rep, out_file_path=None):
-    log.info(f"Number of replicates found: {len(rep)}")
-    log.info(f"Number of non-replicates found: {len(non_rep)}")
+def output_results(rep, non_rep, out_file_dir=None, desc_str=None):
+    """
+    Outputs results in readable text file table format
 
-    out_file = None
-    if out_file_path:
-        out_file = open(out_file_path, 'w')
+    Parameters
+    ----------
+    rep : dict(str, dict)
+        Key: Combined comparison name (LHH0048_LHH0054L)
+        Value: dict containing keys: 'emd_value' and/or 'j_value'
+        Dictionary containing information for replicate comparisons
+    non_rep : dict(str, dict)
+        Key: Combined comparison name (LHH0048_LHH0054L)
+        Value: dict containing keys: 'emd_value' and/or 'j_value'
+        Dictionary containing information for non-replicate comparisons
+    out_file_dir : str, optional
+        Default is None
+    desc_str : str, optional
+        Used as file name to describe settings/parameters for this comparison
+        Not optional if out_file_dir is not None
+        Default is None
+    """
 
-    # Dictionaries of dictionaries
-    value_table = PrettyTable(['output', 'graph_type', 'main'])
-    value_table.sortby = 'main'
-    value_table.reversesort = True
+    log.info(f"Number of known replicates: {len(rep)}")
+    log.info(f"Number of non-replicates or unknown: {len(non_rep)}")
 
-    for rep_value in [rep, non_rep]:
-        for k, value_dict in rep_value.items():
-            value_table.add_row([k, value_dict['graph_type'],
-                                 round(value_dict['main'], 5)])
-        temp_str = 'Non-Replicates\n' + value_table.get_string()
-        if out_file:
-            out_file.write(temp_str + '\n')
+    for value_type in ['emd_value', 'j_value']:
+        out_file = None
+        out_file_path = None
+        if out_file_dir:
+            if not os.path.isdir(out_file_dir):
+                os.mkdir(out_file_dir)
+
+            if desc_str is None:
+                out_file_path = os.path.join(out_file_dir, f'{value_type}.txt')
+            else:
+                out_file_path = os.path.join(out_file_dir,
+                                             f'{desc_str}.{value_type}.txt')
+
+            out_file = open(out_file_path, 'w')
+
+        rep_table = PrettyTable(['Comparison', 'emd_value', 'j_value'])
+        rep_table.sortby = value_type
+        rep_table.reversesort = True
+
+        for comparison_value in [rep, non_rep]:
+            if len(comparison_value) == 0:
+                continue
+
+            for k, value_dict in comparison_value.items():
+                rep_table.add_row([k, round(value_dict['emd_value'], 5),
+                                   round(value_dict['j_value'], 5)])
+
+            if comparison_value == rep:
+                temp_str = f'Replicates sorted by {value_type}'
+            else:
+                temp_str = f'Non-Replicates sorted by {value_type}'
+            temp_str += f'\n{rep_table.get_string()}'
+            if out_file:
+                out_file.write(temp_str + '\n')
+            log.info(temp_str)
+            rep_table.clear_rows()
+
+        replicate_values = [x[value_type] for x in rep.values()]
+        non_replicate_values = [x[value_type] for x in non_rep.values()]
+
+        # No more further statistics that can be made without knowing replicates
+        if len(non_replicate_values) == 0 or len(replicate_values) == 0:
+            return
+
+        min_diff = np.min(replicate_values) - np.max(non_replicate_values)
+        avg_diff = np.mean(replicate_values) - np.mean(non_replicate_values)
+        min_rep = np.min(replicate_values)
+        max_non_rep = np.max(non_replicate_values)
+        temp_str = f"Min replicate value: " \
+                   f"{min(rep, key=lambda x: rep[x][value_type])} -> {min_rep}\n" \
+                   f"Max non-replicate value: " \
+                   f"{max(non_rep, key=lambda x: non_rep[x][value_type])} -> {max_non_rep}\n" \
+                   f"Min diff between replicates and non-replicates: {min_diff}\n" \
+                   f"Diff between replicate and non-replicate average: {avg_diff}"
         log.info(temp_str)
-        value_table.clear_rows()
 
-    replicate_values = [x['main'] for x in rep.values()]
-    non_replicate_values = [x['main'] for x in non_rep.values()]
-
-    if len(non_replicate_values) == 0 or len(replicate_values) == 0:
-        return
-
-    min_diff = np.min(replicate_values) - np.max(non_replicate_values)
-    avg_diff = np.mean(replicate_values) - np.mean(non_replicate_values)
-    min_rep = np.min(replicate_values)
-    max_non_rep = np.max(non_replicate_values)
-    temp_str = f"Min replicate value: " \
-               f"{min(rep, key=lambda x: rep[x]['main'])} -> {min_rep}\n" \
-               f"Max non-replicate value: " \
-               f"{max(non_rep, key=lambda x: non_rep[x]['main'])} -> {max_non_rep}\n" \
-               f"Min diff between replicates and non-replicates: {min_diff}\n" \
-               f"Diff between replicate and non-replicate average: {avg_diff}"
-    log.info(temp_str)
-    if out_file:
-        out_file.write(temp_str + '\n')
-        log.info(f"Results have been written to {out_file_path}")
+        if out_file_path:
+            out_file.write(temp_str + '\n')
+            log.info(f"Results have been written to {out_file_path}")
+            out_file.close()
 
 
 # Only uses loop files with .cis and .BE3 endings
@@ -233,21 +312,24 @@ def read_data(loop_data_dir, chrom_size_file, bedgraph_data_dir, peak_data_dir,
                           f"Skipping")
                 continue
 
-            loop_data = AllLoopData(chrom_size_file, loop_file_path, bedgraph,
-                                    peak_dict, min_loop_value=min_loop_value,
-                                    chrom_to_load=chrom_to_load)
+            loop_data = GenomeLoopData(chrom_size_file, loop_file_path, bedgraph,
+                                       peak_dict, min_loop_value=min_loop_value,
+                                       chrom_to_load=chrom_to_load)
             loop_info_dict[loop_data.sample_name] = loop_data
 
     return loop_info_dict
 
 
-def preprocess(loop_dict, num_peaks=DEFAULT_NUM_PEAKS):
+def preprocess(loop_dict, num_peaks=DEFAULT_NUM_PEAKS, kept_dir=None):
     for sample_name in loop_dict:
-        loop_dict[sample_name].preprocess(num_peaks)
+        loop_dict[sample_name].preprocess(num_peaks, kept_dir=kept_dir)
 
 
 def read_bedgraphs(data_directory, chrom_size_file, min_value=-1,
                    chrom_to_read=None):
+    """
+    Unused due to not having enough memory. Read one at a time instead.
+    """
     bedgraph_dict = {}
 
     for filename in os.listdir(data_directory):
@@ -276,9 +358,8 @@ def read_peak_file(peak_file_path, is_narrowPeak):
             try:
                 peak_start = int(data[1])
                 peak_end = int(data[2])
-                peak_value = float(data[value_index])
-            except ValueError:
-                print("Error:", line)
+            except ValueError:  # Sometimes have peaks with 1+E08 as a value
+                log.error("Invalid peak:", line)
                 continue
 
             if chrom_name not in peak_dict:

@@ -2,13 +2,13 @@ from collections import OrderedDict
 
 from prettytable import PrettyTable
 
-from .chrom_loop_data import ChromLoopData
+from .ChromLoopData import ChromLoopData, PEAK_MAX_VALUE
 import numpy as np
 import os
 import logging
 import math
 
-VERSION = 8
+VERSION = 9
 log = logging.getLogger()
 log_bin = logging.getLogger('bin')
 
@@ -18,8 +18,7 @@ CHROMS_TO_IGNORE = ['chrY', 'chrM']
 DEFAULT_NUM_PEAKS = 10
 
 
-class AllLoopData:
-
+class GenomeLoopData:
     """
     A class used to represent a sample
 
@@ -47,7 +46,7 @@ class AllLoopData:
             File containing the base pair size of each chromosome to use
         loop_file_path : str
             File containing loops in format:
-            chr1  start   end chr1  start   end pet_count
+            chrom1  start1   end1 chrom2  start2   end2 pet_count
         bedgraph : BedGraph
             The bedgraph file for this sample (from pyBedGraph)
         peak_dict : dict(str, list)
@@ -119,20 +118,23 @@ class AllLoopData:
                 if loop_value < min_loop_value:
                     continue
 
-                loop_end1 = int(line[4])
-                loop_end2 = int(line[5])
+                # head interval
                 loop_start1 = int(line[1])
-                loop_start2 = int(line[2])
+                loop_end1 = int(line[2])
 
-                self.chrom_dict[chrom_name].add_loop(loop_start1, loop_start2,
-                                                     loop_end1, loop_end2,
+                # tail anchor
+                loop_start2 = int(line[4])
+                loop_end2 = int(line[5])
+
+                self.chrom_dict[chrom_name].add_loop(loop_start1, loop_end1,
+                                                     loop_start2, loop_end2,
                                                      loop_value)
 
-                start_interval = loop_start2 - loop_start1
-                end_interval = loop_end2 - loop_end1
+                head_interval = loop_end1 - loop_start1
+                tail_interval = loop_end2 - loop_start2
 
-                loop_anchor_list.append(start_interval)
-                loop_anchor_list.append(end_interval)
+                loop_anchor_list.append(head_interval)
+                loop_anchor_list.append(tail_interval)
 
             log.debug(f'Anchor mean width: {np.mean(loop_anchor_list)}')
 
@@ -156,7 +158,8 @@ class AllLoopData:
         Parameters
         ----------
         num_peaks : int, optional
-            The number of peaks to use when filtering
+            The number of peaks to use when filtering. Only to be used with chr1
+            since other chromosomes will be dependent on min peak used from chr1
             (default is DEFAULT_NUM_PEAKS)
         both_peak_support : bool, optional
             Whether to only keep loops that have peak support on both sides
@@ -171,19 +174,64 @@ class AllLoopData:
             Number of kept loops in all chromosomes
         """
 
+        for peak_list in self.peak_dict.values():
+            peak_list.sort(key=lambda x: x[PEAK_MAX_VALUE], reverse=True)
+
+        min_peak_value = 0
+        if 'chr1' in self.chrom_dict:
+            min_peak_value = \
+                self.peak_dict['chr1'][num_peaks - 1][PEAK_MAX_VALUE]
+        else:
+            log.warning(f'Unable to set min_peak_value since the chr1 baseline '
+                        f'is not available')
+
         to_remove = []
         for name, chrom in self.chrom_dict.items():
-            if not chrom.preprocess(num_peaks, self.peak_dict[name],
-                                    both_peak_support=both_peak_support,
-                                    kept_dir=kept_dir):
-                to_remove.append(name)
 
-            # Keep only used peaks
-            self.peak_dict[name] = self.peak_dict[name][:num_peaks]
+            # Keep only used peaks above min_peak_value
+            peak_list = self.peak_dict[name]
+            if min_peak_value > 0:
+                for i in range(len(peak_list)):
+                    if peak_list[i][PEAK_MAX_VALUE] < min_peak_value:
+                        self.peak_dict[name] = self.peak_dict[name][:i]
+
+            if len(self.peak_dict[name]) == 0:
+                log.warning(f'{name} has no peaks above {min_peak_value}')
+                to_remove.append(name)
+                continue
+
+            if not chrom.preprocess(self.peak_dict[name],
+                                    both_peak_support=both_peak_support):
+                to_remove.append(name)
 
         # Remove problematic chromosomes
         for name in to_remove:
             del self.chrom_dict[name]
+
+        if kept_dir and not os.path.isfile(f'{kept_dir}/{self.sample_name}.{num_peaks}.peaks'):
+            if not os.path.isdir(kept_dir):
+                os.mkdir(kept_dir)
+
+            with open(f'{kept_dir}/{self.sample_name}.{num_peaks}.peaks', 'w+')\
+                    as out_file:
+                for name, peak_list in self.peak_dict.items():
+                    for peak in peak_list:
+                        out_file.write(f'{name}\t{peak[0]}\t{peak[1]}\t'
+                                       f'{peak[PEAK_MAX_VALUE]}\n')
+
+            with open(f'{kept_dir}/{self.sample_name}.{num_peaks}.loops', 'w+')\
+                    as out_file:
+                for name, chrom_data in self.chrom_dict.items():
+                    for i in chrom_data.kept_indexes:
+                        out_file.write(
+                            f'{chrom_data.name}\t'
+                            f'{chrom_data.start_anchor_list[0][i]}\t'
+                            f'{chrom_data.start_anchor_list[1][i]}\t'
+                            f'{chrom_data.name}\t'
+                            f'{chrom_data.end_anchor_list[0][i]}\t'
+                            f'{chrom_data.end_anchor_list[1][i]}\t'
+                            f'{chrom_data.pet_count_list[i]}\t'
+                            f'{chrom_data.value_list[i]}\n')
 
         total_kept_loops = 0
         for name, chrom_loop in self.chrom_dict.items():
@@ -200,7 +248,7 @@ class AllLoopData:
 
         Parameters
         ----------
-        o_loop_data : AllLoopData
+        o_loop_data : GenomeLoopData
             The sample to compare against
         bin_size : int
             Determines which loops are the same by putting them into bins
@@ -218,6 +266,8 @@ class AllLoopData:
         dict
             graph_type : str
                 Information about which comparison method was used
+                Mainly useless since no comparisons to account for different
+                sequencing depth are used
             rep : str
                 Combined unweighted value of all chromosomes
             w_rep : str
@@ -241,7 +291,7 @@ class AllLoopData:
             chroms_to_compare = list(self.chrom_dict.keys())
 
         chrom_value_table = \
-            PrettyTable(['chrom', 'graph_type', 'rep', 'w_rep'])
+            PrettyTable(['chrom', 'emd_value', 'j_value'])
 
         chrom_value_list = []
         log.info(f'Chroms to compare: {chroms_to_compare}')
@@ -283,17 +333,18 @@ class AllLoopData:
                 if window_index is not None:
                     break
 
-            values = [x['rep'] for x in value_dict_list]
-            chrom_value = {
-                'graph_type': value_dict_list[0]['graph_type'],
-                'rep': np.mean(values),
-            }
+            emd_values = [x['emd_value'] for x in value_dict_list]
+            j_values = [x['j_value'] for x in value_dict_list]
+            chrom_value = OrderedDict()
             # for value_dict in value_dict_list:
             #    assert chrom_value['graph_type'] == value_dict['graph_type']
             try:  # Weigh value from each bin according to max loop in graph
-                chrom_value['w_rep'] = \
-                    np.average(values, weights=[x['w'] for x in
-                                                value_dict_list])
+                chrom_value['emd_value'] = \
+                    np.average(emd_values, weights=[x['w'] for x in
+                                                    value_dict_list])
+                chrom_value['j_value'] = \
+                    np.average(j_values, weights=[x['w'] for x in
+                                                  value_dict_list])
             except ZeroDivisionError:  # sum of weights == 0
                 log.exception(f"No loops were found in either graphs. Skipping"
                               f"{chrom_name}")
@@ -315,11 +366,34 @@ class AllLoopData:
 
         # Weigh value from each chromosome equally
         avg_value = {
-            'graph_type': chrom_value_list[0]['graph_type'],
-            'rep': np.mean([x['rep'] for x in chrom_value_list]),
-            'w_rep': np.mean([x['w_rep'] for x in chrom_value_list])
+            'emd_value': np.mean([x['emd_value'] for x in chrom_value_list]),
+            'j_value': np.mean([x['j_value'] for x in chrom_value_list])
         }
-        avg_value['main'] = avg_value['w_rep']
         log.debug(avg_value)
 
         return avg_value
+
+    def find_diff_loops(self, o_loop_data, chroms_to_diff):
+
+        if chroms_to_diff is None:
+            chroms_to_diff = list(self.chrom_dict.keys())
+        log.info(f'Chroms to compare: {chroms_to_diff}')
+
+        for chrom_name in chroms_to_diff:
+
+            if chrom_name not in self.chrom_dict:
+                log.warning(f'{chrom_name} is not in {self.sample_name}. '
+                            f'Skipping {chrom_name}')
+                continue
+
+            if chrom_name not in o_loop_data.chrom_dict:
+                log.warning(f'{chrom_name} is in {self.sample_name} but '
+                            f'not in {o_loop_data.sample_name}. Skipping '
+                            f'{chrom_name}')
+                continue
+
+            log.info(f"Finding different loops for {chrom_name} ...")
+
+            self.chrom_dict[chrom_name].find_diff_loops(
+                o_loop_data.chrom_dict[chrom_name],
+                self.peak_dict[chrom_name] + o_loop_data.peak_dict[chrom_name])

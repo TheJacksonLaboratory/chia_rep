@@ -1,7 +1,6 @@
 import math
 from math import ceil
-import numpy as nl
-import numpy as npp
+import numpy as np
 import scipy.stats as sp
 from scipy.sparse import coo_matrix, csr_matrix
 import time
@@ -20,7 +19,7 @@ J_WEIGHT = 1
 MIN_NUMB_LOOPS = 5
 MAX_LOOP_LEN = 1000000  # 1mb
 
-VERSION = 53
+VERSION = 54
 
 MAX_USHRT = 65535
 MIN_RATIO_INCREASE = 1.1
@@ -38,8 +37,8 @@ def emd(p, q):
 
     Parameters
     ----------
-    p : 1D Numpy array
-    q : 1D Numpy array
+    p : 1D Numpy array, float64
+    q : 1D Numpy array, float64
 
     Returns
     -------
@@ -71,9 +70,9 @@ def jensen_shannon_divergence(p, q, base=2):
 
     Parameters
     ----------
-    p : 2D Numpy array
+    p : 2D Numpy array, float64
         Graph of sample1
-    q : 2D Numpy array
+    q : 2D Numpy array, float64
         Graph of sample2
     base : int, optional
         Determines base to be used in calculating scipy.entropy (Default is 2)
@@ -106,6 +105,25 @@ def jensen_shannon_divergence(p, q, base=2):
 
 
 def get_matching_graphs(p, q):
+    """
+    Used with ChromLoopData.compare_only_match
+
+    Modified array has values only where the other sample also has values. This
+    was originally for miseq-hiseq comparisons where miseq could be missing
+    important loops found in hiseq.
+
+    Parameters
+    ----------
+    p : 2D Numpy array, float64
+        Graph of sample1
+    q : 2D Numpy array, float64
+        Graph of sample2
+
+    Returns
+    -------
+    list
+        [[mod, orig], [mod, orig]]
+    """
     assert p.size == q.size
     q1 = deepcopy(q)
     p1 = deepcopy(p)
@@ -128,7 +146,7 @@ def get_removed_area(chrom_size, to_remove):
 
     Returns
     -------
-    1D Numpy array
+    1D Numpy array, uint8
         Array marked with 1 in removed intervals
     """
 
@@ -187,6 +205,7 @@ class ChromLoopData:
         self.filtered_end = []
         self.filtered_values = []
         self.filtered_numb_values = 0
+        self.kept_indexes = []
 
         # Used in filter_with_peaks, keeps track of peaks for each loop
         self.peak_indexes = []
@@ -194,12 +213,12 @@ class ChromLoopData:
 
         self.max_loop_value = 0
 
-    def add_loop(self, loop_start1, loop_start2, loop_end1, loop_end2,
+    def add_loop(self, loop_start1, loop_end1, loop_start2, loop_end2,
                  loop_value):
 
         self.start_anchor_list[0].append(loop_start1)
-        self.start_anchor_list[1].append(loop_start2)
-        self.end_anchor_list[0].append(loop_end1)
+        self.start_anchor_list[1].append(loop_end1)
+        self.end_anchor_list[0].append(loop_start2)
         self.end_anchor_list[1].append(loop_end2)
 
         self.value_list.append(loop_value)
@@ -315,28 +334,20 @@ class ChromLoopData:
         log.debug(f"Max loop weighted value: {self.max_loop_value}")
 
     # May have more pre-processing to do?
-    def preprocess(self, num_peaks, peak_dict, both_peak_support=False,
-                   kept_dir=None):
-        return self.filter_with_peaks(num_peaks, peak_dict, both_peak_support,
-                                      kept_dir)
+    def preprocess(self, peak_list, both_peak_support=False):
+        return self.filter_with_peaks(peak_list, both_peak_support)
 
-    def filter_with_peaks(self, num_peaks, peaks, both_peak_support=False,
-                          kept_dir=None):
+    def filter_with_peaks(self, peak_list, both_peak_support=False):
         """
         Filters out loops without peak support.
 
         Parameters
         ----------
-        num_peaks : int
-            Number of peaks to use when filtering
-        peaks : list(list)
+        peak_list : list(list)
             List of peaks to use
         both_peak_support : bool, optional
             Whether to only keep loops that have peak support on both sides
             (default is False)
-        kept_dir : str, optional
-            Directory to output kept peaks and filters
-            (default is None)
 
         Returns
         -------
@@ -346,35 +357,21 @@ class ChromLoopData:
 
         start_time = time.time()
 
+        num_peaks = len(peak_list)
+        min_peak_value = peak_list[-1][2]
+
         log.info(f"Filtering {self.sample_name} {self.name} with "
                  f"{num_peaks} peaks...")
-
-        peaks.sort(key=lambda x: x[PEAK_MAX_VALUE], reverse=True)
-        # num_wanted_peaks = math.ceil(len(peaks) * num_peaks)
-        num_wanted_peaks = min(len(peaks), num_peaks)
-
-        log.debug(f"Num wanted peaks: {num_wanted_peaks}")
-        log.debug(f"Top peaks: {peaks[:5]}")
-
-        wanted_peaks = peaks[:num_wanted_peaks]
-        min_peak_value = wanted_peaks[-1][2]
+        log.debug(f"Top peaks: {peak_list[:5]}")
         log.debug(f'Min peak value: {min_peak_value}')
-
-        if kept_dir:
-            with open(
-                    f'{kept_dir}/{self.sample_name}.{num_peaks}.peaks',
-                    'a+') as out_file:
-                for peak in wanted_peaks:
-                    out_file.write(
-                        f'{self.name}\t{peak[0]}\t{peak[1]}\t{peak[2]}\n')
 
         # Get the coverage of each wanted peak
         # Could be used to find the specific peaks for every loop
         index_array = np.zeros(self.size, dtype=np.uint16)
-        assert num_wanted_peaks < MAX_USHRT
-        for i in range(num_wanted_peaks):
-            peak_start = wanted_peaks[i][0]
-            peak_end = wanted_peaks[i][1]
+        assert num_peaks < MAX_USHRT
+        for i in range(num_peaks):
+            peak_start = peak_list[i][0]
+            peak_end = peak_list[i][1]
             index_array[peak_start:peak_end] = i + 1
 
         log.debug(f'Time: {time.time() - start_time}')
@@ -383,7 +380,7 @@ class ChromLoopData:
         removed_loop_lengths = []
         removed_loop_values = []
         kept_loop_lengths = []
-        kept_indexes = []
+        self.kept_indexes = []
         self.peak_indexes = [[], []]
         self.filtered_start = []
         self.filtered_end = []
@@ -424,35 +421,23 @@ class ChromLoopData:
             self.filtered_start.append(loop_start)
             self.filtered_end.append(loop_end)
             self.filtered_values.append(loop_value)
-            kept_indexes.append(i)
+            self.kept_indexes.append(i)
 
             kept_loop_lengths.append(loop_end - loop_start)
 
             # Unused for now
             self.peak_indexes[0].append((
-                wanted_peaks[index_array[loop_start] - 1][0],
-                wanted_peaks[index_array[loop_start] - 1][1]))
+                peak_list[index_array[loop_start] - 1][0],
+                peak_list[index_array[loop_start] - 1][1]))
             self.peak_indexes[1].append((
-                wanted_peaks[index_array[loop_end] - 1][0],
-                wanted_peaks[index_array[loop_end] - 1][1]))
+                peak_list[index_array[loop_end] - 1][0],
+                peak_list[index_array[loop_end] - 1][1]))
 
         self.filtered_start = np.array(self.filtered_start, dtype=np.int32)
         self.filtered_end = np.array(self.filtered_end, dtype=np.int32)
         self.filtered_values = np.array(self.filtered_values)
         self.filtered_numb_values = self.filtered_start.size
-
-        if kept_dir is not None:
-            with open(
-                    f'{kept_dir}/{self.sample_name}.{num_peaks}.loops',
-                    'a+') as out_file:
-                for i in kept_indexes:
-                    out_file.write(
-                        f'{self.name}\t{self.start_anchor_list[0][i]}\t'
-                        f'{self.start_anchor_list[1][i]}\t{self.name}\t'
-                        f'{self.end_anchor_list[0][i]}\t'
-                        f'{self.end_anchor_list[1][i]}\t'
-                        f'{self.pet_count_list[i]}\t'
-                        f'{self.value_list[i]}\n')
+        self.kept_indexes = np.array(self.kept_indexes, dtype=np.int32)
 
         log.debug(f'Total loops: {self.numb_loops}')
         log.debug(f"Number of loops removed: {numb_deleted}")
@@ -580,9 +565,9 @@ class ChromLoopData:
 
         Parameters
         ----------
-        graph : 2D Numpy array
+        graph : 2D Numpy array, float64
             Graph created from window from sample1
-        o_graph : 2D Numpy array
+        o_graph : 2D Numpy array, float64
             Graph created from window from sample2
         o_chrom : ChromLoopData
             sample2
@@ -601,7 +586,7 @@ class ChromLoopData:
         """
 
         max_emd_dist = graph[0].size - 1
-        log.debug(f'Graph size: {max_emd_dist + 1}')
+        log.debug(f'Graph size: {graph[0].size}')
 
         result = {'graph_type': graph_type}
 
@@ -612,7 +597,8 @@ class ChromLoopData:
                       max_o_graph / o_chrom.max_loop_value
 
         if max_graph == 0 or max_o_graph == 0:
-            result['rep'] = -1
+            result['j_value'] = -1
+            result['emd_value'] = -1
             return result
 
         # with open(f'graphs/{self.sample_name}_{window_start}.csv', 'w') as out:
@@ -628,14 +614,14 @@ class ChromLoopData:
         # total_weight = graph.sum() + o_graph.sum()
 
         j_value = 0
-        # start_time = time.time()
-        # graph_flat = graph.flatten()
-        # o_graph_flat = o_graph.flatten()
-        # j_divergence = jensen_shannon_divergence(graph_flat, o_graph_flat)
-        # log.debug(f'Jensen-Shannon time: {time.time() - start_time}')
-        #
-        # # Make j_value range from -1 to 1
-        # j_value = 2 * (1 - j_divergence) - 1
+        start_time = time.time()
+        graph_flat = graph.flatten()
+        o_graph_flat = o_graph.flatten()
+        j_divergence = jensen_shannon_divergence(graph_flat, o_graph_flat)
+        log.debug(f'Jensen-Shannon time: {time.time() - start_time}')
+
+        # Make j_value range from -1 to 1
+        j_value = 2 * (1 - j_divergence) - 1
 
         # complete_graph(graph, max_emd_dist)
         # complete_graph(o_graph, max_emd_dist)
@@ -664,7 +650,7 @@ class ChromLoopData:
 
         # Scale from -1 to 1
         # Since most values are in bottom half, don't scale linearly
-        emd_value = 2 * (emd_dist - max_emd_dist) * (emd_dist - max_emd_dist) / \
+        emd_value = 2 * (emd_dist - max_emd_dist) * (emd_dist - max_emd_dist) /\
                     (max_emd_dist * max_emd_dist) - 1
 
         # linear scale
@@ -673,9 +659,9 @@ class ChromLoopData:
         if max_emd_weight == 0 and result['w'] != 0:
             log.error(f'Total Weight: {result["w"]} with 0 emd dist')
 
-        result['rep'] = emd_value * EMD_WEIGHT + j_value * J_WEIGHT
-        # result['rep'] = j_value
-        # result['rep'] = emd_value
+        # result['rep'] = emd_value * EMD_WEIGHT + j_value * J_WEIGHT
+        result['j_value'] = j_value
+        result['emd_value'] = emd_value
         # table.add_row([graph_type, j_value, emd_value, result['w']])
 
         return result
@@ -797,12 +783,6 @@ class ChromLoopData:
         # Not sure what to return: max, avg?
         return result
 
-    def find_diff_loops(self, o_chrom):
-        with open(f'diff_loops/{self.sample_name}_{o_chrom.sample_name}.loops',
-                  'a+'):
-            pass
-        pass
-
     def compare(self, o_chrom, window_start, window_end, bin_size,
                 is_rep=False):
         """
@@ -843,7 +823,8 @@ class ChromLoopData:
             log.error(f"Start of window ({window_start}) is larger than "
                       f"{self.name} size: {self.size}")
             return {'graph_type': 'error',
-                    'rep': 0,
+                    'j_value': 0,
+                    'emd_value': 0,
                     'w': 0
                     }
 
@@ -892,7 +873,8 @@ class ChromLoopData:
         if num_loops == 0 and num_o_loops == 0:
             result = {
                 'graph_type': 'pass_none',
-                'rep': 1,
+                'j_value': 1,
+                'emd_value': 1,
                 'w': 0
             }
 
@@ -950,16 +932,65 @@ class ChromLoopData:
 
         # log_bin.info(value_table)
         log.debug(f'Total time: {time.time() - start_time}')
-        log.debug(f'Reproducibility: {result["rep"]}')
+        log.debug(f'Reproducibility: {result["emd_value"]}')
         if is_rep:
             for i in [0.5, 0, -0.5]:
-                if result['rep'] < i:
+                if result['emd_value'] < i:
                     log.debug(f'Less than {i}')
 
         # log_all.info(
         #    '-----------------------------------------------------------------')
 
         return result
+
+    def find_diff_loops(self, o_chrom, combined_peak_list):
+        merged_list = merge_peaks(combined_peak_list)
+
+        graph_size = len(merged_list)
+        peak_graph = self.create_peak_graph(merged_list)
+        o_peak_graph = o_chrom.create_peak_graph(merged_list)
+
+        peak_centers = []
+        for peak in merged_list:
+            peak_centers.append(int((peak[PEAK_START] + peak[PEAK_END]) / 2))
+
+        with open(f'diff_loops/{self.sample_name}_{o_chrom.sample_name}.loops',
+                  'a+') as out_file:
+            for i in range(graph_size):
+                for j in range(graph_size):
+                    diff = abs(peak_graph[i][j] - o_peak_graph[i][j])
+                    comb = (peak_graph[i][j] + o_peak_graph[i][j]) / 2
+                    if comb == 0:
+                        continue
+
+                    out_file.write(f'{self.name}\t{peak_centers[i]}\t'
+                                   f'{peak_centers[j]}\t{diff / comb}\n')
+
+    def create_peak_graph(self, merged_list):
+        graph_len = len(merged_list)
+        graph = np.zeros((graph_len, graph_len), dtype=np.float64)
+
+        peak_array = np.full(self.size, -1, dtype=np.int16)
+        for i, peak in enumerate(merged_list):
+            start = peak[PEAK_START]
+            end = peak[PEAK_END]
+            peak_array[start:end] = i
+
+        for loop_index in range(self.filtered_numb_values):
+            value = self.filtered_values[loop_index]
+            start = self.filtered_start[loop_index]
+            end = self.filtered_end[loop_index]
+
+            start_index = peak_array[start]
+            end_index = peak_array[end]
+
+            if start_index == -1 or end_index == -1:
+                log.error("ERROR")
+                continue
+
+            graph[start_index][end_index] += value
+
+        return graph
 
 
 def merge_peaks(combined_peak_list):
@@ -975,12 +1006,19 @@ def merge_peaks(combined_peak_list):
         if higher_peak[PEAK_START] <= lower_peak[PEAK_END]:
             if lower_peak[PEAK_END] > higher_peak[PEAK_END]:
                 lower_peak[PEAK_MAX_VALUE] += higher_peak[PEAK_MAX_VALUE]
+
+                peak_diffs.append(1)
                 continue
 
             dist_diff = higher_peak[PEAK_START] - lower_peak[PEAK_START]
-            if dist_diff / lower_peak[PEAK_LEN] >= 0.5 and \
-                    dist_diff / higher_peak[PEAK_LEN] >= 0.5:
-                peak_diffs.append(dist_diff)
+            lower_peak_percentage = dist_diff / lower_peak[PEAK_LEN]
+            higher_peak_percentage = dist_diff / higher_peak[PEAK_LEN]
+
+            # Has to have at least 50% overlapping for one peaks
+            if lower_peak_percentage >= 0.5 or higher_peak_percentage >= 0.5:
+                peak_diffs.append(
+                    max(lower_peak_percentage, higher_peak_percentage))
+
                 lower_peak[PEAK_END] = higher_peak[PEAK_END]
                 lower_peak[PEAK_MAX_VALUE] += higher_peak[PEAK_MAX_VALUE]
                 lower_peak[PEAK_LEN] = lower_peak[PEAK_END] - lower_peak[
@@ -990,35 +1028,7 @@ def merge_peaks(combined_peak_list):
         merged_peak_list.append(higher_peak)
 
     log.info(f"Merged {len(combined_peak_list) - len(merged_peak_list)} peaks")
-    log.info(f"Avg space between merged peaks: {np.mean(peak_diffs)}")
+    log.info(f"Avg non-overlapping percentage between merged peaks: "
+             f"{np.mean(peak_diffs)}")
 
     return merged_peak_list
-
-
-def create_peak_graph(merged_list, loop_index_list, chrom_loop_data):
-    self = chrom_loop_data
-
-    graph_len = len(merged_list)
-    graph = np.zeros((graph_len, graph_len), dtype=np.float64)
-
-    peak_array = np.full(self.size, -1, dtype=np.int16)
-    for i, peak in enumerate(merged_list):
-        start = peak[PEAK_START]
-        end = peak[PEAK_END]
-        peak_array[start:end] = i
-
-    for loop_index in loop_index_list:
-        value = self.filtered_values[loop_index]
-        start = self.filtered_start[loop_index]
-        end = self.filtered_end[loop_index]
-
-        start_index = peak_array[start]
-        end_index = peak_array[end]
-
-        if start_index == -1 or end_index == -1:
-            log.error("ERROR")
-            continue
-
-        graph[start_index][end_index] += value
-
-    return graph
