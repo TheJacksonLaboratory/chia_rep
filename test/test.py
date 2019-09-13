@@ -1,4 +1,12 @@
+"""
+Use this file for testing purposes in an interactive python session. This is to
+avoid the time-consuming process of reloading bedgraphs each time a comparison
+is done.
+"""
+
 # coding: utf-8
+# Automatically updates modules that have been imported
+# Still needs to reload/reset if extra methods/fields are added to class objects
 get_ipython().magic('load_ext autoreload')
 get_ipython().magic('autoreload 2')
 
@@ -32,6 +40,8 @@ from logging.config import fileConfig
 fileConfig('chia_rep.conf')
 main_formatter = logging.Formatter(LOG_MAIN_FORMAT, datefmt=LOG_TIME_FORMAT)
 
+# Make the loop_dict a global variable to be untouched so it doesn't have to be
+# reloaded
 loop_dict = reproducibility.read_data(loop_data_dir=HUMAN_DATA_DIR,
                                       chrom_size_file=f'{CHROM_DATA_DIR}/hg38.chrom.sizes',
                                       bedgraph_data_dir=BEDGRAPH_DATA_DIR,
@@ -54,6 +64,7 @@ loop_dict.update(reproducibility.read_data(loop_data_dir=MOUSE_DATA_DIR,
 #         loop_dict[name].peak_dict[chrom] = peaks
 
 
+# Simply copy/paste following method into interactive session and run it
 def comparison():
     parent_dir = 'all_complete'
     # parent_dir = 'small_complete'
@@ -85,6 +96,7 @@ def comparison():
                 log.handlers = [main_handler, stream_handler]
                 log_all.handlers = [main_handler]
 
+                # Make sure not to disturb the original dict
                 l = deepcopy(loop_dict)
                 reproducibility.preprocess(l, num_peaks=k, kept_dir=f'kept')
 
@@ -98,5 +110,6 @@ def comparison():
                                               f'{parent_dir}/results/{temp_str}.emd_value.csv')
                 reproducibility.output_to_csv(j_scores,
                                               f'{parent_dir}/results/{temp_str}.j_value.csv')
+
 
 comparison()

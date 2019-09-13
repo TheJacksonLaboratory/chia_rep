@@ -82,8 +82,7 @@ def compare(sample_dict, known_replicates=None, specified_comparisons=None,
     OrderedDict
         Contains j_values for every comparison made
     """
-    log.info(f"Comparing {[x for x in sample_dict]}\n"
-             f"Arguments: {kwargs}")
+    log.info(f"Comparing {[x for x in sample_dict]}\nArguments: {kwargs}")
 
     non_rep_values = {}
     rep_values = {}
@@ -112,6 +111,7 @@ def compare(sample_dict, known_replicates=None, specified_comparisons=None,
             data1 = sample_dict[key1]
             data2 = sample_dict[key2]
 
+            # Avoid comparing hg38 vs. mm10
             if data2.species_name != data1.species_name:
                 continue
 
@@ -149,9 +149,7 @@ def compare(sample_dict, known_replicates=None, specified_comparisons=None,
             log.info(f'{combined_keys} EMD: {rep_dict["emd_value"]}')
             log.info(f'{combined_keys} j_value: {rep_dict["j_value"]}')
 
-    comp_str = f"Compared {[x for x in sample_dict]}\n" \
-               f"Arguments: {kwargs}"
-    log.info(comp_str)
+    log.info(f"Compared {[x for x in sample_dict]}\nArguments: {kwargs}")
 
     return rep_values, non_rep_values, emd_scores, j_scores
 
@@ -221,7 +219,7 @@ def output_results(rep, non_rep, out_file_dir=None, desc_str=None):
         replicate_values = [x[value_type] for x in rep.values()]
         non_replicate_values = [x[value_type] for x in non_rep.values()]
 
-        # No more further statistics that can be made without knowing replicates
+        # No more statistics can be made without knowing replicates
         if len(non_replicate_values) == 0 or len(replicate_values) == 0:
             return
 
@@ -243,11 +241,13 @@ def output_results(rep, non_rep, out_file_dir=None, desc_str=None):
             out_file.close()
 
 
-# Only uses loop files with .cis and .BE3 endings
 def read_data(loop_data_dir, chrom_size_file, bedgraph_data_dir, peak_data_dir,
               min_loop_value=0, min_bedgraph_value=0, chrom_to_load=None):
     """
-    Reads all necessary data
+    Reads all necessary data.
+
+    loop_data_dir/peak_data_dir/bedgraph_data_dir do not have to be seperate
+    directories.
 
     Parameters
     ----------
@@ -291,10 +291,9 @@ def read_data(loop_data_dir, chrom_size_file, bedgraph_data_dir, peak_data_dir,
         log.error(f"Peak dir: {peak_data_dir} is not a valid directory")
         return
 
-    loop_info_dict = OrderedDict()
+    loop_data_dict = OrderedDict()
 
     log.info(os.listdir(loop_data_dir))
-    log.info(f'Number of samples: {len(os.listdir(loop_data_dir))}')
     for loop_file_name in os.listdir(loop_data_dir):
         if loop_file_name.endswith('.BE3') or loop_file_name.endswith('.cis'):
             sample_name = loop_file_name.split('.')[0]
@@ -308,6 +307,7 @@ def read_data(loop_data_dir, chrom_size_file, bedgraph_data_dir, peak_data_dir,
                         sample_name not in peak_file_name:
                     continue
 
+                # Sort of useless now since we don't use value from peak caller
                 is_narrowPeak = False
                 if 'narrowpeak' in peak_file_name.lower():
                     is_narrowPeak = True
@@ -315,16 +315,19 @@ def read_data(loop_data_dir, chrom_size_file, bedgraph_data_dir, peak_data_dir,
                     is_narrowPeak = False
                 else:
                     log.error(f"{peak_file_name} is an unknown peak file")
+
                 peak_file_path = os.path.join(peak_data_dir, peak_file_name)
                 peak_dict = read_peak_file(peak_file_path, is_narrowPeak)
                 break
 
             if peak_dict is None:
-                log.error(f"{sample_name} not in {peak_data_dir}. Skipping ...")
+                log.error(f"{sample_name}'s peak file is not in "
+                          f"{peak_data_dir}. Skipping")
                 continue
 
             bedgraph = None
             for bedgraph_file_name in os.listdir(bedgraph_data_dir):
+                # Extra period from confusion with pooled data sets?
                 if f'{sample_name}.' in bedgraph_file_name and \
                         'bedgraph' in bedgraph_file_name.lower():
                     bedgraph_file_path = os.path.join(bedgraph_data_dir,
@@ -337,16 +340,16 @@ def read_data(loop_data_dir, chrom_size_file, bedgraph_data_dir, peak_data_dir,
                     break
 
             if bedgraph is None:
-                log.error(f"{sample_name}. not in {bedgraph_data_dir}. "
-                          f"Skipping")
+                log.error(f"{sample_name}'s bedgraph file is not in "
+                          f"{bedgraph_data_dir}. Skipping")
                 continue
 
-            loop_data = GenomeLoopData(chrom_size_file, loop_file_path, bedgraph,
-                                       peak_dict, min_loop_value=min_loop_value,
-                                       chrom_to_load=chrom_to_load)
-            loop_info_dict[loop_data.sample_name] = loop_data
+            gld = GenomeLoopData(chrom_size_file, loop_file_path, bedgraph,
+                                 peak_dict, min_loop_value=min_loop_value,
+                                 chrom_to_load=chrom_to_load)
+            loop_data_dict[gld.sample_name] = gld
 
-    return loop_info_dict
+    return loop_data_dict
 
 
 def preprocess(loop_dict, num_peaks=DEFAULT_NUM_PEAKS, both_peak_support=False,
@@ -378,7 +381,7 @@ def read_peak_file(peak_file_path, is_narrowPeak=False):
     """
     Finds the start and ends of every peak in chromosome for one sample.
 
-    File format must have at least 3 columns:
+    File format must have at least 3 columns with the first 3 being:
     chrom   start   end
 
     Parameters

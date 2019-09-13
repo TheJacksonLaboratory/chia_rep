@@ -115,3 +115,6 @@ reproducibility.output_results(rep, non_rep)
 reproducibility.output_to_csv(scores, f'sample_test.csv')
 ```
 
+## Testing:
+Use chia_rep/test/test.py in an interactive session. Further reasoning provided
+inside file.

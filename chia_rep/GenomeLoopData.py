@@ -16,7 +16,7 @@ log_bin = logging.getLogger('bin')
 # Missing in many miseq peak files
 CHROMS_TO_IGNORE = ['chrY', 'chrM']
 
-DEFAULT_NUM_PEAKS = 10
+DEFAULT_NUM_PEAKS = 60
 
 
 class GenomeLoopData:
@@ -41,6 +41,10 @@ class GenomeLoopData:
     def __init__(self, chrom_size_file_path, loop_file_path, bedgraph,
                  peak_dict, chrom_to_load=None, min_loop_value=0):
         """
+        Initializes all chromosomes and adds loops to them from given file.
+
+        Finds peak max from bedgraph
+
         Parameters
         ----------
         chrom_size_file_path : str
@@ -67,6 +71,7 @@ class GenomeLoopData:
         self.species_name = os.path.basename(chrom_size_file_path).split('.')[0]
         self.sample_name = os.path.basename(loop_file_path).split('.')[0]
 
+        # Find values for each peak since peak caller was not accurate
         for chrom_name, peak_chrom in peak_dict.items():
             if not bedgraph.has_chrom(chrom_name):
                 log.error(f'{bedgraph.name} does not have {chrom_name}')
@@ -139,6 +144,7 @@ class GenomeLoopData:
 
             log.debug(f'Anchor mean width: {np.mean(loop_anchor_list)}')
 
+        # Get rid of chroms that had problems initializing
         to_remove = []
         for chrom_name in self.chrom_dict:
             if not self.chrom_dict[chrom_name].finish_init(bedgraph):
@@ -197,7 +203,7 @@ class GenomeLoopData:
         to_remove = []
         for name, chrom_data in self.chrom_dict.items():
 
-            # Keep only used peaks above min_peak_value
+            # Keep only peaks in each chromosome above min_peak_value
             peak_list = self.peak_dict[name]
             if min_peak_value > 0:
                 for i in range(len(peak_list)):

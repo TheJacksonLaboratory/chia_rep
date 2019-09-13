@@ -269,9 +269,11 @@ class ChromLoopData:
 
     def find_loop_anchor_points(self, bedgraph):
         """
-        Finds the exact loop anchor points. Finds peak values for each anchor
-        and weighs the loop. Also finds loops that have overlapping start/end
-        indexes due to close and long start/end anchors.
+        Finds the exact loop anchor points.
+
+        Finds peak values for each anchor and weighs the loop. Also finds loops
+        that have overlapping start/end indexes due to close and long start/end
+        anchors.
 
         Parameters
         ----------
@@ -339,13 +341,17 @@ class ChromLoopData:
         self.max_loop_value = np.max(self.value_list)
         log.debug(f"Max loop weighted value: {self.max_loop_value}")
 
-    # May have more pre-processing to do?
+    # May have more pre-processing to do besides filtering later?
+    # Useless extra function otherwise
     def preprocess(self, peak_list, both_peak_support=False):
         return self.filter_with_peaks(peak_list, both_peak_support)
 
     def filter_with_peaks(self, peak_list, both_peak_support=False):
         """
         Filters out loops without peak support.
+
+        Get coverage of peaks that have been chosen to be used. Find loops that
+        are not within that coverage and filter them out.
 
         Parameters
         ----------
@@ -482,6 +488,7 @@ class ChromLoopData:
         window_size : int
         random : bool, optional
             Randomly pick which loops to use (Default is False)
+            Useless for now since different sequencing depth is ignored
         to_debug : bool, optional
             Log loops used in the graph (Default is False)
 
@@ -497,7 +504,6 @@ class ChromLoopData:
         # result in high reproducibility
         if num_loops == 0:
             num_loops = len(loops)
-
         indexes = None
         if random:
             indexes = np.random.choice(len(loops), num_loops, replace=False)
@@ -570,7 +576,7 @@ class ChromLoopData:
         """
         Get the reproducibility stat.
 
-        Jensen Shannon or EMD. Though EMD seems to be better.
+        Jensen Shannon and EMD. Though EMD seems to be better.
 
         Parameters
         ----------
@@ -834,7 +840,7 @@ class ChromLoopData:
     def compare(self, o_chrom, window_start, window_end, bin_size, window_size,
                 is_rep=False):
         """
-        Compare a window of this chromosome of another chromosome from another
+        Compare a window of this chromosome to another chromosome from another
         sample
 
         Parameters
