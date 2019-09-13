@@ -246,6 +246,35 @@ def output_results(rep, non_rep, out_file_dir=None, desc_str=None):
 # Only uses loop files with .cis and .BE3 endings
 def read_data(loop_data_dir, chrom_size_file, bedgraph_data_dir, peak_data_dir,
               min_loop_value=0, min_bedgraph_value=0, chrom_to_load=None):
+    """
+    Reads all necessary data
+
+    Parameters
+    ----------
+    loop_data_dir
+        Directory with loop files. File names must end in either ".BE3" or
+        ".cis"
+    chrom_size_file
+        Path to chromosome size file
+    bedgraph_data_dir
+        Directory with bedgraph files. File names must include "bedgraph" case
+        insensitive.
+    peak_data_dir
+        Directory with peak files. File names must include "narrowpeak" or
+        "broadpeak" case insensitive.
+    min_loop_value
+        Minimum loop value accepted by GenomeLoopData/ChromLoopData
+    min_bedgraph_value : int, optional
+        Minimum value accepted by BedGraph obj from pyBedGraph
+    chrom_to_load : str, optional
+        Specify a specific chromosome to load instead of the entire genome
+
+    Returns
+    -------
+    OrderedDict(str, GenomeLoopData)
+        Key: Name of sample
+        Value: Data
+    """
     if not os.path.isfile(chrom_size_file):
         log.error(f"Chrom size file: {chrom_size_file} is not a valid file")
         return
@@ -331,7 +360,7 @@ def preprocess(loop_dict, num_peaks=DEFAULT_NUM_PEAKS, both_peak_support=False,
 def read_bedgraphs(data_directory, chrom_size_file, min_value=-1,
                    chrom_to_read=None):
     """
-    Unused due to not having enough memory. Read one at a time instead.
+    Unused due to not having enough memory. Read one bedgraph at a time instead.
     """
     bedgraph_dict = {}
 
@@ -345,7 +374,26 @@ def read_bedgraphs(data_directory, chrom_size_file, min_value=-1,
     return bedgraph_dict
 
 
-def read_peak_file(peak_file_path, is_narrowPeak):
+def read_peak_file(peak_file_path, is_narrowPeak=False):
+    """
+    Finds the start and ends of every peak in chromosome for one sample.
+
+    File format must have at least 3 columns:
+    chrom   start   end
+
+    Parameters
+    ----------
+    peak_file_path : str
+        File path of peak file
+    is_narrowPeak : bool, optional
+        Useless for now since only the chrom/start/end is taken, not the value
+
+    Returns
+    -------
+    dict(str, 2D list)
+        Key: chrom name
+        Value: list of [start, end, end - start]
+    """
     peak_dict = {}
 
     if is_narrowPeak:

@@ -63,11 +63,8 @@ def comparison():
         for j in [10, 20]:  # window size:
         # for j in [3]:
             j *= 1000000
-            if j / i > 2000:
-                continue
-
-            # for k in [20, 30, 40, 50, 60, 80, 100, 200]:  # Peaks kept
-            for k in [80, 100, 200]:  # Peaks kept
+            for k in [20, 30, 40, 50, 60]:  # Peaks kept
+            # for k in [80, 100, 200]:  # Peaks kept
                 temp_str = f'half.{k}peaks.{i}.{j}'
 
                 # if os.path.isfile(f'{parent_dir}/results/{temp_str}.emd_value.csv'):
