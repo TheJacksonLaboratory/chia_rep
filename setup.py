@@ -33,10 +33,10 @@ setuptools.setup(
     install_requires=['numpy>=1.17.0',
                       'scipy>=1.3.1',
                       'prettytable>=0.7.2',
-                      'pybedgraph>=0.5.30',
+                      'pybedgraph>=0.5.31',
                       'matplotlib>=3.1.1'],
 
-    ext_modules=cythonize(extensions, language_level="3"),
+    ext_modules=cythonize(extensions, language_level=3),
 
     classifiers=[
         "Programming Language :: Python :: 3",
