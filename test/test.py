@@ -9,13 +9,15 @@ import os
 
 sys.path.append('..')
 from chia_rep import reproducibility
+from chia_rep import GenomeLoopData
+from chia_rep import ChromLoopData
 
-MOUSE_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/prob_mouse'
+# MOUSE_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/prob_mouse'
 MOUSE_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/mouse'
 PEAK_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/peaks'
 MY_PEAK_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/my_peaks'
 MY_FULL_PEAK_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/my_full_peaks'
-HUMAN_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/prob_human'
+# HUMAN_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/prob_human'
 HUMAN_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/human'
 BEDGRAPH_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/bedgraphs'
 CHROM_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/chrom_sizes'
@@ -30,9 +32,6 @@ from logging.config import fileConfig
 fileConfig('chia_rep.conf')
 main_formatter = logging.Formatter(LOG_MAIN_FORMAT, datefmt=LOG_TIME_FORMAT)
 
-# Since reading in bedgraph file can take a long time, load them first if in an interactive session
-# bedgraph_dict = reproducibility.read_bedgraphs(DATA_DIR, f'{DATA_DIR}/hg38.chrom.sizes')
-
 loop_dict = reproducibility.read_data(loop_data_dir=HUMAN_DATA_DIR,
                                       chrom_size_file=f'{CHROM_DATA_DIR}/hg38.chrom.sizes',
                                       bedgraph_data_dir=BEDGRAPH_DATA_DIR,
@@ -43,48 +42,37 @@ loop_dict.update(reproducibility.read_data(loop_data_dir=MOUSE_DATA_DIR,
                                            bedgraph_data_dir=BEDGRAPH_DATA_DIR,
                                            peak_data_dir=PEAK_DATA_DIR))
 
-'''loop_dict = reproducibility.read_data(loop_data_dir=HUMAN_DATA_DIR,
-                                      chrom_size_file=f'{CHROM_DATA_DIR}/hg38.chrom.sizes',
-                                      bedgraph_data_dir=BEDGRAPH_DATA_DIR,
-                                      chrom_to_read='chr1')
-
-loop_dict.update(reproducibility.read_data(loop_data_dir=MOUSE_DATA_DIR,
-                                           chrom_size_file=f'{CHROM_DATA_DIR}/mm10.chrom.sizes',
-                                           bedgraph_data_dir=BEDGRAPH_DATA_DIR,
-                                           chrom_to_read='chr1'))'''
-
-'''loop_dict = reproducibility.read_data(loop_data_dir=DATA_DIR,
-                                      chrom_size_file=f'{DATA_DIR}/hg38.chrom.sizes',
-                                      is_hiseq=False,  # Determines if match comparison is made (TODO)
-                                      bedgraph_data_dir=DATA_DIR)'''
-
-'''for name in loop_dict:
-    for chrom in loop_dict[name].peak_dict:
-        peaks = []
-        chrom_peak_dict = loop_dict[name].peak_dict[chrom]
-        for x in range(chrom_peak_dict['num']):
-            peaks.append([chrom_peak_dict['start_list'][x],
-                          chrom_peak_dict['end_list'][x],
-                          chrom_peak_dict['peak_len'][x],
-                          chrom_peak_dict['value_list'][x]])
-        loop_dict[name].peak_dict[chrom] = peaks'''
+# for name in loop_dict:
+#     for chrom in loop_dict[name].peak_dict:
+#         peaks = []
+#         chrom_peak_dict = loop_dict[name].peak_dict[chrom]
+#         for x in range(chrom_peak_dict['num']):
+#             peaks.append([chrom_peak_dict['start_list'][x],
+#                           chrom_peak_dict['end_list'][x],
+#                           chrom_peak_dict['peak_len'][x],
+#                           chrom_peak_dict['value_list'][x]])
+#         loop_dict[name].peak_dict[chrom] = peaks
 
 
 def comparison():
-    parent_dir = 'small_complete'
     parent_dir = 'all_complete'
-    for i in [5]:  # bin size
+    # parent_dir = 'small_complete'
+    for i in [10, 20, 30, 40, 50, 100, 500]:  # bin size
     # for i in [1]:
         i *= 1000
-        for j in [10]:  # window size:
+        for j in [10, 20]:  # window size:
         # for j in [3]:
             j *= 1000000
-            for k in [60, 80]:  # Peaks kept
+            if j / i > 2000:
+                continue
+
+            # for k in [20, 30, 40, 50, 60, 80, 100, 200]:  # Peaks kept
+            for k in [80, 100, 200]:  # Peaks kept
                 temp_str = f'half.{k}peaks.{i}.{j}'
 
-                if os.path.isfile(f'{parent_dir}/results/{temp_str}.emd_value.csv'):
-                    print(f'Skipping {temp_str}')
-                    continue
+                # if os.path.isfile(f'{parent_dir}/results/{temp_str}.emd_value.csv'):
+                #     print(f'Skipping {temp_str}')
+                #     continue
 
                 main_handler = logging.FileHandler(f'{parent_dir}/tmp/main.{temp_str}.log', mode='w')
                 main_handler.setFormatter(main_formatter)
@@ -106,11 +94,12 @@ def comparison():
                 rep, non_rep, emd_scores, j_scores = \
                     reproducibility.compare(l, bin_size=i, window_size=j)
                 # reproducibility.output_results(rep, non_rep)
-                reproducibility.output_results(rep, non_rep, 'emd_value',
-                                               f'{parent_dir}/results/info/{temp_str}.emd_value.txt')
-                reproducibility.output_results(rep, non_rep, 'j_value',
-                                               f'{parent_dir}/results/info/{temp_str}.j_value.txt')
+                reproducibility.output_results(rep, non_rep,
+                                               f'{parent_dir}/results/info',
+                                               temp_str)
                 reproducibility.output_to_csv(emd_scores,
                                               f'{parent_dir}/results/{temp_str}.emd_value.csv')
                 reproducibility.output_to_csv(j_scores,
                                               f'{parent_dir}/results/{temp_str}.j_value.csv')
+
+comparison()

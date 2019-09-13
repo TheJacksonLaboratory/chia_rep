@@ -8,6 +8,8 @@ from copy import deepcopy
 
 sys.path.append('..')
 from chia_rep import reproducibility
+from chia_rep import GenomeLoopData
+from chia_rep import ChromLoopData
 
 MOUSE_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/prob_mouse'
 MOUSE_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/mouse'
@@ -29,28 +31,20 @@ from logging.config import fileConfig
 
 fileConfig('chia_rep.conf')
 main_formatter = logging.Formatter(LOG_MAIN_FORMAT, datefmt=LOG_TIME_FORMAT)
-bin_formatter = logging.Formatter(LOG_BIN_FORMAT, datefmt=LOG_TIME_FORMAT)
-
-# Since reading in bedgraph file can take a long time, load them first if in an interactive session
-# bedgraph_dict = reproducibility.read_bedgraphs(DATA_DIR, f'{DATA_DIR}/hg38.chrom.sizes')
 
 loop_dict = reproducibility.read_data(loop_data_dir=CHIA_DIFF_DIR,
                                       chrom_size_file=f'{CHROM_DATA_DIR}/hg38.chrom.sizes',
                                       bedgraph_data_dir=BEDGRAPH_DATA_DIR,
                                       peak_data_dir=PEAK_DATA_DIR)
 
-# loop_dict.update(reproducibility.read_data(loop_data_dir=MOUSE_DATA_DIR,
-#                                            chrom_size_file=f'{CHROM_DATA_DIR}/mm10.chrom.sizes',
-#                                            bedgraph_data_dir=BEDGRAPH_DATA_DIR,
-#                                            peak_data_dir=PEAK_DATA_DIR))
-
 
 def find_diff():
     l = deepcopy(loop_dict)
-    keys = list(loop_dict.keys())
-    for i in range(len(keys)):
-        for j in range(i, len(keys)):
-            sample1 = l[keys[i]]
-            sample2 = l[keys[j]]
-
-
+    keys = list(l.keys())
+    for k in [60]:
+        reproducibility.preprocess(l, num_peaks=k, both_peak_support=True)
+        for i in range(len(keys)):
+            for j in range(i + 1, len(keys)):
+                sample1 = l[keys[i]]
+                sample2 = l[keys[j]]
+                sample1.find_diff_loops(sample2)

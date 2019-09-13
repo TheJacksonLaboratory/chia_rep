@@ -19,7 +19,7 @@ J_WEIGHT = 1
 MIN_NUMB_LOOPS = 5
 MAX_LOOP_LEN = 1000000  # 1mb
 
-VERSION = 54
+VERSION = 59
 
 MAX_USHRT = 65535
 MIN_RATIO_INCREASE = 1.1
@@ -29,6 +29,12 @@ PEAK_END = 1
 PEAK_LEN = 2
 PEAK_MAX_VALUE = 3
 PEAK_MEAN_VALUE = 4
+
+
+def mypow(x, power):
+    for i in range(power - 1):
+        x *= x
+    return x
 
 
 def emd(p, q):
@@ -495,7 +501,6 @@ class ChromLoopData:
         indexes = None
         if random:
             indexes = np.random.choice(len(loops), num_loops, replace=False)
-        log.debug(f"Number of loops to use: {num_loops}")
 
         num_loops_used = 0
         for i in range(num_loops):
@@ -520,6 +525,10 @@ class ChromLoopData:
             bin_end = int(end / bin_size)
 
             graph[bin_start][bin_end] += value
+
+            # if bin_end < bin_start:
+            #     log.error(
+            #         f'{orig_start}\t{orig_end}\t{start}\t{end}\t{bin_start}\t{bin_end}')
 
             # Get the other side of the graph as well for emd calculation
             # graph[bin_end][bin_start] += value
@@ -586,7 +595,8 @@ class ChromLoopData:
         """
 
         max_emd_dist = graph[0].size - 1
-        log.debug(f'Graph size: {graph[0].size}')
+        graph_size = graph[0].size
+        log.debug(f'Graph size: {graph_size}')
 
         result = {'graph_type': graph_type}
 
@@ -597,9 +607,19 @@ class ChromLoopData:
                       max_o_graph / o_chrom.max_loop_value
 
         if max_graph == 0 or max_o_graph == 0:
+            if max_graph == 0:
+                log.debug('No loops in sample A')
+            else:
+                log.debug('No loops in sample B')
+
+            result['j_divergence'] = 1
             result['j_value'] = -1
             result['emd_value'] = -1
+            result['linear_emd_value'] = -1
+            result['emd_dist'] = 1
             return result
+
+        log.debug('Loops in both samples')
 
         # with open(f'graphs/{self.sample_name}_{window_start}.csv', 'w') as out:
         #     sparse_mat = coo_matrix(graph)
@@ -613,7 +633,6 @@ class ChromLoopData:
         # total_weight = num_loops + num_o_loops
         # total_weight = graph.sum() + o_graph.sum()
 
-        j_value = 0
         start_time = time.time()
         graph_flat = graph.flatten()
         o_graph_flat = o_graph.flatten()
@@ -627,41 +646,70 @@ class ChromLoopData:
         # complete_graph(o_graph, max_emd_dist)
 
         # Calculate emd for all rows and columns -> Take weighted average
-        emd_value = 0
         emd_distance_list = []
         emd_weight_list = []
         start_time = time.time()
         for k in range(graph[0].size):
-            emd_value, emd_weight = emd(graph[k], o_graph[k])
-            emd_distance_list.append(emd_value)
+            # row/col max_emd_dist from the 9-spread when creating graphs
+            # Remember max_emd_dist = graph.size - 1
+
+            # Finding number of blanks in row/column doesn't actually help so it
+            # might just be simpler to take the emd of row/column - 9/12/19
+            # numb_blanks = k - 2
+            # if numb_blanks < 0:
+            #     numb_blanks = 0
+            # row_max_emd_dist = max_emd_dist - numb_blanks
+            emd_dist, emd_weight = emd(graph[k], o_graph[k])
+            # if emd_dist == graph_size:
+            #     emd_dist = row_max_emd_dist
+            # emd_distance_list.append(emd_dist / row_max_emd_dist)
+            emd_distance_list.append(emd_dist)
             emd_weight_list.append(emd_weight)
 
-            emd_value, emd_weight = emd(graph[:, k], o_graph[:, k])
-            emd_distance_list.append(emd_value)
+            # Equivalent to max_emd_dist - (k + 2)
+            # numb_blanks = graph_size - (k + 3)
+            # if numb_blanks < 0:
+            #     numb_blanks = 0
+            # col_max_emd_dist = max_emd_dist - numb_blanks
+            emd_dist, emd_weight = emd(graph[:, k], o_graph[:, k])
+            # if emd_dist == graph_size:
+            #     emd_dist = col_max_emd_dist
+            # emd_distance_list.append(emd_dist / col_max_emd_dist)
+            emd_distance_list.append(emd_dist)
             emd_weight_list.append(emd_weight)
+
         log.debug(f'EMD time: {time.time() - start_time}')
         max_emd_weight = np.max(emd_weight_list)
 
         if max_emd_weight == 0:
-            emd_dist = 0
+            overall_emd_dist = 0
         else:
-            emd_dist = np.average(emd_distance_list, weights=emd_weight_list)
+            overall_emd_dist = np.average(emd_distance_list,
+                                          weights=emd_weight_list)
         # emd_dist = np.mean(emd_distance_list)
 
-        # Scale from -1 to 1
+        # Change from 0 to 1 range to -1 to 1
+        # 1 is bad rep -> -1 is bad rep
+        # 0 is good rep -> 1 is good rep
+        # emd_value = 2 * (1 - overall_emd_dist) - 1
         # Since most values are in bottom half, don't scale linearly
-        emd_value = 2 * (emd_dist - max_emd_dist) * (emd_dist - max_emd_dist) /\
-                    (max_emd_dist * max_emd_dist) - 1
+        emd_value = 2 * mypow(overall_emd_dist - max_emd_dist, 2) / \
+                    mypow(max_emd_dist, 2) - 1
+        # emd_value = 2 * mypow(overall_emd_dist - 1, 2) - 1
 
-        # linear scale
-        # emd_value = 1 - 2 / max_emd_dist * emd_dist
+        # Linear scale
+        # emd_value = 1 - 2 / max_emd_dist * overall_emd_dist
+        # linear_emd_value = 1 - 2 * overall_emd_dist
 
         if max_emd_weight == 0 and result['w'] != 0:
             log.error(f'Total Weight: {result["w"]} with 0 emd dist')
 
         # result['rep'] = emd_value * EMD_WEIGHT + j_value * J_WEIGHT
+        result['j_divergence'] = j_divergence
         result['j_value'] = j_value
         result['emd_value'] = emd_value
+        result['emd_dist'] = overall_emd_dist
+        # result['linear_emd_value'] = linear_emd_value
         # table.add_row([graph_type, j_value, emd_value, result['w']])
 
         return result
@@ -783,7 +831,7 @@ class ChromLoopData:
         # Not sure what to return: max, avg?
         return result
 
-    def compare(self, o_chrom, window_start, window_end, bin_size,
+    def compare(self, o_chrom, window_start, window_end, bin_size, window_size,
                 is_rep=False):
         """
         Compare a window of this chromosome of another chromosome from another
@@ -799,6 +847,8 @@ class ChromLoopData:
             The end of the window
         bin_size : int
             Determines which loops are the same by putting them into bins
+        window_size : int
+            Needed to find the exact loop start/end index in this graph
         is_rep : bool, optional
             Debugging purposes
 
@@ -825,13 +875,12 @@ class ChromLoopData:
             return {'graph_type': 'error',
                     'j_value': 0,
                     'emd_value': 0,
-                    'w': 0
-                    }
+                    'linear_emd_value': 0,
+                    'emd_dist': 1,
+                    'w': 0}
 
-        # log_all.info(f'{self.sample_name} vs. {o_chrom.sample_name} '
-        #             f'{self.name}:{window_start} - {window_end}')
-
-        window_size = window_end - window_start
+        log.debug(f'{self.sample_name} vs. {o_chrom.sample_name} '
+                  f'{self.name}:{window_start} - {window_end}')
 
         # Get areas removed due to overlapping start/end anchors
         remove_time = time.time()
@@ -867,16 +916,17 @@ class ChromLoopData:
         # inner_value_table = \
         #     PrettyTable(['graph_type', 'j_value', 'emd', 'weight'])
 
-        all_results = []
         result = None
-
         if num_loops == 0 and num_o_loops == 0:
             result = {
                 'graph_type': 'pass_none',
+                'j_divergence': 0,
                 'j_value': 1,
                 'emd_value': 1,
+                'emd_dist': 0,
                 'w': 0
             }
+            log.debug('No loops in either sample')
 
         # Randomly subsample from larger sample to better match miseq vs. hiseq
         # result = self.compare_randomly_choose(loops, o_loops, o_chrom,
@@ -922,28 +972,30 @@ class ChromLoopData:
             # value_table.add_row([x for x in list(result.values())])
 
             # Normal comparison
-            norm_time = time.time()
+            # norm_time = time.time()
             result = self.get_stats(graph, o_graph, o_chrom, 'norm')
-            log.debug(f'Norm time: {time.time() - norm_time} -------------')
+            # log.debug(f'Norm time: {time.time() - norm_time} -------------')
             # log_bin.info(inner_value_table)
             # inner_value_table.clear_rows()
-            all_results.append(result)
             # value_table.add_row([x for x in list(result.values())])
 
         # log_bin.info(value_table)
         log.debug(f'Total time: {time.time() - start_time}')
-        log.debug(f'Reproducibility: {result["emd_value"]}')
-        if is_rep:
-            for i in [0.5, 0, -0.5]:
-                if result['emd_value'] < i:
-                    log.debug(f'Less than {i}')
+        # if is_rep:
+        log.debug(f'emd_dist: {result["emd_dist"]}')
+        log.debug(f'emd_value: {result["emd_value"]}')
+        log.debug(f'j_divergence: {result["emd_value"]}')
+        log.debug(f'j_value: {result["j_value"]}')
+        #     for i in [0.5, 0, -0.5]:
+        #         if result['emd_value'] < i:
+        #             log.debug(f'Less than {i}')
 
-        # log_all.info(
-        #    '-----------------------------------------------------------------')
+        log.debug(
+            '-----------------------------------------------------------------')
 
         return result
 
-    def find_diff_loops(self, o_chrom, combined_peak_list):
+    def find_diff_loops(self, o_chrom, combined_peak_list, output_dir):
         merged_list = merge_peaks(combined_peak_list)
 
         graph_size = len(merged_list)
@@ -954,13 +1006,13 @@ class ChromLoopData:
         for peak in merged_list:
             peak_centers.append(int((peak[PEAK_START] + peak[PEAK_END]) / 2))
 
-        with open(f'diff_loops/{self.sample_name}_{o_chrom.sample_name}.loops',
-                  'a+') as out_file:
+        output_file_name = f'{self.sample_name}_{o_chrom.sample_name}.loops'
+        with open(f'{output_dir}/{output_file_name}', 'a+') as out_file:
             for i in range(graph_size):
                 for j in range(graph_size):
                     diff = abs(peak_graph[i][j] - o_peak_graph[i][j])
                     comb = (peak_graph[i][j] + o_peak_graph[i][j]) / 2
-                    if comb == 0:
+                    if comb == 0 or diff == 0:
                         continue
 
                     out_file.write(f'{self.name}\t{peak_centers[i]}\t'
@@ -985,7 +1037,8 @@ class ChromLoopData:
             end_index = peak_array[end]
 
             if start_index == -1 or end_index == -1:
-                log.error("ERROR")
+                log.error(
+                    "Bug in code. All loops should have an peak attached.")
                 continue
 
             graph[start_index][end_index] += value

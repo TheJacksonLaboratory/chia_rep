@@ -1,4 +1,5 @@
 from collections import OrderedDict
+import matplotlib.pyplot as plt
 
 from prettytable import PrettyTable
 
@@ -8,7 +9,7 @@ import os
 import logging
 import math
 
-VERSION = 9
+VERSION = 14
 log = logging.getLogger()
 log_bin = logging.getLogger('bin')
 
@@ -177,49 +178,65 @@ class GenomeLoopData:
         for peak_list in self.peak_dict.values():
             peak_list.sort(key=lambda x: x[PEAK_MAX_VALUE], reverse=True)
 
+        if num_peaks < 1:
+            log.warning(f'num_peaks is not positive')
+
         min_peak_value = 0
-        if 'chr1' in self.chrom_dict:
+        # peak_num_ratio = 1
+        # chr1_size = 1
+        if 'chr1' in self.chrom_dict and num_peaks > 0:
             min_peak_value = \
                 self.peak_dict['chr1'][num_peaks - 1][PEAK_MAX_VALUE]
+            log.debug(f'Min peak value from chr1: {min_peak_value}')
+            # peak_num_ratio = num_peaks / len(self.peak_dict['chr1'])
+            # chr1_size = self.chrom_dict['chr1'].size
         else:
-            log.warning(f'Unable to set min_peak_value since the chr1 baseline '
-                        f'is not available')
+            log.warning(f'Unable to set min_peak_value since chr1 '
+                        f'is not available or num_peaks is not positive')
 
         to_remove = []
-        for name, chrom in self.chrom_dict.items():
+        for name, chrom_data in self.chrom_dict.items():
 
             # Keep only used peaks above min_peak_value
             peak_list = self.peak_dict[name]
             if min_peak_value > 0:
                 for i in range(len(peak_list)):
-                    if peak_list[i][PEAK_MAX_VALUE] < min_peak_value:
-                        self.peak_dict[name] = self.peak_dict[name][:i]
+                    if peak_list[i][PEAK_MAX_VALUE] <= min_peak_value:
+                        self.peak_dict[name] = self.peak_dict[name][:i - 1]
+                        break
+            # peak_num_ratio = chrom_data.size / chr1_size
+            # num_peaks_to_keep = math.ceil(len(peak_list) * peak_num_ratio)
+            # num_peaks_to_keep = math.ceil(num_peaks * peak_num_ratio)
+            # self.peak_dict[name] = self.peak_dict[name][:num_peaks_to_keep]
 
             if len(self.peak_dict[name]) == 0:
                 log.warning(f'{name} has no peaks above {min_peak_value}')
+                # log.warning(f'{name} total peaks: {len(peak_list)}, '
+                #             f'ratio: {peak_num_ratio}')
                 to_remove.append(name)
                 continue
 
-            if not chrom.preprocess(self.peak_dict[name],
-                                    both_peak_support=both_peak_support):
+            if not chrom_data.preprocess(self.peak_dict[name],
+                                         both_peak_support=both_peak_support):
                 to_remove.append(name)
 
         # Remove problematic chromosomes
         for name in to_remove:
             del self.chrom_dict[name]
 
-        if kept_dir and not os.path.isfile(f'{kept_dir}/{self.sample_name}.{num_peaks}.peaks'):
+        if kept_dir and not os.path.isfile(
+                f'{kept_dir}/{self.sample_name}.{num_peaks}.peaks'):
             if not os.path.isdir(kept_dir):
                 os.mkdir(kept_dir)
 
-            with open(f'{kept_dir}/{self.sample_name}.{num_peaks}.peaks', 'w+')\
+            with open(f'{kept_dir}/{self.sample_name}.{num_peaks}.peaks', 'w+') \
                     as out_file:
                 for name, peak_list in self.peak_dict.items():
                     for peak in peak_list:
                         out_file.write(f'{name}\t{peak[0]}\t{peak[1]}\t'
                                        f'{peak[PEAK_MAX_VALUE]}\n')
 
-            with open(f'{kept_dir}/{self.sample_name}.{num_peaks}.loops', 'w+')\
+            with open(f'{kept_dir}/{self.sample_name}.{num_peaks}.loops', 'w+') \
                     as out_file:
                 for name, chrom_data in self.chrom_dict.items():
                     for i in chrom_data.kept_indexes:
@@ -294,6 +311,8 @@ class GenomeLoopData:
             PrettyTable(['chrom', 'emd_value', 'j_value'])
 
         chrom_value_list = []
+        emd_dist_list = []
+        j_value_list = []
         log.info(f'Chroms to compare: {chroms_to_compare}')
         for chrom_name in chroms_to_compare:
 
@@ -328,13 +347,15 @@ class GenomeLoopData:
                 value_dict_list.append(
                     self.chrom_dict[chrom_name].compare(
                         o_loop_data.chrom_dict[chrom_name], window_start,
-                        window_end, bin_size, is_rep=is_rep))
+                        window_end, bin_size, window_size, is_rep=is_rep))
 
                 if window_index is not None:
                     break
 
+            emd_dist_list += [x['emd_dist'] for x in value_dict_list]
             emd_values = [x['emd_value'] for x in value_dict_list]
             j_values = [x['j_value'] for x in value_dict_list]
+            j_value_list += j_values
             chrom_value = OrderedDict()
             # for value_dict in value_dict_list:
             #    assert chrom_value['graph_type'] == value_dict['graph_type']
@@ -357,10 +378,34 @@ class GenomeLoopData:
 
             chrom_value_list.append(chrom_value)
 
-            log.debug(chrom_value)
-            chrom_value_table.add_row([chrom_name] + list(chrom_value.values()))
+            log.debug(f'{chrom_name} values: {chrom_value}')
+
+            chrom_value_table.add_row([
+                chrom_name, round(chrom_value['emd_value'], 5),
+                round(chrom_value['j_value'], 5)])
             log_bin.info(chrom_value_table)
             chrom_value_table.clear_rows()
+
+        # Print density of emd_dist
+        # plt.title(
+        #     f'{self.sample_name} vs. {o_loop_data.sample_name} EMD dist density')
+        # plt.xlabel('EMD Dist')
+        # plt.ylabel('Density')
+        # plt.hist(emd_dist_list, bins=int(1 + np.log2(len(emd_dist_list))),
+        #          density=True)
+        # plt.savefig(
+        #     f'graphs/{self.sample_name}_{o_loop_data.sample_name}_emd_dist_density')
+        # plt.close()
+        #
+        # plt.title(
+        #     f'{self.sample_name} vs. {o_loop_data.sample_name} j_value density')
+        # plt.xlabel('j_value')
+        # plt.ylabel('Density')
+        # plt.hist(j_value_list, bins=int(1 + np.log2(len(j_value_list))),
+        #          density=True)
+        # plt.savefig(
+        #     f'graphs/{self.sample_name}_{o_loop_data.sample_name}_j_value_density')
+        # plt.close()
 
         log.debug(chrom_value_list)
 
@@ -373,7 +418,8 @@ class GenomeLoopData:
 
         return avg_value
 
-    def find_diff_loops(self, o_loop_data, chroms_to_diff):
+    def find_diff_loops(self, o_loop_data, chroms_to_diff=None,
+                        output_dir='diff_loops'):
 
         if chroms_to_diff is None:
             chroms_to_diff = list(self.chrom_dict.keys())
@@ -396,4 +442,5 @@ class GenomeLoopData:
 
             self.chrom_dict[chrom_name].find_diff_loops(
                 o_loop_data.chrom_dict[chrom_name],
-                self.peak_dict[chrom_name] + o_loop_data.peak_dict[chrom_name])
+                self.peak_dict[chrom_name] + o_loop_data.peak_dict[chrom_name],
+                output_dir)

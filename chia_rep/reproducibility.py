@@ -12,7 +12,7 @@ from .GenomeLoopData import GenomeLoopData, DEFAULT_NUM_PEAKS
 
 log = logging.getLogger()
 
-VERSION = 10
+VERSION = 11
 
 REPLICATES = [
     ['LHM0011_0011H', 'LHM0014_0014H'],
@@ -320,9 +320,12 @@ def read_data(loop_data_dir, chrom_size_file, bedgraph_data_dir, peak_data_dir,
     return loop_info_dict
 
 
-def preprocess(loop_dict, num_peaks=DEFAULT_NUM_PEAKS, kept_dir=None):
+def preprocess(loop_dict, num_peaks=DEFAULT_NUM_PEAKS, both_peak_support=False,
+               kept_dir=None):
     for sample_name in loop_dict:
-        loop_dict[sample_name].preprocess(num_peaks, kept_dir=kept_dir)
+        loop_dict[sample_name].preprocess(num_peaks,
+                                          both_peak_support=both_peak_support,
+                                          kept_dir=kept_dir)
 
 
 def read_bedgraphs(data_directory, chrom_size_file, min_value=-1,
