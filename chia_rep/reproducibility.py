@@ -244,9 +244,9 @@ def output_results(rep, non_rep, out_file_dir=None, desc_str=None):
 def read_data(loop_data_dir, chrom_size_file, bedgraph_data_dir, peak_data_dir,
               min_loop_value=0, min_bedgraph_value=0, chrom_to_load=None):
     """
-    Reads all necessary data.
+    Reads all samples that are found in loop_data_dir.
 
-    loop_data_dir/peak_data_dir/bedgraph_data_dir do not have to be seperate
+    loop_data_dir/peak_data_dir/bedgraph_data_dir do not have to be separate
     directories.
 
     Parameters

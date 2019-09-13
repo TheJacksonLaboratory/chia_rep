@@ -68,19 +68,19 @@ loop_dict.update(reproducibility.read_data(loop_data_dir=MOUSE_DATA_DIR,
 def comparison():
     parent_dir = 'all_complete'
     # parent_dir = 'small_complete'
-    for i in [10, 20, 30, 40, 50, 100, 500]:  # bin size
+    for i in [10, 25, 50, 100, 500]:  # bin size
     # for i in [1]:
         i *= 1000
         for j in [10, 20]:  # window size:
         # for j in [3]:
             j *= 1000000
-            for k in [20, 30, 40, 50, 60]:  # Peaks kept
-            # for k in [80, 100, 200]:  # Peaks kept
+            for k in [25, 50]:  # Peaks kept
+            # for k in [75, 100, 200]:  # Peaks kept
                 temp_str = f'half.{k}peaks.{i}.{j}'
 
-                # if os.path.isfile(f'{parent_dir}/results/{temp_str}.emd_value.csv'):
-                #     print(f'Skipping {temp_str}')
-                #     continue
+                if os.path.isfile(f'{parent_dir}/results/{temp_str}.emd_value.csv'):
+                    print(f'Skipping {temp_str}')
+                    continue
 
                 main_handler = logging.FileHandler(f'{parent_dir}/tmp/main.{temp_str}.log', mode='w')
                 main_handler.setFormatter(main_formatter)
