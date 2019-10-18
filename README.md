@@ -119,6 +119,11 @@ loop_dict = reproducibility.read_data(loop_data_dir=TEST_DATA_DIR,
 reproducibility.preprocess(loop_dict, num_peaks=NUM_PEAKS)
   
 rep, non_rep, emd_scores, j_scores = reproducibility.compare(loop_dict, bin_size=BIN_SIZE, window_size=WINDOW_SIZE)  
+
+# To compare only certain samples (further documentation provided in reproducibility.py)
+rep, non_rep, emd_scores, j_scores = reproducibility.compare(loop_dict, bin_size=BIN_SIZE, window_size=WINDOW_SIZE, 
+specified_comparisons=[['sampleA1', 'sampleA2'], ['sampleA1', sampleB1']])
+
 reproducibility.output_results(rep, non_rep, 'sample_test')  
 reproducibility.output_to_csv(emd_scores, 'sample_test/sample_test.emd_value.csv')  
 reproducibility.output_to_csv(j_scores, 'sample_test/sample_test.j_value.csv')
