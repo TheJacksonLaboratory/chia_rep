@@ -11,7 +11,7 @@ A Python package for assessing the reproducibility of ChIA-PET datasets.
 - Create an adjacency matrix for each window, where nodes are bins and edges are sums of weighted loop PET counts
 - Convert each adjacency matrix into a probability vector by reading row-by-row
 - Compute the Jensen-Shannon divergence or the Earth Mover's Distance (EMD) between two probability vectors
-- Transform each value to be between -1 and 1
+- Transform each value to be between -1 (dissimilar) and 1 (similar)
 - Take a weighted average of values for all windows in a chromosome
 - Genome-wide reproducibility value is computed by averaging over all chromosomes
     
@@ -39,6 +39,11 @@ A Python package for assessing the reproducibility of ChIA-PET datasets.
 **Probability vectors p_A1 and p_A2**   
 - p_A1 = (0.06, 0.05, 0, 0.02, 0.02, 0.009, 0.06, 0.19, 0.17, 0.37)
 - p_A2 = (0.06, 0.08, 0.02, 0.06, 0.05, 0.03, 0.05, 0.11, 0.14, 0.42)
+
+## Results
+- ChIA-Rep can clearly distinguish between replicates and non-replicates
+- Generally, replicates have positive values and non-replicates have negative values
+- Can take 0 as a threshold to determine the similarity
     
 ## Usage 
 ### Dependencies:
