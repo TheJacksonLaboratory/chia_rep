@@ -1,86 +1,51 @@
-# chia_rep 
-A Python package for assessing the reproducibility of generated ChIA-PET data.    
+# ChIA-Rep 
+A Python package for assessing the reproducibility of ChIA-PET datasets.    
     
-## Method 
-### Preprocessing 
-Find the specific start and end anchor within given interval.    
-- Get the exact index of largest value in interval from corresponding bedgraph file    
-- Weigh each loop value by *(avg_peak_value * PET_count)* - Remove peaks that have overlapping start/end peaks (few)  
-   - Do not compare area covered by loop with same location from a chromosome from another sample  
+## Methods Overview 
+### Preprocessing  
+- Keep a loop if one or both of the anchors overlap with a peak, where the peak file may be filtered to keep the top *x* peaks
+- Weigh the loop PET count by the anchor intensity
     
-Filter out loops without peak support on either start or end anchors.    
- - Take *x* percentage of peaks from peak calling algorithm (narrowPeak, broadPeak)  
- - Better method: Take *x* number of peaks for each chromosome in each sample  
- - Filter out loops that don't have peak support on either side  
-    
-### Comparison
- **Window Size**  
-Using a window size filters out extremely long (supposedly noisy) loops. For example, with window size = 3mb, there will be ~80 windows in chr1 (~250,000,000 bp). Each window produces a reproducibility value and a weight dependendent on the largest loop value inside it. Theses values combine into a single reproducibility value for the chromosome which can be further combined for the genome. The final report will be a value between -1 (dissimilar) and 1 (similar).  
-  
-Windows without loops for either sample will have a weight of 0 and are not included in the final calculation.   
-  
-**Bin Size**  
-A 2D array of non-overlapping bins within each window is created to make a graph representation of the window where each bin is a node and loops are edges. For example. with window size = 3mb, bin size = 10kb, 300x300 bins are created. Bin (0, 0) will hold loops that start/end in the interval 0-10kb. Bin (1, 1) will hold loops that start/end in the interval 10kb-20kb. Bin (1, 0) will hold loops that start in interval 0-10kb and end in 10kb-20kb.  
-  
-A smaller bin size may not always be better due to replicate samples not having peaks and loops in the exact same position in the chromosome. As a result, replicate loops may be in slightly different bins which may affect the result.  
+### Graph representation and comparison
+- For a non-overlapping window, bin the loops into bins of fixed size
+- Create an adjacency matrix for each window, where nodes are bins and edges are sums of weighted loop PET counts
+- Convert each adjacency matrix into a probability vector by reading row-by-row
+- Compute the Jensen-Shannon divergence or the Earth Mover's Distance (EMD) between two probability vectors
+- Transform each value to be between -1 (dissimilar) and 1 (similar)
+- Take a weighted average of values for all windows in a chromosome
+- Genome-wide reproducibility value is computed by averaging over all chromosomes
     
 ### Example
-Each sample generates a graph similar to the following for each window.    
-```    
-name  start  end  value     
-chr1 1  11  5    
-chr1  4  21  5    
-chr1  14  26  5    
-```    
-Assuming bin_size = 10:    
-    
-**Original window**   
+- Given two ChIA-PET datasets, create adjacency matrices A1 and A2
 
+**Adjacency matrix A1**   
 
-|          |  0 - 9   | 10 - 19  | 20 - 29  |    
-|--------- |--------  |--------- |--------- |    
-| 0 - 9    | 0        | 5        | 5        |    
-| 10 - 19  | 0        | 0        | 5        |    
-| 20 - 29  | 0        | 0        | 0        |    
+|         | bin1   | bin2   | bin3   | bin4   |
+|-------- |------  |------  |------  |------  | 
+| bin1    | 3      | 2      | 0      | 1      |
+| bin2    |        | 1      | 5      | 3      |
+| bin3    |        |        | 10     | 9      |
+| bin4    |        |        |        | 20     |
     
-**Normalized window**   
+**Adjacency matrix A2**   
 
+|         | bin1   | bin2   | bin3   | bin4   |
+|-------- |------  |------  |------  |------  | 
+| bin1    | 4      | 5      | 1      | 4      |
+| bin2    |        | 3      | 2      | 3      |
+| bin3    |        |        | 7      | 9      |
+| bin4    |        |        |        | 27     |
+    
+**Probability vectors p_A1 and p_A2**   
+- p_A1 = (0.06, 0.05, 0, 0.02, 0.02, 0.009, 0.06, 0.19, 0.17, 0.37)
+- p_A2 = (0.06, 0.08, 0.02, 0.06, 0.05, 0.03, 0.05, 0.11, 0.14, 0.42)
 
-|          |     |     |    
-|--------- |--------  |--------- |    
-| 0        | 0.333    | 0.333    |    
-| 0        | 0        | 0.333    |    
-| 0        | 0        | 0        |    
+## Results
+- ChIA-Rep can clearly distinguish between replicates and non-replicates
+- Generally, replicates have positive values and non-replicates have negative values
+- Can take 0 as a threshold to determine the similarity
     
-### Graph Creation 
-Normally only use top-right of graph, since 2D array representation is symmetric since loops have a defined start and end.  
-    
-Since loops from replicate samples may be in slightly different bins due to noise, i.e. 9999 vs. 10001, also add loops to nearby bins so they may still partly overlap. This will also make the graph unsymmetrical if only done for one side.   
-    
-    
-### Comparing Graph 
-Jensen-Shannon Divergence    
-- Flatten 2D array into 1D array    
-- Compares the difference between the distributions    
-    
-Earth Mover's Distance 1D:    
-- Similar to Jensen-Shannon but takes into account distributions that are similar in shape    
-- Loops/peaks could be in slightly different bins and be heavily penalized in Jensen-Shannon    
-- Take EMD of each row and column in the graph since 2D EMD is much more complicated  
-  
-Convert EMD to a value to be between (-1, 1)  
-Since values tend to be closer to 0 than `max_emd_dist`, use a non-linear scaling.  
-```  
-emd_value = 2 * (emd_dist - max_emd_dist) * (emd_dist - max_emd_dist) / (max_emd_dist * max_emd_dist) - 1  
-```  
-    
-## Problems 
-Many replicate data sets have significantly different number of loops/peaks (sequencing depth).  
-  
-Potential Fix:  
-Taking a defined number of peaks should help with creating a similar number of loops.  
-    
-## Usage: 
+## Usage 
 ### Dependencies:
 ```python
 # Automatically included when pip installing
@@ -128,7 +93,8 @@ reproducibility.output_to_csv(emd_scores, 'sample_test/sample_test.emd_value.csv
 reproducibility.output_to_csv(j_scores, 'sample_test/sample_test.j_value.csv')
 ```  
   
-## Testing:  
-Use `chia_rep/test/test.py` in an interactive session. Further reasoning provided  
-inside file.
+## Testing  
+Use `chia_rep/test/test.py` in an interactive session. Further reasoning provided inside file.
 
+## Contact
+Contact Minji (minji.kim@jax.org) for general questions, and report software issues in the [Issues](https://github.com/TheJacksonLaboratory/chia_rep/issues) page. 
