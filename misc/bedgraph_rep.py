@@ -157,6 +157,7 @@ def get_coefficients(bedgraph1_stat, bedgraph2_stat, min_value):
 
     name1 = bedgraph1_stat['name']
     name2 = bedgraph2_stat['name']
+    plt.close()
     plt.scatter(stat_list1, stat_list2)
     plt.title(f'{name1} vs. {name2}, r={round(pearson_value, 3)}, '
               f'r2={round(adjusted_r2, 3)}')

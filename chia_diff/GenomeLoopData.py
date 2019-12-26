@@ -444,3 +444,80 @@ class GenomeLoopData:
         log.debug(avg_value)
 
         return avg_value
+
+    def find_diff_loops(self, o_loop_data, bin_size, window_size, window_index=None,
+                        chroms_to_diff=None, start_index=None, end_index=None,
+                        output_dir='diff_loops'):
+
+        if not os.path.isdir(output_dir):
+            os.mkdir(output_dir)
+
+        if chroms_to_diff is None:
+            chroms_to_diff = list(self.chrom_dict.keys())
+        log.info(f'Chroms to compare: {chroms_to_diff}')
+
+        for chrom_name in chroms_to_diff:
+
+            if chrom_name not in self.chrom_dict:
+                log.warning(f'{chrom_name} is not in {self.sample_name}. '
+                            f'Skipping {chrom_name}')
+                continue
+
+            if chrom_name not in o_loop_data.chrom_dict:
+                log.warning(f'{chrom_name} is in {self.sample_name} but '
+                            f'not in {o_loop_data.sample_name}. Skipping '
+                            f'{chrom_name}')
+                continue
+
+            log.info(f"Finding different loops for {chrom_name} ...")
+
+            # Compare for all windows in chrom
+            chrom_size = self.chrom_dict[chrom_name].size
+
+            if start_index is None:
+                start_index = 0
+
+            if end_index is None:
+                end_index = chrom_size
+
+            if end_index < start_index:
+                log.error(f"Given interval: ({start_index}, {end_index}) to "
+                          f"diff. Cannot compute when start is greater than end.")
+                return
+
+            numb_windows = math.ceil((end_index - start_index) / window_size)
+
+            diff_areas = []
+            graph_arr = ([], [], [], [])
+
+            output_file_name = f'{self.sample_name}_{o_loop_data.sample_name}'
+            for k in range(numb_windows):
+
+                # If there is a specified window, just compare that
+                if window_index is not None:
+                    k = window_index
+
+                window_start = window_size * k + start_index
+                window_end = window_start + window_size
+                if window_end > end_index:
+                    window_end = end_index
+
+                diff_areas += self.chrom_dict[chrom_name].find_diff_loops(
+                    o_loop_data.chrom_dict[chrom_name], window_start,
+                    window_end, bin_size, window_size,
+                    self.peak_dict[chrom_name] + o_loop_data.peak_dict[chrom_name],
+                    self.total_samples, o_loop_data.total_samples, graph_arr)
+
+                if window_index is not None:
+                    break
+
+            log.info(f'Plotting scatter plot with length: {len(graph_arr[0])}')
+            plt.scatter(graph_arr[0], graph_arr[1])
+            plt.title(f'{output_file_name}_chr1')
+            plt.savefig(f'diff_loops/{output_file_name}_foldchange')
+            plt.close()
+
+            diff_areas.sort(key=lambda l: l[2], reverse=True)
+            with open(f'{output_dir}/{output_file_name}.loops', 'w') as out_file:
+                for area in diff_areas:
+                    out_file.write(f'{area[0]}\t{area[1]}\t{area[2]}\n')

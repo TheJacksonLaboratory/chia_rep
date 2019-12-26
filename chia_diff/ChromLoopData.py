@@ -1024,3 +1024,306 @@ class ChromLoopData:
             '-----------------------------------------------------------------')
 
         return result
+
+    def find_diff_loops(self, o_chrom, window_start, window_end, bin_size,
+                        window_size, combined_peak_list, total_samples,
+                        o_total_samples, graph_arr):
+
+        log.debug(f'{self.sample_name} vs. {o_chrom.sample_name} '
+                  f'{self.name}:{window_start} - {window_end}')
+
+        ratio_list = np.zeros(int(window_size / NORM_LEN), dtype=np.float64)
+        norm_start_index = int(window_start / NORM_LEN)
+        out_file = open('diff_loops/norm_arr.txt', 'w')
+        test_file = open('diff_loops/test_norm_arr.txt', 'w')
+
+        for i in range(int(window_size / NORM_LEN)):
+            norm_index = norm_start_index + i
+            if self.norm_list[norm_index] > MIN_PEAK_VALUE and o_chrom.norm_list[norm_index] > MIN_PEAK_VALUE:
+                ratio_list[i] = abs(np.log2(self.norm_list[norm_index] / o_chrom.norm_list[norm_index]))
+            else:
+                ratio_list[i] = 0
+            out_file.write(f'{norm_index * NORM_LEN}\t{ratio_list[i]}\n')
+            test_file.write(f'{norm_index * NORM_LEN}\t'
+                            f'{self.norm_list[norm_index]}\t'
+                            f'{o_chrom.norm_list[norm_index]}\t'
+                            f'{ratio_list[i]}\n')
+        out_file.close()
+        test_file.close()
+
+        graph_len = ceil(window_size / bin_size)
+
+        # Around 6GB
+        if graph_len * graph_len * 2 * 8 / 1000000000 > 8:
+            log.error(f'{self.size / bin_size} is too many rows for a graph')
+            return []
+
+        combined_removed = get_removed_area(self.size, self, o_chrom)
+        loops = get_loops(window_start, window_end, combined_removed,
+                          self.filtered_start, self.filtered_end,
+                          self.filtered_values)
+        o_loops = get_loops(window_start, window_end, combined_removed,
+                            o_chrom.filtered_start, o_chrom.filtered_end,
+                            o_chrom.filtered_values)
+
+        # peak_arr = np.zeros(self.size, dtype=bool)
+        # for peak in combined_peak_list:
+        #     peak_start = peak[PEAK_START]
+        #     peak_end = peak[PEAK_END]
+        #     peak_arr[peak_start:peak_end] = True
+
+        graph = self.create_graph(loops, bin_size, window_size)
+        o_graph = o_chrom.create_graph(o_loops, bin_size, window_size)
+
+        graph /= np.sum(graph)
+        o_graph /= np.sum(o_graph)
+
+        if np.sum(graph) == 0 and np.sum(o_graph) == 0:
+            return []
+
+        diff_areas = []
+
+        start_time = time.time()
+
+        for i in range(graph_len):
+            for j in range(graph_len):
+
+                value = graph[i][j]
+                other_value = o_graph[i][j]
+
+                # Strength in other graph
+                value_diff = value - other_value
+                # value_fc = np.log2(value / other_value)
+
+                if value_diff > 0.0001:
+                    graph_arr[0].append(value)
+                    graph_arr[1].append(other_value)
+
+                diff_areas.append((window_start + bin_size * i,
+                                   window_start + bin_size * j,
+                                   value_diff))
+        end_time = time.time()
+
+        return diff_areas
+
+        # merged_list = merge_peaks(combined_peak_list + self.filtered_anchors + o_chrom.filtered_anchors)
+        #
+        # graph_size = len(merged_list)
+        # peak_graph = self.create_peak_graph(merged_list)
+        # o_peak_graph = o_chrom.create_peak_graph(merged_list)
+        #
+        # peak_centers = []
+        # for peak in merged_list:
+        #     peak_centers.append(int((peak[PEAK_START] + peak[PEAK_END]) / 2))
+        #
+        # output_file_name = f'{self.sample_name}_{o_chrom.sample_name}'
+        #
+        # # Weigh the difference by its relation to the max possible difference
+        # max_value = max(np.max(peak_graph), np.max(o_peak_graph))
+        #
+        # with open(f'{output_dir}/{output_file_name}.peaks', 'w') as out_file:
+        #     for i in merged_list:
+        #         out_file.write(f'{i}\n')
+        #
+        # with open(f'{output_dir}/{output_file_name}.loops', 'w') as out_file:
+        #     # out_file.write(f'{max_value}\n')
+        #     for i in range(graph_size):
+        #         for j in range(graph_size):
+        #             diff = abs(peak_graph[i][j] - o_peak_graph[i][j])
+        #             comb = peak_graph[i][j] + o_peak_graph[i][j]
+        #             if comb == 0:
+        #                 continue
+        #
+        #             # out_file.write(f'{self.name}\t{peak_centers[i]}\t'
+        #             #                f'{peak_centers[j]}\t{diff}\t{comb}\t{1 - diff / max_value}\n')
+        #             out_file.write(f'{self.name}\t{peak_centers[i]}\t'
+        #                            f'{peak_centers[j]}\t{1 - diff / max_value}\n')
+
+    def create_diff_graph(self, loops, bin_size, window_size, peak_arr):
+        graph_len = ceil(window_size / bin_size)
+
+        # 2D array of arrays
+        # (none, single, both) peak support
+        graph = [[([], [], []) for _ in range(graph_len)] for _ in range(graph_len)]
+
+        for loop_index in loops:
+
+            value = self.filtered_values[loop_index]
+            start = self.filtered_start[loop_index]
+            end = self.filtered_end[loop_index]
+
+            window_start = start % window_size
+            window_end = end % window_size
+
+            # loop_len[int((end - start) / self.bin_size)] += 1
+
+            bin_start = int(window_start / bin_size)
+            bin_end = int(window_end / bin_size)
+
+            peak_supp = 0
+            if peak_arr[start]:
+                peak_supp += 1
+            if peak_arr[end]:
+                peak_supp += 1
+
+            graph[bin_start][bin_end][peak_supp].append([start, end, value])
+
+            # if bin_end < bin_start:
+            #     log.error(
+            #         f'{orig_start}\t{orig_end}\t{start}\t{end}\t{bin_start}\t{bin_end}')
+
+            # Get the other side of the graph as well for emd calculation
+            # graph[bin_end][bin_start] += value
+
+            # Avoid double counting the middle
+            # if bin_end != bin_start:
+            #    graph[bin_end][bin_start] += value
+
+            # Also get areas surrounding this loop
+            # May not be needed with emd calculation
+            # Helps with finding jensen-shannon
+            # for j in range(bin_start - 1, bin_start + 2):
+            #     if j < 0 or j == graph_len:
+            #         continue
+            #     for k in range(bin_end - 1, bin_end + 2):
+            #         if k < 0 or k == graph_len:
+            #             continue
+            #         graph[j][k] += value
+                    # graph[k][j] += value
+                    # if j != k:
+                    #    graph[k][j] += value
+
+            # if to_debug:
+            #     log.debug(
+            #         f'{self.sample_name}\t{orig_start}\t{orig_end}\t{value}')
+
+        for i in graph_len:
+            for j in graph_len:
+                for k in 3:
+                    graph[i][j][k].sort(key=lambda l: l[0])
+
+                    loop_bin = graph[i][j][k]
+                    merged_list = []
+
+                    # Merge all loops with the same peak
+                    # Loops anchors already set to peak in preprocessing
+                    for key, group in itertools.groupby(loop_bin, lambda l: l[0]):
+                        total_sum = 0
+                        loop_end = None
+                        for arr in group:
+                            total_sum += arr[2]
+                            if not loop_end:
+                                loop_end = arr[1]
+                            if loop_end != arr[1]:
+                                log.error("")
+
+                        merged_list.append((key, group[0], sum))
+                        curr_start = loop_bin[loop_index][0]
+                        prev_start = loop_bin[loop_index - 1][0]
+
+                        if curr_start == prev_start:
+                            continue
+
+
+
+        # log.info(f"Number of loops in {self.sample_name} graph: {num_loops_used}")
+
+        # plt.plot([x for x in range(len(loop_len))], [np.log(x) for x in loop_len])
+        # plt.show()
+
+        # log.info(f'Max value in graph: {np.max(graph)}')
+        # return graph, total_PET_count / self.total_loop_value
+        return graph
+
+    # Weight each
+    def create_peak_graph(self, merged_list):
+        graph_len = len(merged_list)
+        graph = np.zeros((graph_len, graph_len), dtype=np.float64)
+
+        peak_array = np.full(self.size, -1, dtype=np.int16)
+        for i, peak in enumerate(merged_list):
+            start = peak[PEAK_START_INDEX]
+            end = peak[PEAK_END_INDEX]
+            peak_array[start:end] = i
+
+        log.info(f'Numb of loops: {self.filtered_numb_values}')
+        for loop_index in range(self.filtered_numb_values):
+            value = self.filtered_values[loop_index]
+            start = self.filtered_start[loop_index]
+            end = self.filtered_end[loop_index]
+
+            start_index = peak_array[start]
+            end_index = peak_array[end]
+
+            if start_index == -1 or end_index == -1:
+                log.critical(f"Loop: ({start}, {end}, {value}) "
+                             f"does not have a corresponding peak")
+                continue
+
+            graph[start_index][end_index] += value
+
+        return graph / graph.sum()
+
+
+def merge_peaks(combined_peak_list):
+    """
+    Merges overlapping peaks
+    """
+
+    found = False
+    for interval in combined_peak_list:
+        if interval[0] == 78001026:
+            found = True
+            break
+    assert found
+
+    combined_peak_list.sort(key=lambda x: x[PEAK_START_INDEX])
+    merged_peak_list = []
+    peak_diffs = []
+    for higher_peak in combined_peak_list:
+        if not merged_peak_list:
+            merged_peak_list.append(higher_peak)
+            continue
+
+        lower_peak = merged_peak_list[-1]
+
+        print()
+        print(lower_peak)
+        print(higher_peak)
+
+        # "higher" peak is entirely inside the lower peak
+        if higher_peak[PEAK_START_INDEX] <= lower_peak[PEAK_END_INDEX] and \
+                lower_peak[PEAK_END_INDEX] >= higher_peak[PEAK_END_INDEX]:
+            # lower_peak[PEAK_MAX_VALUE] += higher_peak[PEAK_MAX_VALUE]
+
+            peak_diffs.append(1)
+            print('Entirely inside')
+            continue
+
+        # Find percentage of peak area that overlaps
+        dist_diff = higher_peak[PEAK_START_INDEX] - lower_peak[PEAK_END_INDEX]
+        # lower_peak_percentage = dist_diff / lower_peak[PEAK_LEN]
+        # higher_peak_percentage = dist_diff / higher_peak[PEAK_LEN]
+
+        # Has to have at least 50% overlapping for one peaks
+        # if lower_peak_percentage >= 0.5 or higher_peak_percentage >= 0.5:
+        if dist_diff < 5000:
+            # peak_diffs.append(
+            #     max(lower_peak_percentage, higher_peak_percentage))
+
+            lower_peak[PEAK_END_INDEX] = higher_peak[PEAK_END_INDEX]
+            # lower_peak[PEAK_MAX_VALUE] += higher_peak[PEAK_MAX_VALUE]
+            lower_peak[PEAK_LEN_INDEX] = lower_peak[PEAK_END_INDEX] - lower_peak[
+                PEAK_START_INDEX]
+            print('Less than 5k away')
+            continue
+
+        merged_peak_list.append(higher_peak)
+        print('New peak')
+
+    log.info(f"Merged {len(combined_peak_list) - len(merged_peak_list)} peaks")
+    log.info(f"Avg non-overlapping percentage between merged peaks: "
+             f"{np.mean(peak_diffs)}")
+    log.info(f'Numb of peaks left: {len(merged_peak_list)}')
+
+    return merged_peak_list

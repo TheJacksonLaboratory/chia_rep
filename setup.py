@@ -8,7 +8,7 @@ extensions = [
 ]
 
 NAME = 'chia_rep'
-VERSION = '0.0.1'
+VERSION = '0.0.2'
 #Test
 
 setuptools.setup(
@@ -34,7 +34,7 @@ setuptools.setup(
     install_requires=['numpy>=1.17.0',
                       'scipy>=1.3.1',
                       'prettytable>=0.7.2',
-                      'pybedgraph>=0.5.31',
+                      'pybedgraph>=0.5.40',
                       'matplotlib>=3.1.1'],
 
     ext_modules=cythonize(extensions, language_level=3),

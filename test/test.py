@@ -20,15 +20,13 @@ from chia_rep import reproducibility
 from chia_rep import GenomeLoopData
 from chia_rep import ChromLoopData
 
-# MOUSE_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/prob_mouse'
-MOUSE_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/mouse'
-PEAK_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/peaks'
-MY_PEAK_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/my_peaks'
-MY_FULL_PEAK_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/my_full_peaks'
-# HUMAN_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/prob_human'
-HUMAN_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/human'
-BEDGRAPH_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/bedgraphs'
-CHROM_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/chrom_sizes'
+# MOUSE_DATA_DIR = '/media/hirow/extra/jax/data/chia_pet/prob_mouse'
+MOUSE_DATA_DIR = '/media/hirow/extra/jax/data/chia_pet/loops/mouse'
+PEAK_DATA_DIR = '/media/hirow/extra/jax/data/chia_pet/peaks'
+MY_PEAK_DATA_DIR = '/media/hirow/extra/jax/data/chia_pet/my_peaks'
+HUMAN_DATA_DIR = '/media/hirow/extra/jax/data/chia_pet/loops/human'
+BIGWIG_DATA_DIR = '/media/hirow/extra/jax/data/chia_pet/bigwigs'
+CHROM_DATA_DIR = '/media/hirow/extra/jax/data/chrom_sizes'
 
 LOG_MAIN_FORMAT = '%(levelname)s - %(asctime)s - %(name)s:%(filename)s:%(lineno)d - %(message)s'
 LOG_BIN_FORMAT = '%(asctime)s - %(filename)s:%(lineno)d\n%(message)s'
@@ -36,7 +34,6 @@ LOG_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 # To see log info statements (optional)
 from logging.config import fileConfig
-
 fileConfig('chia_rep.conf')
 main_formatter = logging.Formatter(LOG_MAIN_FORMAT, datefmt=LOG_TIME_FORMAT)
 
@@ -44,39 +41,41 @@ main_formatter = logging.Formatter(LOG_MAIN_FORMAT, datefmt=LOG_TIME_FORMAT)
 # reloaded
 loop_dict = reproducibility.read_data(loop_data_dir=HUMAN_DATA_DIR,
                                       chrom_size_file=f'{CHROM_DATA_DIR}/hg38.chrom.sizes',
-                                      bedgraph_data_dir=BEDGRAPH_DATA_DIR,
-                                      peak_data_dir=PEAK_DATA_DIR)
+                                      bigwig_data_dir=BIGWIG_DATA_DIR,
+                                      peak_data_dir=PEAK_DATA_DIR,
+                                      chroms_to_load=['chr1'])
 
-loop_dict.update(reproducibility.read_data(loop_data_dir=MOUSE_DATA_DIR,
-                                           chrom_size_file=f'{CHROM_DATA_DIR}/mm10.chrom.sizes',
-                                           bedgraph_data_dir=BEDGRAPH_DATA_DIR,
-                                           peak_data_dir=PEAK_DATA_DIR))
-
-# for name in loop_dict:
-#     for chrom in loop_dict[name].peak_dict:
-#         peaks = []
-#         chrom_peak_dict = loop_dict[name].peak_dict[chrom]
-#         for x in range(chrom_peak_dict['num']):
-#             peaks.append([chrom_peak_dict['start_list'][x],
-#                           chrom_peak_dict['end_list'][x],
-#                           chrom_peak_dict['peak_len'][x],
-#                           chrom_peak_dict['value_list'][x]])
-#         loop_dict[name].peak_dict[chrom] = peaks
+# loop_dict.update(reproducibility.read_data(loop_data_dir=MOUSE_DATA_DIR,
+#                                            chrom_size_file=f'{CHROM_DATA_DIR}/mm10.chrom.sizes',
+#                                            bigwig_data_dir=BIGWIG_DATA_DIR,
+#                                            peak_data_dir=PEAK_DATA_DIR))
 
 
 # Simply copy/paste following method into interactive session and run it
 def comparison():
-    parent_dir = 'all_complete'
+    parent_dir = 'test_results'
     # parent_dir = 'small_complete'
-    for i in [10, 25, 50, 100, 500]:  # bin size
+
+    directories = [
+        parent_dir,
+        f'{parent_dir}/results',
+        f'{parent_dir}/results/info',
+        f'{parent_dir}/tmp'
+    ]
+
+    for directory in directories:
+        if not os.path.isdir(directory):
+            os.mkdir(directory)
+
+    for i in [10]:  # bin size kb
     # for i in [1]:
         i *= 1000
-        for j in [10, 20]:  # window size:
+        for j in [10]:  # window size mb
         # for j in [3]:
             j *= 1000000
-            for k in [25, 50]:  # Peaks kept
+            for k in [60]:  # Peaks kept
             # for k in [75, 100, 200]:  # Peaks kept
-                temp_str = f'half.{k}peaks.{i}.{j}'
+                temp_str = f'half.{k}_peaks.{i}_bin.{j}_window'
 
                 if os.path.isfile(f'{parent_dir}/results/{temp_str}.emd_value.csv'):
                     print(f'Skipping {temp_str}')
@@ -96,7 +95,7 @@ def comparison():
                 log.handlers = [main_handler, stream_handler]
                 log_all.handlers = [main_handler]
 
-                # Make sure not to disturb the original dict
+                # Make sure not to modify the original dict
                 l = deepcopy(loop_dict)
                 reproducibility.preprocess(l, num_peaks=k, kept_dir=f'kept')
 
@@ -110,6 +109,3 @@ def comparison():
                                               f'{parent_dir}/results/{temp_str}.emd_value.csv')
                 reproducibility.output_to_csv(j_scores,
                                               f'{parent_dir}/results/{temp_str}.j_value.csv')
-
-
-comparison()
