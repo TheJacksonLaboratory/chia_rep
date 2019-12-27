@@ -9,7 +9,6 @@ extensions = [
 
 NAME = 'chia_rep'
 VERSION = '0.0.2'
-#Test
 
 setuptools.setup(
 
@@ -21,7 +20,7 @@ setuptools.setup(
 
     author_email="henrybzhang.99@gmail.com",
 
-    description="A package for finding reproducibility of ChIA-PET data.",
+    description="A package for measuring reproducibility of ChIA-PET data.",
 
     long_description=open('README.md').read(),
 
