@@ -1,11 +1,22 @@
 import setuptools
 from distutils.extension import Extension
-from Cython.Build import cythonize
 
+USE_CYTHON = False
+try:
+    from Cython.Distutils import build_ext
+    USE_CYTHON = True
+except ImportError:
+    pass
+
+ext = 'pyx' if USE_CYTHON else 'c'
 extensions = [
     Extension('chia_rep.chia_rep_util',
-              ['chia_rep/chia_rep_util.pyx']),
+              [f'chia_rep/chia_rep_util.{ext}']),
 ]
+
+if USE_CYTHON:
+    from Cython.Build import cythonize
+    extensions = cythonize(extensions, language_level=3)
 
 NAME = 'ChIA-Rep'
 VERSION = '1.0.0'
@@ -38,7 +49,7 @@ setuptools.setup(
                       'pybedgraph>=0.5.40',
                       'matplotlib>=3.1.1'],
 
-    ext_modules=cythonize(extensions, language_level=3),
+    ext_modules=extensions,
 
     license="MIT",
 
