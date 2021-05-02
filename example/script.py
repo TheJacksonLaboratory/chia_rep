@@ -7,8 +7,8 @@ is done.
 # coding: utf-8
 # Automatically updates modules that have been imported
 # Still needs to reload/reset if extra methods/fields are added to class objects
-get_ipython().magic('load_ext autoreload')
-get_ipython().magic('autoreload 2')
+# get_ipython().magic('load_ext autoreload')
+# get_ipython().magic('autoreload 2')
 
 import sys
 import logging

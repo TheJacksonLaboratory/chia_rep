@@ -18,7 +18,7 @@ if USE_CYTHON:
     from Cython.Build import cythonize
     extensions = cythonize(extensions, language_level=3)
 
-NAME = 'ChIA-Rep'
+NAME = 'ChIA_Rep'
 VERSION = '1.0.0'
 
 setuptools.setup(
