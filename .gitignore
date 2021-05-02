@@ -14,6 +14,7 @@
 !LICENSE
 !MANIFEST.in
 !README.md
+!requirements.txt
 !*.py
 !*.pyx
 !*.c
