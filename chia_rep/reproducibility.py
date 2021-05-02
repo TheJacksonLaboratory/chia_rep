@@ -5,7 +5,7 @@ import csv
 from prettytable import PrettyTable
 import logging
 from pyBedGraph import BedGraph
-from .GenomeLoopData import GenomeLoopData, DEFAULT_NUM_PEAKS
+from .genome_loop_data import GenomeLoopData, DEFAULT_NUM_PEAKS
 
 log = logging.getLogger()
 
@@ -251,7 +251,7 @@ def read_data(loop_data_dir, chrom_size_file, peak_data_dir,
     ----------
     loop_data_dir
         Directory with loop files. File names must end in either ".BE3" or
-        ".cis"
+        ".cis". File names must start with sample name.
     chrom_size_file
         Path to chromosome size file
     peak_data_dir
@@ -300,92 +300,96 @@ def read_data(loop_data_dir, chrom_size_file, peak_data_dir,
         log.error(f"bigwig dir: {bigwig_data_dir} is not a valid directory")
         return
 
+    # Contains all data
     loop_data_dict = OrderedDict()
 
     log.info(os.listdir(loop_data_dir))
     for loop_file_name in os.listdir(loop_data_dir):
-        if loop_file_name.endswith('.BE3') or loop_file_name.endswith('.cis'):
-            sample_name = loop_file_name.split('.')[0]
-            log.info(f'Loading {sample_name} ...')
+        if not loop_file_name.endswith('.BE3') and not loop_file_name.endswith('.cis'):
+            continue
 
-            loop_file_path = os.path.join(loop_data_dir, loop_file_name)
+        # Assume sample name is before first period
+        sample_name = loop_file_name.split('.')[0]
+        log.info(f'Loading {sample_name} ...')
+        loop_file_path = os.path.join(loop_data_dir, loop_file_name)
 
-            peak_dict = None
-            for peak_file_name in os.listdir(peak_data_dir):
-                if not peak_file_name.lower().endswith('peak') or \
-                        sample_name not in peak_file_name:
+        peak_dict = None
+        for peak_file_name in os.listdir(peak_data_dir):
+            if not peak_file_name.lower().endswith('peak') or \
+                    sample_name not in peak_file_name:
+                continue
+
+            # Sort of useless now since we don't use value from peak caller
+            is_narrowPeak = False
+            if 'narrowpeak' in peak_file_name.lower():
+                is_narrowPeak = True
+            elif 'broadpeak' in peak_file_name.lower():
+                is_narrowPeak = False
+            else:
+                log.error(f"{peak_file_name} is an unknown peak file")
+
+            peak_file_path = os.path.join(peak_data_dir, peak_file_name)
+            peak_dict = read_peak_file(peak_file_path)
+            break
+
+        if peak_dict is None:
+            log.error(f"{sample_name}'s peak file is not in "
+                      f"{peak_data_dir}. Skipping")
+            continue
+
+        bedgraph = None
+        if bedgraph_data_dir:
+            for bedgraph_file_name in os.listdir(bedgraph_data_dir):
+                # Extra period from confusion with pooled data sets?
+                if f'{sample_name}.' not in bedgraph_file_name or \
+                        not bedgraph_file_name.lower().endswith('bedgraph'):
                     continue
 
-                # Sort of useless now since we don't use value from peak caller
-                is_narrowPeak = False
-                if 'narrowpeak' in peak_file_name.lower():
-                    is_narrowPeak = True
-                elif 'broadpeak' in peak_file_name.lower():
-                    is_narrowPeak = False
-                else:
-                    log.error(f"{peak_file_name} is an unknown peak file")
+                bedgraph_file_path = os.path.join(bedgraph_data_dir,
+                                                  bedgraph_file_name)
 
-                peak_file_path = os.path.join(peak_data_dir, peak_file_name)
-                peak_dict = read_peak_file(peak_file_path, is_narrowPeak)
+                bedgraph = BedGraph(chrom_size_file, bedgraph_file_path,
+                                    chroms_to_load=chroms_to_load,
+                                    ignore_missing_bp=False,
+                                    min_value=min_bedgraph_value)
+                break
+        elif bigwig_data_dir:
+            for bigwig_file_name in os.listdir(bigwig_data_dir):
+                # Extra period from confusion with pooled data sets?
+                if f'{sample_name}.' not in bigwig_file_name or \
+                        not bigwig_file_name.lower().endswith('bigwig'):
+                    continue
+
+                bigwig_file_path = os.path.join(bigwig_data_dir,
+                                                bigwig_file_name)
+
+                bedgraph = BedGraph(chrom_size_file, bigwig_file_path,
+                                    chroms_to_load=chroms_to_load,
+                                    ignore_missing_bp=False,
+                                    min_value=min_bedgraph_value)
                 break
 
-            if peak_dict is None:
-                log.error(f"{sample_name}'s peak file is not in "
-                          f"{peak_data_dir}. Skipping")
-                continue
+        if bedgraph is None:
+            if bigwig_data_dir:
+                log.error(f"{sample_name}'s bigwig file is not in "
+                          f"{bigwig_data_dir}. Skipping")
+            elif bedgraph_data_dir:
+                log.error(f"{sample_name}'s bedgraph file is not in "
+                          f"{bedgraph_data_dir}. Skipping")
+            continue
 
-            bedgraph = None
-            if bedgraph_data_dir:
-                for bedgraph_file_name in os.listdir(bedgraph_data_dir):
-                    # Extra period from confusion with pooled data sets?
-                    if f'{sample_name}.' in bedgraph_file_name and \
-                            bedgraph_file_name.lower().endswith('bedgraph'):
-                        bedgraph_file_path = os.path.join(bedgraph_data_dir,
-                                                          bedgraph_file_name)
-
-                        bedgraph = BedGraph(chrom_size_file, bedgraph_file_path,
-                                            chroms_to_load=chroms_to_load,
-                                            ignore_missing_bp=False,
-                                            min_value=min_bedgraph_value)
-                        break
-            elif bigwig_data_dir:
-                for bigwig_file_name in os.listdir(bigwig_data_dir):
-                    # Extra period from confusion with pooled data sets?
-                    if f'{sample_name}.' in bigwig_file_name and \
-                            bigwig_file_name.lower().endswith('bigwig'):
-                        bigwig_file_path = os.path.join(bigwig_data_dir,
-                                                        bigwig_file_name)
-
-                        bedgraph = BedGraph(chrom_size_file, bigwig_file_path,
-                                            chroms_to_load=chroms_to_load,
-                                            ignore_missing_bp=False,
-                                            min_value=min_bedgraph_value)
-                        break
-
-            if bedgraph is None:
-                if bigwig_data_dir:
-                    log.error(f"{sample_name}'s bigwig file is not in "
-                              f"{bigwig_data_dir}. Skipping")
-                elif bedgraph_data_dir:
-                    log.error(f"{sample_name}'s bedgraph file is not in "
-                              f"{bedgraph_data_dir}. Skipping")
-                continue
-
-            gld = GenomeLoopData(chrom_size_file, loop_file_path, bedgraph,
-                                 peak_dict, min_loop_value=min_loop_value,
-                                 chroms_to_load=chroms_to_load)
-            loop_data_dict[gld.sample_name] = gld
+        gld = GenomeLoopData(chrom_size_file, loop_file_path, bedgraph,
+                             peak_dict, min_loop_value=min_loop_value,
+                             chroms_to_load=chroms_to_load)
+        loop_data_dict[gld.sample_name] = gld
 
     return loop_data_dict
 
 
-def preprocess(loop_dict, num_peaks=DEFAULT_NUM_PEAKS, both_peak_support=False,
-               kept_dir=None, base_chrom='chr1'):
+def preprocess(loop_dict, both_peak_support=False, saved_loops_dir=None):
     for sample_name in loop_dict:
-        loop_dict[sample_name].preprocess(num_peaks,
-                                          both_peak_support=both_peak_support,
-                                          kept_dir=kept_dir,
-                                          base_chrom=base_chrom)
+        loop_dict[sample_name].preprocess(both_peak_support=both_peak_support,
+                                          saved_loop_dir=saved_loops_dir)
 
 
 # Deprecated
@@ -406,7 +410,7 @@ def read_bedgraphs(data_directory, chrom_size_file, min_value=-1,
     return bedgraph_dict
 
 
-def read_peak_file(peak_file_path, is_narrowPeak=False):
+def read_peak_file(peak_file_path) -> {}:
     """
     Finds the start and ends of every peak in chromosome for one sample.
 
@@ -417,8 +421,6 @@ def read_peak_file(peak_file_path, is_narrowPeak=False):
     ----------
     peak_file_path : str
         File path of peak file
-    is_narrowPeak : bool, optional
-        Useless for now since only the chrom/start/end is taken, not the value
 
     Returns
     -------
@@ -427,11 +429,6 @@ def read_peak_file(peak_file_path, is_narrowPeak=False):
         Value: list of [start, end, end - start]
     """
     peak_dict = {}
-
-    if is_narrowPeak:
-        value_index = 8
-    else:  # .broadPeak files
-        value_index = 6
 
     with open(peak_file_path) as peak_file:
         for line in peak_file:

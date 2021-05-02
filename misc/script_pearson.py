@@ -34,7 +34,7 @@ bedgraph_dict.update(
                                    f'{CHROM_DATA_DIR}/mm10.chrom.sizes',
                                    chrom_to_read='chr1'))
 
-'''loop_dict = reproducibility.read_data(loop_data_dir=HUMAN_DATA_DIR,
+'''loop_dict = reproducibility.read_data(loop_data_dir=DATA_DIR,
                                       chrom_size_file=f'{CHROM_DATA_DIR}/hg38.chrom.sizes',
                                       is_hiseq=True,
                                       bedgraph_data_dir=BEDGRAPH_DATA_DIR,
@@ -46,10 +46,10 @@ loop_dict.update(reproducibility.read_data(loop_data_dir=MOUSE_DATA_DIR,
                                            bedgraph_data_dir=BEDGRAPH_DATA_DIR,
                                            chrom_to_read='chr1'))'''
 
-'''loop_dict = reproducibility.read_data(loop_data_dir=DATA_DIR,
-                                      chrom_size_file=f'{DATA_DIR}/hg38.chrom.sizes',
+'''loop_dict = reproducibility.read_data(loop_data_dir=PARENT_DIR,
+                                      chrom_size_file=f'{PARENT_DIR}/hg38.chrom.sizes',
                                       is_hiseq=False,  # Determines if match comparison is made (TODO)
-                                      bedgraph_data_dir=DATA_DIR)'''
+                                      bedgraph_data_dir=PARENT_DIR)'''
 
 test_cases = bedgraph_rep.create_test_cases(195471971)
 bedgraph_stats = bedgraph_rep.get_stats(bedgraph_dict, test_cases, 'max')

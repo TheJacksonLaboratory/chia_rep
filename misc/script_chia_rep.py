@@ -6,11 +6,11 @@ import chia_rep
 
 print(chia_rep.__file__)
 
-LOOP_DATA_DIR = 'test_files'
-PEAK_DATA_DIR = 'test_files'
-BEDGRAPH_DATA_DIR = 'test_files'
-BIGWIG_DATA_DIR = 'test_files'
-CHROM_DATA_DIR = 'test_files'
+LOOP_DATA_DIR = '../test/test_files'
+PEAK_DATA_DIR = '../test/test_files'
+BEDGRAPH_DATA_DIR = '../test/test_files'
+BIGWIG_DATA_DIR = '../test/test_files'
+CHROM_DATA_DIR = '../test/test_files'
 
 loop_dict = reproducibility.read_data(loop_data_dir=LOOP_DATA_DIR,
                                       chrom_size_file=f'{CHROM_DATA_DIR}/hg38.chrom.sizes',

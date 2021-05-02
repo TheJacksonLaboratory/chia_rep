@@ -395,7 +395,7 @@ class ChromLoopData:
         log.info(f"Filtering {self.sample_name} {self.name} with "
                  f"{num_peaks} peaks...")
         log.debug(f"Top peaks: {peak_list[:3]}")
-        log.debug(f"Bot peaks: {peak_list[-3:]}")
+        log.debug(f"Bottom peaks: {peak_list[-3:]}")
         log.debug(f'Min peak value: {min_peak_value}')
 
         # Get the coverage of each wanted peak

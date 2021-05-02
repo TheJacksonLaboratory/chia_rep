@@ -7,8 +7,8 @@ extensions = [
               ['chia_rep/chia_rep_util.pyx']),
 ]
 
-NAME = 'chia_rep'
-VERSION = '0.0.2'
+NAME = 'ChIA-Rep'
+VERSION = '1.0.0'
 
 setuptools.setup(
 
@@ -28,7 +28,9 @@ setuptools.setup(
 
     url="https://github.com/c0ver/chia_rep",
 
-    packages=setuptools.find_packages(),
+    packages=['chia_rep'],
+
+    include_package_data=True,
 
     install_requires=['numpy>=1.17.0',
                       'scipy>=1.3.1',
@@ -37,6 +39,8 @@ setuptools.setup(
                       'matplotlib>=3.1.1'],
 
     ext_modules=cythonize(extensions, language_level=3),
+
+    license="MIT",
 
     classifiers=[
         "Programming Language :: Python :: 3",

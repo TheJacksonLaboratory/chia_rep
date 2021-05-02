@@ -6,7 +6,7 @@ import logging
 import math
 import matplotlib.pyplot as plt
 
-from .ChromLoopData import ChromLoopData, PEAK_MAX_VALUE_INDEX, MIN_PEAK_VALUE
+from .chrom_loop_data import ChromLoopData, PEAK_MAX_VALUE_INDEX, MIN_PEAK_VALUE
 
 VERSION = 17
 log = logging.getLogger()
@@ -160,24 +160,18 @@ class GenomeLoopData:
         for chrom_name in to_remove:
             del self.chrom_dict[chrom_name]
 
-    def preprocess(self, num_peaks=DEFAULT_NUM_PEAKS, both_peak_support=False,
-                   kept_dir=None, base_chrom='chr1'):
+    def preprocess(self, both_peak_support=False, saved_loop_dir=None):
         """
         Preprocess all the chromosomes in this object.
 
-        Removes all problematic chromosomes (not enough loops, etc...). Keeps
-        only num_peaks peaks in each list in peak_dict
+        Removes all problematic chromosomes (not enough loops, etc...).
 
         Parameters
         ----------
-        num_peaks : int, optional
-            The number of peaks to use when filtering. Only to be used with chr1
-            since other chromosomes will be dependent on min peak used from chr1
-            (default is DEFAULT_NUM_PEAKS)
         both_peak_support : bool, optional
-            Whether to only keep loops that have peak support on both sides
+            Only keep loops that have peak support on both sides
             (default is False)
-        kept_dir : str, optional
+        saved_loop_dir : str, optional
             Directory to output kept peaks and filters
             (default is None)
 
@@ -190,54 +184,14 @@ class GenomeLoopData:
         for peak_list in self.peak_dict.values():
             peak_list.sort(key=lambda x: x[PEAK_MAX_VALUE_INDEX], reverse=True)
 
-        if num_peaks < 1:
-            log.error(f'num_peaks is not positive')
-            return 0
-
-        min_peak_value = 0
         # peak_num_ratio = 1
         # chr1_size = 1
-
-        if base_chrom in self.chrom_dict and base_chrom in self.peak_dict and \
-                num_peaks > 0:
-            base_peak_list = self.peak_dict[base_chrom]
-
-            if num_peaks > len(base_peak_list):
-                num_peaks = len(base_peak_list)
-
-            while base_peak_list[num_peaks - 1][PEAK_MAX_VALUE_INDEX] < MIN_PEAK_VALUE \
-                    and num_peaks - 1 > 0:
-                num_peaks -= 1
-
-            log.debug(f'Number of peaks: {num_peaks}')
-
-            min_peak_value = \
-                self.peak_dict[base_chrom][num_peaks - 1][PEAK_MAX_VALUE_INDEX]
-            log.debug(f'Min peak value from {base_chrom}: {min_peak_value}')
-            # peak_num_ratio = num_peaks / len(self.peak_dict['chr1'])
-            # chr1_size = self.chrom_dict['chr1'].size
-        else:
-            log.warning(f'Unable to set min_peak_value since {base_chrom} '
-                        f'is not available or num_peaks is not positive')
 
         to_remove = []
         for name, chrom_data in self.chrom_dict.items():
 
-            # Keep only peaks in each chromosome above min_peak_value
-            peak_list = self.peak_dict[name]
-            if min_peak_value > 0:
-                for i in range(len(peak_list)):
-                    if peak_list[i][PEAK_MAX_VALUE_INDEX] < min_peak_value:
-                        log.debug(f'Filtered out {len(peak_list) - i} peaks')
-                        self.peak_dict[name] = self.peak_dict[name][:i]
-                        break
-            # peak_num_ratio = chrom_data.size / chr1_size
-            # num_peaks_to_keep = math.ceil(len(peak_list) * peak_num_ratio)
-            # num_peaks_to_keep = math.ceil(num_peaks * peak_num_ratio)
-            # self.peak_dict[name] = self.peak_dict[name][:num_peaks_to_keep]
-
             if len(self.peak_dict[name]) == 0:
-                log.warning(f'{name} has no peaks above {min_peak_value}')
+                log.warning(f'{name} has no peaks')
                 # log.warning(f'{name} total peaks: {len(peak_list)}, '
                 #             f'ratio: {peak_num_ratio}')
                 to_remove.append(name)
@@ -251,19 +205,12 @@ class GenomeLoopData:
         for name in to_remove:
             del self.chrom_dict[name]
 
-        if kept_dir and not os.path.isfile(
-                f'{kept_dir}/{self.sample_name}.{num_peaks}.peaks'):
-            if not os.path.isdir(kept_dir):
-                os.mkdir(kept_dir)
+        if saved_loop_dir and not os.path.isfile(
+                f'{saved_loop_dir}/{self.sample_name}.peaks'):
+            if not os.path.isdir(saved_loop_dir):
+                os.mkdir(saved_loop_dir)
 
-            with open(f'{kept_dir}/{self.sample_name}.{num_peaks}.peaks', 'w+') \
-                    as out_file:
-                for name, peak_list in self.peak_dict.items():
-                    for peak in peak_list:
-                        out_file.write(f'{name}\t{peak[0]}\t{peak[1]}\t'
-                                       f'{peak[PEAK_MAX_VALUE_INDEX]}\n')
-
-            with open(f'{kept_dir}/{self.sample_name}.{num_peaks}.loops', 'w+') \
+            with open(f'{saved_loop_dir}/{self.sample_name}.loops', 'w+') \
                     as out_file:
                 for name, chrom_data in self.chrom_dict.items():
                     for i in chrom_data.kept_indexes:

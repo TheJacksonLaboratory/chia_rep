@@ -60,41 +60,17 @@ install_requires=[
 ```bash    
 git clone https://github.com/c0ver/chia_rep.git    
 pip3 install chia_rep/
+
+pip3 install chia_rep
 ```
     
 ### Input data and compare:  
-```python    
-from chia_rep import reproducibility  
-  
-TEST_DATA_DIR = 'data'  # Folder containing all data
-BIN_SIZE = 10000  # 10kb
-WINDOW_SIZE = 10000000  # 10mb
-NUM_PEAKS = 60
-
-# To see log info statements (optional)  
-from logging.config import fileConfig
-fileConfig('chia_rep.conf')
-  
-  
-loop_dict = reproducibility.read_data(loop_data_dir=TEST_DATA_DIR,
-                                      chrom_size_file=f'{TEST_DATA_DIR}/hg38.chrom.sizes',
-                                      bedgraph_data_dir=TEST_DATA_DIR,
-                                      peak_data_dir=TEST_DATA_DIR)
-  
-reproducibility.preprocess(loop_dict, num_peaks=NUM_PEAKS)
-  
-rep, non_rep, emd_scores, j_scores = reproducibility.compare(loop_dict, bin_size=BIN_SIZE, window_size=WINDOW_SIZE)  
-
-# To compare only certain samples (further documentation provided in reproducibility.py)
-rep, non_rep, emd_scores, j_scores = reproducibility.compare(loop_dict, bin_size=BIN_SIZE, window_size=WINDOW_SIZE, specified_comparisons=[['sampleA1', 'sampleA2'], ['sampleA1', 'sampleB1']])
-
-reproducibility.output_results(rep, non_rep, 'sample_test')  
-reproducibility.output_to_csv(emd_scores, 'sample_test/sample_test.emd_value.csv')  
-reproducibility.output_to_csv(j_scores, 'sample_test/sample_test.j_value.csv')
-```  
+Example script is included in `example/script.py`.
   
 ## Testing  
-Use `chia_rep/test/test.py` in an interactive session. Further reasoning provided inside file.
+```
+pytest  # Runs the tests in test/test_reproducibility.py
+```
 
 ## Contact
 Contact Minji (minji.kim@jax.org) for general questions, and report software issues in the [Issues](https://github.com/TheJacksonLaboratory/chia_rep/issues) page. 
