@@ -45,7 +45,7 @@ def test_package():
 
             # Make sure not to modify the original dict
             l = loop_dict
-            chia_rep.preprocess(l, extra_data_dir=f'kept')
+            chia_rep.preprocess(l, extra_data_dir=f'extra_data')
 
             rep, non_rep, emd_scores, j_scores = \
                 chia_rep.compare(l, bin_size=bin_size, window_size=window_size)

@@ -5,7 +5,7 @@ import csv
 from prettytable import PrettyTable
 import logging
 from pyBedGraph import BedGraph
-from .genome_loop_data import GenomeLoopData, DEFAULT_NUM_PEAKS
+from .genome_loop_data import GenomeLoopData
 
 log = logging.getLogger()
 
@@ -277,7 +277,7 @@ def read_data(loop_data_dir, chrom_size_file, peak_data_dir,
     -------
     OrderedDict(str, GenomeLoopData)
         Key: Name of sample
-        Value: Data
+        Value: Sample Data
     """
     if not os.path.isfile(chrom_size_file):
         log.error(f"Chrom size file: {chrom_size_file} is not a valid file")
@@ -379,8 +379,34 @@ def read_data(loop_data_dir, chrom_size_file, peak_data_dir,
     return loop_data_dict
 
 
-def preprocess(loop_dict, num_peaks=DEFAULT_NUM_PEAKS, both_peak_support=False,
+def preprocess(loop_dict, num_peaks=None, both_peak_support=False,
                extra_data_dir=None, base_chrom='chr1'):
+    """
+    Takes the top peaks from the peak file.
+    Preprocess all the chromosomes in this object.
+
+    Removes all problematic chromosomes (not enough loops, etc...). Keeps
+    only num_peaks peaks in each list in peak_dict
+
+    Parameters
+    ----------
+    loop_dict : OrderedDict(str, GenomeLoopData)
+        Samples to compare
+    num_peaks : int, optional
+        The number of peaks to use when filtering. Only to be used with chr1
+        since other chromosomes will be dependent on min peak used from chr1
+        (default is All)
+    both_peak_support : bool, optional
+        Whether to only keep loops that have peak support on both sides
+        (default is False)
+    extra_data_dir : str, optional
+        Directory to output found peaks and filters
+        (default is None)
+    base_chrom : str, optional
+        Chromosome to use with num_peaks to equalize number of peaks used for
+        each chromosome.
+        (default is chr1)
+    """
     for sample_name in loop_dict:
         loop_dict[sample_name].preprocess(num_peaks,
                                           both_peak_support=both_peak_support,
