@@ -1,8 +1,7 @@
 import sys
 import os
 
-# Include the following line if chia_rep is not installed
-# sys.path.append('..')
+sys.path.append('.')
 import chia_rep
 
 
