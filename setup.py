@@ -18,8 +18,8 @@ if USE_CYTHON:
     from Cython.Build import cythonize
     extensions = cythonize(extensions, language_level=3)
 
-NAME = 'ChIA_Rep'
-VERSION = '1.0.0'
+NAME = 'ChIA-Rep'
+VERSION = '2.0.0'
 
 setuptools.setup(
 
@@ -46,8 +46,7 @@ setuptools.setup(
     install_requires=['numpy>=1.17.0',
                       'scipy>=1.3.1',
                       'prettytable>=0.7.2',
-                      'pybedgraph>=0.5.40',
-                      'matplotlib>=3.1.1'],
+                      'pybedgraph>=0.5.40'],
 
     ext_modules=extensions,
 

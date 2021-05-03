@@ -67,7 +67,7 @@ def comparison():
         for window_size in [3, 5, 10]:  # window size mb
             # for j in [3]:
             window_size *= 1000000
-            temp_str = f'half.{bin_size}_bin.{window_size}_window'
+            temp_str = f'{bin_size}_bin.{window_size}_window'
 
             if os.path.isfile(f'{parent_dir}/results/{temp_str}.emd_value.csv'):
                 print(f'Skipping {temp_str}')
@@ -90,7 +90,7 @@ def comparison():
 
             # Make sure not to modify the original dict
             l = deepcopy(loop_dict)
-            chia_rep.preprocess(l, saved_loops_dir=f'kept')
+            chia_rep.preprocess(l, extra_data_dir=f'kept')
 
             rep, non_rep, emd_scores, j_scores = \
                 chia_rep.compare(l, bin_size=bin_size, window_size=window_size)

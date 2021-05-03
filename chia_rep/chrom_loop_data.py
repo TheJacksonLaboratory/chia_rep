@@ -1,4 +1,3 @@
-import itertools
 from math import ceil
 import scipy.stats as sp
 import time
