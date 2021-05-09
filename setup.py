@@ -19,7 +19,7 @@ if USE_CYTHON:
     extensions = cythonize(extensions, language_level=3)
 
 NAME = 'ChIA-Rep'
-VERSION = '2.1.0'
+VERSION = '2.2.0'
 
 setuptools.setup(
 

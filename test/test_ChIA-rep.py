@@ -1,11 +1,13 @@
 import sys
 import os
+import pytest
 
 sys.path.append('.')
 import chia_rep
 
 
-def test_package():
+@pytest.fixture
+def loop_dict():
     data_dir = 'test/test_files'
     chrom_size_path = f'test/test_files/hg38.chrom.sizes'
 
@@ -13,11 +15,24 @@ def test_package():
     print(chrom_size_path)
 
     # Make the loop_dict a global variable to be untouched so it doesn't have to be reloaded
-    loop_dict = chia_rep.read_data(loop_data_dir=data_dir,
-                                   chrom_size_file=chrom_size_path,
-                                   bedgraph_data_dir=data_dir,
-                                   peak_data_dir=data_dir,
-                                   chroms_to_load=['chr1'])
+    return chia_rep.read_data(loop_data_dir=data_dir,
+                              chrom_size_file=chrom_size_path,
+                              bedgraph_data_dir=data_dir,
+                              peak_data_dir=data_dir,
+                              chroms_to_load=['chr1'])
+
+
+def test_filter_peaks(loop_dict):
+    for sample in loop_dict:
+        loop_dict[sample].filter_peaks(60, 'chr1')
+        assert len(loop_dict[sample].peak_dict['chr1']) == 60
+
+        # if sample == 'sampleA1':
+        #     print(len(loop_dict[sample].peak_dict['chr2']))
+        #     assert len(loop_dict[sample].peak_dict['chr2']) == 30
+
+
+def test_package(loop_dict):
 
     parent_dir = 'test_results'
     directories = [
