@@ -1,11 +1,13 @@
+import sys
 from math import ceil
+import numpy as np
 import scipy.stats as sp
 import time
-from copy import deepcopy
 import logging
-from .chia_rep_util import *
+from pyBedGraph import BedGraph
+from typing import Dict, Tuple
 
-from prettytable import PrettyTable
+from .util import *
 
 log = logging.getLogger()
 log_bin = logging.getLogger('bin')
@@ -33,27 +35,22 @@ MIN_PEAK_VALUE = 0
 NORM_LEN = 100
 
 
-def mypow(x, power):
-    for i in range(power - 1):
-        x *= x
-    return x
-
-
-def emd(p, q):
+def emd(
+    p: np.ndarray,
+    q: np.ndarray
+) -> Tuple[float, float]:
     """
     Finds the Earth Mover's Distance of two 1D arrays
 
     Parameters
     ----------
-    p : 1D Numpy array, float64
-    q : 1D Numpy array, float64
+    p : ndarray
+    q : ndarray
 
     Returns
     -------
-    float/int
-        The Earth Mover's Distance
-    int
-        The weight of this calculation
+    tuple[float, float]
+        The Earth Mover's Distance; the weight of this calculation
     """
     p_sum = p.sum()
     q_sum = q.sum()
@@ -72,22 +69,26 @@ def emd(p, q):
     return c_emd(p, q, p.size), q_sum + p_sum
 
 
-def jensen_shannon_divergence(p, q, base=2):
+def jensen_shannon_divergence(
+    p: np.ndarray,
+    q: np.ndarray,
+    base=2
+) -> float:
     """
     Finds the jensen-shannon divergence
 
     Parameters
     ----------
-    p : 2D Numpy array, float64
+    p : np.ndarray[np.float64]
         Graph of sample1
-    q : 2D Numpy array, float64
+    q : np.ndarray[np.float64]
         Graph of sample2
     base : int, optional
         Determines base to be used in calculating scipy.entropy (Default is 2)
 
     Returns
     -------
-    float/int
+    float
         Jensen-Shannon divergence
     """
     assert p.size == q.size
@@ -112,36 +113,11 @@ def jensen_shannon_divergence(p, q, base=2):
     return sp.entropy(p, m, base=base) / 2 + sp.entropy(q, m, base=base) / 2
 
 
-def get_matching_graphs(p, q):
-    """
-    Used with ChromLoopData.compare_only_match
-
-    Modified array has values only where the other sample also has values. This
-    was originally for miseq-hiseq comparisons where miseq could be missing
-    important loops found in hiseq.
-
-    Parameters
-    ----------
-    p : 2D Numpy array, float64
-        Graph of sample1
-    q : 2D Numpy array, float64
-        Graph of sample2
-
-    Returns
-    -------
-    list
-        [[mod, orig], [mod, orig]]
-    """
-    assert p.size == q.size
-    q1 = deepcopy(q)
-    p1 = deepcopy(p)
-    match_graphs(p, q, p1, q1, p[0].size)
-
-    # Could probably be made simpler: return p1, q1
-    return [[p1, p], [q1, q]]
-
-
-def get_removed_area(chrom_size, chrom, o_chrom):
+def get_removed_area(
+    chrom_size: int,
+    chrom: 'ChromLoopData',
+    o_chrom: 'ChromLoopData'
+) -> np.ndarray:
     """
     Gets removed area from both samples so no loops from that area are compared
 
@@ -154,7 +130,7 @@ def get_removed_area(chrom_size, chrom, o_chrom):
 
     Returns
     -------
-    1D Numpy array, uint8
+    np.ndarray[np.uint8]
         Array marked with 1 in removed intervals
     """
     to_remove = np.array(
@@ -172,6 +148,40 @@ def get_removed_area(chrom_size, chrom, o_chrom):
     return removed_area
 
 
+def output_graph(
+    output_dir: str,
+    chrom_name: str,
+    window_start: int,
+    window_end: int,
+    graph: np.ndarray,
+    sample_name: str
+) -> None:
+    """
+    Outputs graph to file
+
+    Parameters
+    ----------
+    output_dir
+    chrom_name
+    window_start
+    window_end
+    graph
+    sample_name
+
+    Returns
+    -------
+    None
+    """
+    with open(f'{output_dir}/{chrom_name}.txt', 'a') as out_file:
+        generated_graph = graph.flatten()
+        n_non_zeros = np.count_nonzero(graph)
+        n_zeros = graph.size - n_non_zeros
+        with np.printoptions(threshold=sys.maxsize, precision=4, linewidth=sys.maxsize, suppress=True):
+            out_file.write(
+                f'{sample_name}\t{chrom_name}\t{window_start}\t{window_end}\t'
+                f'{n_non_zeros}\t{n_zeros}\t{generated_graph}\n')
+
+
 class ChromLoopData:
     """
     A class used to represent a chromosome in a sample
@@ -186,7 +196,12 @@ class ChromLoopData:
         Name of the sample (LHH0061, LHH0061_0061H, ...)
     """
 
-    def __init__(self, chrom_name, chrom_size, sample_name):
+    def __init__(
+        self,
+        chrom_name: str,
+        chrom_size: int,
+        sample_name: str
+    ):
         """
         Parameters
         ----------
@@ -228,8 +243,14 @@ class ChromLoopData:
 
         self.max_loop_value = 0
 
-    def add_loop(self, loop_start1, loop_end1, loop_start2, loop_end2,
-                 loop_value):
+    def add_loop(
+        self,
+        loop_start1: int,
+        loop_end1: int,
+        loop_start2: int,
+        loop_end2: int,
+        loop_value: int
+    ) -> None:
 
         self.start_anchor_list[0].append(loop_start1)
         self.start_anchor_list[1].append(loop_end1)
@@ -240,7 +261,10 @@ class ChromLoopData:
 
         self.numb_loops += 1
 
-    def finish_init(self, bedgraph):
+    def finish_init(
+        self,
+        bedgraph: BedGraph
+    ) -> bool:
         """
         Finishes the construction of this chromosome. Converts lists to numpy
         arrays and calls find_loop_anchor_points
@@ -276,7 +300,10 @@ class ChromLoopData:
         self.find_loop_anchor_points(bedgraph)
         return True
 
-    def find_loop_anchor_points(self, bedgraph):
+    def find_loop_anchor_points(
+        self,
+        bedgraph: BedGraph
+    ):
         """
         Finds the exact loop anchor points.
 
@@ -363,10 +390,18 @@ class ChromLoopData:
 
     # May have more pre-processing to do besides filtering later?
     # Useless extra function otherwise
-    def preprocess(self, peak_list, both_peak_support=False):
+    def preprocess(
+        self,
+        peak_list: list,
+        both_peak_support: bool = False
+    ) -> bool:
         return self.filter_with_peaks(peak_list, both_peak_support)
 
-    def filter_with_peaks(self, peak_list, both_peak_support=False):
+    def filter_with_peaks(
+        self,
+        peak_list: list,
+        both_peak_support: bool = False
+    ) -> bool:
         """
         Filters out loops without peak support.
 
@@ -501,8 +536,15 @@ class ChromLoopData:
 
         return True
 
-    def create_graph(self, loops, bin_size, window_size,
-                     random=False, num_loops=0, to_debug=False):
+    def create_graph(
+        self,
+        loops: list,
+        bin_size: int,
+        window_size: int,
+        random: bool = False,
+        num_loops: int = 0,
+        to_debug: bool = False
+    ) -> np.ndarray:
         """
         Creates a bin-based graph to easily compare loops
 
@@ -522,9 +564,8 @@ class ChromLoopData:
 
         Returns
         -------
-        Numpy 2D array
+        np.ndarray
         """
-
         graph_len = ceil(window_size / bin_size)
         graph = np.zeros((graph_len, graph_len), dtype=np.float64)
 
@@ -600,7 +641,12 @@ class ChromLoopData:
         # return graph, total_PET_count / self.total_loop_value
         return graph
 
-    def get_stats(self, graph, o_graph, o_chrom, graph_type):
+    def get_stats(
+        self,
+        graph: np.ndarray,
+        o_graph: np.ndarray,
+        o_chrom: 'ChromLoopData'
+    ):
         """
         Get the reproducibility stat.
 
@@ -608,37 +654,33 @@ class ChromLoopData:
 
         Parameters
         ----------
-        graph : 2D Numpy array, float64
+        graph : np.ndarray
+            2D Numpy array, float64
             Graph created from window from sample1
-        o_graph : 2D Numpy array, float64
+        o_graph : np.ndarray
+            2D Numpy array, float64
             Graph created from window from sample2
         o_chrom : ChromLoopData
             sample2
-        graph_type : str
-            Description of type of comparison
 
         Returns
         -------
         dict
-            graph_type : str
-                Information about which comparison method was used
-            rep : str
-                Reproducibility statistic for this window comparison
+            emd_value : float
+                Comparison value based on the Earth mover's Distance formula
+            j_value : float
+                Comparison value based on the Jensen-Shannon formula
+            emd_dist : float
+                Result of the Earth mover's Distance formula
+            j_divergence : float
+                Result of the Jensen-Shannon formula
             w : str
                 Weight of this window
         """
-
-        max_emd_dist = graph[0].size - 1
-        graph_size = graph[0].size
-        log.debug(f'Graph size: {graph_size}')
-
-        result = {'graph_type': graph_type}
-
+        result = {}
         max_graph = np.max(graph)
         max_o_graph = np.max(o_graph)
-
-        result['w'] = max_graph / self.max_loop_value + \
-                      max_o_graph / o_chrom.max_loop_value
+        result['w'] = max_graph / self.max_loop_value + max_o_graph / o_chrom.max_loop_value
 
         if max_graph == 0 or max_o_graph == 0:
             if max_graph == 0:
@@ -653,66 +695,28 @@ class ChromLoopData:
             result['emd_dist'] = 1
             return result
 
-        log.debug('Loops in both samples')
+        log.debug('Loops are found in both samples')
 
-        # with open(f'graphs/{self.sample_name}_{window_start}.csv', 'w') as out:
-        #     sparse_mat = coo_matrix(graph)
-        #     for row, col, value in zip(sparse_mat.row, sparse_mat.col, sparse_mat.data):
-        #         out.write("({0}, {1})\t{2}\n".format(row, col, round(value, 6)))
-        # with open(f'graphs/{o_chrom.sample_name}_{window_start}.csv', 'w') as out:
-        #     sparse_mat = coo_matrix(graph)
-        #     for row, col, value in zip(sparse_mat.row, sparse_mat.col, sparse_mat.data):
-        #         out.write("({0}, {1})\t{2}\n".format(row, col, round(value, 6)))
-
-        # total_weight = num_loops + num_o_loops
-        # total_weight = graph.sum() + o_graph.sum()
-
-        start_time = time.time()
         graph_flat = graph.flatten()
         o_graph_flat = o_graph.flatten()
+
         j_divergence = jensen_shannon_divergence(graph_flat, o_graph_flat)
-        log.debug(f'Jensen-Shannon time: {time.time() - start_time}')
 
         # Make j_value range from -1 to 1
         j_value = 2 * (1 - j_divergence) - 1
 
-        # complete_graph(graph, max_emd_dist)
-        # complete_graph(o_graph, max_emd_dist)
-
         # Calculate emd for all rows and columns -> Take weighted average
         emd_distance_list = []
         emd_weight_list = []
-        start_time = time.time()
         for k in range(graph[0].size):
-            # row/col max_emd_dist from the 9-spread when creating graphs
-            # Remember max_emd_dist = graph.size - 1
-
-            # Finding number of blanks in row/column doesn't actually help so it
-            # might just be simpler to take the emd of row/column - 9/12/19
-            # numb_blanks = k - 2
-            # if numb_blanks < 0:
-            #     numb_blanks = 0
-            # row_max_emd_dist = max_emd_dist - numb_blanks
             emd_dist, emd_weight = emd(graph[k], o_graph[k])
-            # if emd_dist == graph_size:
-            #     emd_dist = row_max_emd_dist
-            # emd_distance_list.append(emd_dist / row_max_emd_dist)
             emd_distance_list.append(emd_dist)
             emd_weight_list.append(emd_weight)
 
-            # Equivalent to max_emd_dist - (k + 2)
-            # numb_blanks = graph_size - (k + 3)
-            # if numb_blanks < 0:
-            #     numb_blanks = 0
-            # col_max_emd_dist = max_emd_dist - numb_blanks
             emd_dist, emd_weight = emd(graph[:, k], o_graph[:, k])
-            # if emd_dist == graph_size:
-            #     emd_dist = col_max_emd_dist
-            # emd_distance_list.append(emd_dist / col_max_emd_dist)
             emd_distance_list.append(emd_dist)
             emd_weight_list.append(emd_weight)
 
-        log.debug(f'EMD time: {time.time() - start_time}')
         max_emd_weight = np.max(emd_weight_list)
 
         if max_emd_weight == 0:
@@ -720,16 +724,13 @@ class ChromLoopData:
         else:
             overall_emd_dist = np.average(emd_distance_list,
                                           weights=emd_weight_list)
-        # emd_dist = np.mean(emd_distance_list)
+        # overall_emd_dist = np.mean(emd_distance_list)
 
-        # Change from 0 to 1 range to -1 to 1
-        # 1 is bad rep -> -1 is bad rep
-        # 0 is good rep -> 1 is good rep
-        # emd_value = 2 * (1 - overall_emd_dist) - 1
-        # Since most values are in bottom half, don't scale linearly
-        emd_value = 2 * mypow(overall_emd_dist - max_emd_dist, 2) / \
-                    mypow(max_emd_dist, 2) - 1
-        # emd_value = 2 * mypow(overall_emd_dist - 1, 2) - 1
+        # Higher emd_dist == samples are more different
+        # Lower emd_dist == samples are more similar
+        max_emd_dist = graph.shape[0] - 1
+        numerator = overall_emd_dist - max_emd_dist
+        emd_value = 2 * numerator * numerator / (max_emd_dist * max_emd_dist) - 1
 
         # Linear scale
         # emd_value = 1 - 2 / max_emd_dist * overall_emd_dist
@@ -738,135 +739,24 @@ class ChromLoopData:
         if max_emd_weight == 0 and result['w'] != 0:
             log.error(f'Total Weight: {result["w"]} with 0 emd dist')
 
-        # result['rep'] = emd_value * EMD_WEIGHT + j_value * J_WEIGHT
         result['j_divergence'] = j_divergence
         result['j_value'] = j_value
         result['emd_value'] = emd_value
         result['emd_dist'] = overall_emd_dist
         # result['linear_emd_value'] = linear_emd_value
-        # table.add_row([graph_type, j_value, emd_value, result['w']])
 
         return result
 
-    def compare_randomly_choose(self, loops, o_loops, o_chrom, bin_size,
-                                window_size, inner_table, num_iterations=10):
-        """
-        Randomly choose which loops to compare to better match samples with
-        differing sequencing depth
-
-        (Deprecated) (Doesn't work?)
-        """
-
-        start_time = time.time()
-
-        num_loops_to_choose = min(len(loops), len(o_loops))
-
-        value_table = PrettyTable(['graph_type', 'rep', 'weight'])
-        results = []
-        for _ in range(num_iterations):
-            # Create a different graph for each iteration
-            graph = self.create_graph(loops, bin_size, window_size, random=True,
-                                      num_loops=num_loops_to_choose)
-            o_graph = o_chrom.create_graph(o_loops,bin_size, window_size,
-                                           random=True, num_loops=num_loops_to_choose)
-            result = self.get_stats(graph, o_graph, o_chrom, 'random',
-                                    inner_table)
-            results.append(result)
-
-            value_table.add_row([x for x in list(result.values())])
-
-        log_bin.info(value_table)
-
-        # Take average of all iterations
-        final_result = {
-            'graph_type': 'random',
-            'w': sum(x['w'] for x in results) / num_iterations,
-            'rep': sum(x['rep'] for x in results) / num_iterations
-        }
-
-        log.debug(f'Random time: {time.time() - start_time} ------------------')
-        return final_result
-
-    def compare_subsample(self, loops, o_loops, o_chrom, bin_size,
-                          window_size, inner_table):
-        """
-        Only compare top loops to better match samples with differing sequencing
-         depth
-
-        (Deprecated) (Doesn't work?)
-        """
-
-        start_time = time.time()
-
-        num_loops_to_choose = min(len(loops), len(o_loops))
-
-        # Sort the index list that has more to take the top loops
-        if len(loops) > num_loops_to_choose:
-            loops = loops.tolist()
-            loops.sort(key=lambda x: self.value_list[x], reverse=True)
-            log.debug(f"Taking the top {num_loops_to_choose} of "
-                      f"{self.sample_name}")
-        if len(o_loops) > num_loops_to_choose:
-            o_loops = o_loops.tolist()
-            o_loops.sort(key=lambda x: o_chrom.value_list[x], reverse=True)
-            log.debug(f"Taking the top {num_loops_to_choose} of "
-                      f"{o_chrom.sample_name}")
-
-        value_table = PrettyTable(['graph_type', 'rep', 'weight'])
-        graph = self.create_graph(loops, bin_size, window_size,
-                                  num_loops=num_loops_to_choose)
-        o_graph = o_chrom.create_graph(o_loops, bin_size, window_size,
-                                       num_loops=num_loops_to_choose)
-        result = self.get_stats(graph, o_graph, o_chrom, 'subsample',
-                                inner_table)
-
-        value_table.add_row([x for x in list(result.values())])
-        log_bin.info(value_table)
-        log.debug(f'Sub Sample time: {time.time() - start_time} --------------')
-
-        return result
-
-    def compare_only_match(self, graph, o_graph, o_chrom, inner_table,
-                           graph1_smaller):
-        """
-        Only compare loops that match with other sample to better match
-        differing sequencing depth
-
-        (Deprecated) (Doesn't work?)
-        """
-
-        start_time = time.time()
-
-        graph_type = ['mod', 'orig']
-
-        # Returns [(mod1, orig1), (mod2, orig2)]
-        new_graph_list = get_matching_graphs(graph, o_graph)
-        value_table = PrettyTable(['graph_type', 'rep', 'weight'])
-
-        # Compare only mod vs. orig
-        for i in range(2):
-            j = 1 - i
-
-            if graph1_smaller and i == 0:
-                continue
-
-            new_graph = new_graph_list[0][i]
-            new_o_graph = new_graph_list[1][j]
-
-            result = self.get_stats(new_graph, new_o_graph, o_chrom,
-                                    f'{graph_type[i]}_{graph_type[j]}',
-                                    inner_table)
-
-            value_table.add_row([x for x in list(result.values())])
-
-        log_bin.info(value_table)
-        log.debug(f'Match time: {time.time() - start_time} ------------------')
-
-        # Not sure what to return: max, avg?
-        return result
-
-    def compare(self, o_chrom, window_start, window_end, bin_size, window_size,
-                is_rep=False):
+    def compare(
+        self,
+        o_chrom: 'ChromLoopData',
+        window_start: int,
+        window_end: int,
+        bin_size: int,
+        window_size: int,
+        is_rep: bool = False,
+        output_dir: str = 'output'
+    ) -> Dict[str, float]:
         """
         Compare a window of this chromosome to another chromosome from another
         sample
@@ -885,20 +775,32 @@ class ChromLoopData:
             Needed to find the exact loop start/end index in this graph
         is_rep : bool, optional
             Debugging purposes
+        output_dir : str, optional
+            Directory to output data
 
         Returns
         -------
         dict
-            graph_type : str
-                Information about which comparison method was used
-            rep : str
-                Reproducibility statistic for this window comparison
-            w : str
+            emd_value : float
+                Comparison value based on the Earth mover's Distance formula
+            j_value : float
+                Comparison value based on the Jensen-Shannon formula
+            emd_dist : float
+                Result of the Earth mover's Distance formula
+            j_divergence : float
+                Result of the Jensen-Shannon formula
+            w : float
                 Weight of this window
         """
 
         # def compare(self, o_chrom, combined_peak_list, is_rep=False):
-        start_time = time.time()
+        return_skeleton = {
+            'emd_value': 0,
+            'j_value': 0,
+            'emd_dist': 0,
+            'j_divergence': 0,
+            'w': 0
+        }
 
         if window_end > self.size:
             window_end = self.size
@@ -906,119 +808,46 @@ class ChromLoopData:
         if window_start >= self.size:
             log.error(f"Start of window ({window_start}) is larger than "
                       f"{self.name} size: {self.size}")
-            return {'graph_type': 'error',
-                    'j_value': 0,
-                    'emd_value': 0,
-                    'linear_emd_value': 0,
-                    'emd_dist': 1,
-                    'w': 0}
+            return return_skeleton
 
         log.debug(f'{self.sample_name} vs. {o_chrom.sample_name} '
                   f'{self.name}:{window_start} - {window_end}')
 
         # Get areas removed due to overlapping start/end anchors
-        remove_time = time.time()
         combined_removed = get_removed_area(self.size, self, o_chrom)
-        log.debug(f'Removed Area time: {time.time() - remove_time}')
 
         # Get loop indexes in the window
-        loop_time = time.time()
         loops = get_loops(window_start, window_end, combined_removed,
                           self.filtered_start, self.filtered_end,
                           self.filtered_values)
         o_loops = get_loops(window_start, window_end, combined_removed,
                             o_chrom.filtered_start, o_chrom.filtered_end,
                             o_chrom.filtered_values)
-        # loops = get_loops(0, self.size, combined_removed,
-        #                   self.filtered_start, self.filtered_end,
-        #                   self.filtered_values)
-        # o_loops = get_loops(0, self.size, combined_removed,
-        #                     o_chrom.filtered_start, o_chrom.filtered_end,
-        #                     o_chrom.filtered_values)
-        log.debug(f'Get Loop time: {time.time() - loop_time}')
-
         num_loops = len(loops)
         num_o_loops = len(o_loops)
         log.debug(f"Numb of loops in {self.sample_name}: {num_loops}")
         log.debug(f"Numb of loops in {o_chrom.sample_name}: {num_o_loops}")
 
-        # value_table = PrettyTable(['graph_type', 'rep', 'weight'])
-        # inner_value_table = \
-        #     PrettyTable(['graph_type', 'j_value', 'emd', 'weight'])
-
-        result = None
         if num_loops == 0 and num_o_loops == 0:
-            result = {
-                'graph_type': 'pass_none',
-                'j_divergence': 0,
-                'j_value': 1,
-                'emd_value': 1,
-                'emd_dist': 0,
-                'w': 0
-            }
+            result = return_skeleton
             log.debug('No loops in either sample')
-
-        # Randomly subsample from larger sample to better match miseq vs. hiseq
-        # result = self.compare_randomly_choose(loops, o_loops, o_chrom,
-        #                                       bin_size, window_size,
-        #                                       inner_value_table)
-        # log_bin.info(inner_value_table)
-        # inner_value_table.clear_rows()
-        # all_results.append(result)
-        # value_table.add_row([x for x in list(result.values())])
-
-        # Subsample top loops from larger sample to better match miseq vs. hiseq
-        # result = self.compare_subsample(loops, o_loops, o_chrom, bin_size,
-        #                                 window_size, inner_value_table)
-        # log_bin.info(inner_value_table)
-        # inner_value_table.clear_rows()
-        # all_results.append(result)
-        # value_table.add_row([x for x in list(result.values())])
-
-        # if greater_numb / lesser_numb < 8:
-        if result is None:
+        else:
             # Make graphs using all loops in the window
             graph = self.create_graph(loops, bin_size, window_size,
                                       to_debug=is_rep)
             o_graph = o_chrom.create_graph(o_loops, bin_size,
                                            window_size, to_debug=is_rep)
-            # merged_list = merge_peaks(combined_peak_list)
-            # graph = create_peak_graph(merged_list, loops, self)
-            # o_graph = create_peak_graph(merged_list, o_loops, o_chrom)
+            # comparison_name = f'{self.sample_name}_{o_chrom.sample_name}'
+            # parent_dir = f'{output_dir}/comparisons/{comparison_name}'
+            # output_graph(parent_dir, self.name, window_start, window_end, graph, self.sample_name)
+            # output_graph(parent_dir, o_chrom.name, window_start, window_end, o_graph, o_chrom.sample_name)
 
-            # if self.numb_values / o_chrom.numb_values > 5 or \
-            #        o_chrom.numb_values / self.numb_values > 5:
-            # Match graphs only where loops overlap
-            # graph1_smaller = self.numb_values < o_chrom.numb_values
-            #
-            # match_time = time.time()
-            # result = self.compare_only_match(graph, o_graph, o_chrom,
-            #                                  inner_value_table,
-            #                                  graph1_smaller)
-            # log.debug(f'Match time: {time.time() - match_time} -----------')
-            # log_bin.info(inner_value_table)
-            # inner_value_table.clear_rows()
-            # all_results.append(result)
-            # value_table.add_row([x for x in list(result.values())])
+            result = self.get_stats(graph, o_graph, o_chrom)
 
-            # Normal comparison
-            # norm_time = time.time()
-            result = self.get_stats(graph, o_graph, o_chrom, 'norm')
-            # log.debug(f'Norm time: {time.time() - norm_time} -------------')
-            # log_bin.info(inner_value_table)
-            # inner_value_table.clear_rows()
-            # value_table.add_row([x for x in list(result.values())])
-
-        # log_bin.info(value_table)
-        log.debug(f'Total time: {time.time() - start_time}')
-        # if is_rep:
         log.debug(f'emd_dist: {result["emd_dist"]}')
         log.debug(f'emd_value: {result["emd_value"]}')
         log.debug(f'j_divergence: {result["emd_value"]}')
         log.debug(f'j_value: {result["j_value"]}')
-        #     for i in [0.5, 0, -0.5]:
-        #         if result['emd_value'] < i:
-        #             log.debug(f'Less than {i}')
 
         log.debug(
             '-----------------------------------------------------------------')

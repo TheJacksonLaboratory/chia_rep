@@ -1,0 +1,3 @@
+sampleA1	test/test_files/sampleA1.bedgraph	test/test_files/sampleA1.broadPeak	test/test_files/sampleA1.cis.be3
+sampleA2	test/test_files/sampleA2.bedgraph	test/test_files/sampleA2.broadPeak	test/test_files/sampleA2.cis.be3
+sampleB1	test/test_files/sampleB1.bedgraph	test/test_files/sampleB1.broadPeak	test/test_files/sampleB1.cis.be3

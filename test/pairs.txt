@@ -1,0 +1,3 @@
+sampleA1	sampleA2
+sampleA1	sampleB1
+sampleA2	sampleB1

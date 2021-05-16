@@ -10,7 +10,7 @@ from scipy.optimize import curve_fit
 
 sys.path.append('..')
 
-from chia_rep.reproducibility import read_data
+from chia_rep.chia_rep import read_data
 
 MOUSE_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/mouse'
 PEAK_DATA_DIR = '/media/hirwo/extra/jax/data/chia_pet/peaks'
@@ -190,9 +190,9 @@ def peak_len_plot(sample_name, peak_len, peak_percentage):
     plt.close()
 
 
-def main(loop_dict):
-    for sample_name in loop_dict:
-        chrom_data = loop_dict[sample_name].chrom_dict['chr1']
+def main(sample_dict):
+    for sample_name in sample_dict:
+        chrom_data = sample_dict[sample_name].chrom_dict['chr1']
         log.info(chrom_data.numb_values)
 
         # pet_count_hist(sample_name, chrom_data.pet_count_list)
@@ -284,9 +284,9 @@ def main(loop_dict):
 
 
 if __name__ == '__main__':
-    loop_dict = read_data(HUMAN_DATA_DIR, f'{CHROM_DATA_DIR}/hg38.chrom.sizes',
+    sample_dict = read_data(HUMAN_DATA_DIR, f'{CHROM_DATA_DIR}/hg38.chrom.sizes',
                           BEDGRAPH_DATA_DIR, chrom_to_load='chr1')
-    loop_dict.update(read_data(MOUSE_DATA_DIR,
+    sample_dict.update(read_data(MOUSE_DATA_DIR,
                                f'{CHROM_DATA_DIR}/mm10.chrom.sizes',
                                BEDGRAPH_DATA_DIR, chrom_to_load='chr1'))
-    main(loop_dict)
+    main(sample_dict)

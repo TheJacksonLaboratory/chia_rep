@@ -7,6 +7,10 @@
 
 !test/test_files/
 !test/test_files/*
+!test/*.txt
+
+!example/*.txt
+!example/hg38.chrom.sizes
 
 !.gitignore
 !.travis.yml

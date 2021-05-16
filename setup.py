@@ -10,8 +10,8 @@ except ImportError:
 
 ext = 'pyx' if USE_CYTHON else 'c'
 extensions = [
-    Extension('chia_rep.chia_rep_util',
-              [f'chia_rep/chia_rep_util.{ext}']),
+    Extension('chia_rep.util',
+              [f'chia_rep/util.{ext}']),
 ]
 
 if USE_CYTHON:
@@ -19,7 +19,7 @@ if USE_CYTHON:
     extensions = cythonize(extensions, language_level=3)
 
 NAME = 'ChIA-Rep'
-VERSION = '2.2.0'
+VERSION = '3.0.0'
 
 setuptools.setup(
 
@@ -45,8 +45,8 @@ setuptools.setup(
 
     install_requires=['numpy>=1.17.0',
                       'scipy>=1.3.1',
-                      'prettytable>=0.7.2',
-                      'pybedgraph>=0.5.40'],
+                      'pybedgraph>=0.5.40',
+                      'click>=7.0'],
 
     ext_modules=extensions,
 

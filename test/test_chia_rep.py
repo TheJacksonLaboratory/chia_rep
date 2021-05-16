@@ -19,17 +19,17 @@ def test_read_peak_file():
 
 
 def test_read_data():
-    loop_dict = chia_rep.read_data('test/test_files', 'test/test_files/hg38.chrom.sizes',
-                                   'test/test_files', bedgraph_data_dir='test/test_files')
+    sample_dict = chia_rep.read_data('test/sample_input_file.txt',
+                                     'test/test_files/hg38.chrom.sizes')
 
-    assert 'sampleA1' in loop_dict
-    assert 'sampleA2' in loop_dict
-    assert 'sampleB1' in loop_dict
+    assert 'sampleA1' in sample_dict
+    assert 'sampleA2' in sample_dict
+    assert 'sampleB1' in sample_dict
 
-    assert 'chr1' in loop_dict['sampleA1'].chrom_dict
-    assert 'chr1' in loop_dict['sampleA2'].chrom_dict
-    assert 'chr1' in loop_dict['sampleB1'].chrom_dict
-    assert loop_dict['sampleA1'].chrom_dict['chr1'].numb_loops == 232525
+    assert 'chr1' in sample_dict['sampleA1'].chrom_dict
+    assert 'chr1' in sample_dict['sampleA2'].chrom_dict
+    assert 'chr1' in sample_dict['sampleB1'].chrom_dict
+    assert sample_dict['sampleA1'].chrom_dict['chr1'].numb_loops == 232525
 
     pet_count_values = [[39051, 6],
                         [46456, 6],
@@ -45,4 +45,4 @@ def test_read_data():
     for value in pet_count_values:
         i = value[0]
         pet_count = value[1]
-        assert loop_dict['sampleA1'].chrom_dict['chr1'].pet_count_list[i] == pet_count
+        assert sample_dict['sampleA1'].chrom_dict['chr1'].pet_count_list[i] == pet_count

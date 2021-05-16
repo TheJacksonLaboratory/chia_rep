@@ -1,73 +1,131 @@
 import sys
 import os
 import pytest
+import shutil
 
 sys.path.append('.')
 import chia_rep
 
 
-@pytest.fixture
-def loop_dict():
-    data_dir = 'test/test_files'
-    chrom_size_path = f'test/test_files/hg38.chrom.sizes'
-
-    print(data_dir)
-    print(chrom_size_path)
-
-    # Make the loop_dict a global variable to be untouched so it doesn't have to be reloaded
-    return chia_rep.read_data(loop_data_dir=data_dir,
-                              chrom_size_file=chrom_size_path,
-                              bedgraph_data_dir=data_dir,
-                              peak_data_dir=data_dir,
-                              chroms_to_load=['chr1'])
-
-
-def test_filter_peaks(loop_dict):
-    for sample in loop_dict:
-        loop_dict[sample].filter_peaks(60, 'chr1')
-        assert len(loop_dict[sample].peak_dict['chr1']) == 60
+def test_filter_peaks():
+    sample_dict = chia_rep.read_data('test/sample_input_file.txt',
+                                     'test/test_files/hg38.chrom.sizes',
+                                     output_dir='test/output')
+    for sample in sample_dict:
+        sample_dict[sample].filter_peaks(60, 'chr1')
+        assert len(sample_dict[sample].peak_dict['chr1']) == 60
 
         # if sample == 'sampleA1':
-        #     print(len(loop_dict[sample].peak_dict['chr2']))
-        #     assert len(loop_dict[sample].peak_dict['chr2']) == 30
+        #     print(len(sample_dict[sample].peak_dict['chr2']))
+        #     assert len(sample_dict[sample].peak_dict['chr2']) == 30
 
 
-def test_package(loop_dict):
+def test_package():
+    bin_size = 5000
+    window_size = 3000000
 
-    parent_dir = 'test_results'
-    directories = [
-        parent_dir,
-        f'{parent_dir}/results',
-        f'{parent_dir}/results/info',
-        f'{parent_dir}/tmp'
+    shutil.rmtree('test/output')
+
+    sample_dict = chia_rep.read_data('test/sample_input_file.txt',
+                                     'test/test_files/hg38.chrom.sizes',
+                                     output_dir='test/output')
+
+    l = sample_dict
+    chia_rep.preprocess(l, output_dir='test/output')
+
+    emd_scores, j_scores = chia_rep.compare(l,
+                                            comparison_list_file='test/pairs.txt',
+                                            bin_size=bin_size,
+                                            window_size=window_size,
+                                            output_dir='test/output')
+    chia_rep.output_to_csv(emd_scores, j_scores, output_dir='test/output')
+
+    assert os.path.isfile('test/output/loops/sampleA1.all.loops')
+    assert os.path.isfile('test/output/loops/sampleA2.all.loops')
+    assert os.path.isfile('test/output/loops/sampleB1.all.loops')
+
+    assert os.path.isfile('test/output/peaks/sampleA1.all.peaks')
+    assert os.path.isfile('test/output/peaks/sampleA2.all.peaks')
+    assert os.path.isfile('test/output/peaks/sampleB1.all.peaks')
+
+    assert os.path.isfile('test/output/removed_areas/sampleA1.txt')
+    assert os.path.isfile('test/output/removed_areas/sampleA2.txt')
+    assert os.path.isfile('test/output/removed_areas/sampleB1.txt')
+
+    assert os.path.isfile('test/output/scores/emd_complete.csv')
+    assert os.path.isfile('test/output/scores/j_complete.csv')
+
+    assert os.path.isfile('test/output/timings/comparison.txt')
+    assert os.path.isfile('test/output/timings/read_data.txt')
+
+    assert os.path.isfile(
+        'test/output/scores/windows/sampleA1_sampleA2_chr1.txt')
+    assert os.path.isfile(
+        'test/output/scores/windows/sampleA1_sampleB1_chr1.txt')
+    assert os.path.isfile(
+        'test/output/scores/windows/sampleA2_sampleB1_chr1.txt')
+
+    assert os.path.isfile(
+        'test/output/scores/chromosomes/sampleA1_sampleA2.txt')
+    assert os.path.isfile(
+        'test/output/scores/chromosomes/sampleA1_sampleB1.txt')
+    assert os.path.isfile(
+        'test/output/scores/chromosomes/sampleA2_sampleB1.txt')
+
+
+def test_package2():
+    bin_size = 5000
+    window_size = 3000000
+
+    shutil.rmtree('test/output')
+
+    sample_dict = chia_rep.read_data('test/sample_input_file.txt',
+                                     'test/test_files/hg38.chrom.sizes',
+                                     output_dir='test/output')
+    l = sample_dict
+    chia_rep.preprocess(l, output_dir='test/output')
+
+    comparison_list = [
+        ['sampleA1', 'sampleA2'],
+        ['sampleA1', 'sampleB1'],
+        ['sampleA2', 'sampleB1']
     ]
 
-    for directory in directories:
-        if not os.path.isdir(directory):
-            os.mkdir(directory)
+    emd_scores, j_scores = chia_rep.compare(l, comparison_list=comparison_list,
+                                            bin_size=bin_size,
+                                            window_size=window_size,
+                                            output_dir='test/output')
 
-    for bin_size in [5]:  # bin size kb
-        # for i in [1]:
-        bin_size *= 1000
-        for window_size in [3]:  # window size mb
-            # for j in [3]:
-            window_size *= 1000000
-            temp_str = f'{bin_size}_bin.{window_size}_window'
+    chia_rep.output_to_csv(emd_scores, j_scores, output_dir='test/output')
 
-            if os.path.isfile(f'{parent_dir}/results/{temp_str}.emd_value.csv'):
-                print(f'Skipping {temp_str}')
-                continue
+    assert os.path.isfile('test/output/loops/sampleA1.all.loops')
+    assert os.path.isfile('test/output/loops/sampleA2.all.loops')
+    assert os.path.isfile('test/output/loops/sampleB1.all.loops')
 
-            # Make sure not to modify the original dict
-            l = loop_dict
-            chia_rep.preprocess(l, extra_data_dir=f'extra_data')
+    assert os.path.isfile('test/output/peaks/sampleA1.all.peaks')
+    assert os.path.isfile('test/output/peaks/sampleA2.all.peaks')
+    assert os.path.isfile('test/output/peaks/sampleB1.all.peaks')
 
-            rep, non_rep, emd_scores, j_scores = \
-                chia_rep.compare(l, bin_size=bin_size, window_size=window_size)
-            # chia_rep.output_results(rep, non_rep)
-            chia_rep.output_results(rep, non_rep, f'{parent_dir}/results/info',
-                                    temp_str)
-            chia_rep.output_to_csv(emd_scores,
-                                   f'{parent_dir}/results/{temp_str}.emd_value.csv')
-            chia_rep.output_to_csv(j_scores,
-                                   f'{parent_dir}/results/{temp_str}.j_value.csv')
+    assert os.path.isfile('test/output/removed_areas/sampleA1.txt')
+    assert os.path.isfile('test/output/removed_areas/sampleA2.txt')
+    assert os.path.isfile('test/output/removed_areas/sampleB1.txt')
+
+    assert os.path.isfile('test/output/scores/emd_complete.csv')
+    assert os.path.isfile('test/output/scores/j_complete.csv')
+
+    assert os.path.isfile('test/output/timings/comparison.txt')
+    assert os.path.isfile('test/output/timings/read_data.txt')
+
+    assert os.path.isfile(
+        'test/output/scores/windows/sampleA1_sampleA2_chr1.txt')
+    assert os.path.isfile(
+        'test/output/scores/windows/sampleA1_sampleB1_chr1.txt')
+    assert os.path.isfile(
+        'test/output/scores/windows/sampleA2_sampleB1_chr1.txt')
+
+    assert os.path.isfile(
+        'test/output/scores/chromosomes/sampleA1_sampleA2.txt')
+    assert os.path.isfile(
+        'test/output/scores/chromosomes/sampleA1_sampleB1.txt')
+    assert os.path.isfile(
+        'test/output/scores/chromosomes/sampleA2_sampleB1.txt')

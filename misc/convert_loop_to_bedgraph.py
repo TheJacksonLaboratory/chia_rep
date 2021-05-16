@@ -60,10 +60,10 @@ def output_as_bedgraph(intervals, out_file, chrom_name='chr1'):
 
 
 def main():
-    loop_dict = combined.read_loop_data(True)
+    sample_dict = combined.read_loop_data(True)
 
-    for name in loop_dict:
-        loop_bedgraph_array = get_bedgraph_array(loop_dict[name].chrom_dict['chr1'])
+    for name in sample_dict:
+        loop_bedgraph_array = get_bedgraph_array(sample_dict[name].chrom_dict['chr1'])
 
         output_as_bedgraph(loop_bedgraph_array)
 

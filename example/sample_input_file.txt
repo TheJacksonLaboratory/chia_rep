@@ -1,0 +1,2 @@
+LHH0048H	/media/hyrial/KESU/jax/data/to_use/LHH0048H.for.BROWSER.sorted.bedgraph	/media/hyrial/KESU/jax/data/to_use/LHH0048H.for.BROWSER.spp.z6.broadPeak	/media/hyrial/KESU/jax/data/to_use/LHH0048H.e500.clusters.cis.BE3
+LHH0054H	/media/hyrial/KESU/jax/data/to_use/LHH0054H.for.BROWSER.sorted.bedgraph	/media/hyrial/KESU/jax/data/to_use/LHH0054H.for.BROWSER.spp.z6.broadPeak	/media/hyrial/KESU/jax/data/to_use/LHH0054H.e500.clusters.cis.BE3

@@ -1,7 +1,7 @@
 import sys
 sys.path.append('..')
 
-from chia_rep import reproducibility
+from chia_rep import chia_rep
 import chia_rep
 
 print(chia_rep.__file__)
@@ -12,16 +12,16 @@ BEDGRAPH_DATA_DIR = '../test/test_files'
 BIGWIG_DATA_DIR = '../test/test_files'
 CHROM_DATA_DIR = '../test/test_files'
 
-loop_dict = reproducibility.read_data(loop_data_dir=LOOP_DATA_DIR,
-                                      chrom_size_file=f'{CHROM_DATA_DIR}/hg38.chrom.sizes',
-                                      bedgraph_data_dir=BEDGRAPH_DATA_DIR,
-                                      peak_data_dir=PEAK_DATA_DIR,
-                                      chroms_to_load=['chr1'])
+sample_dict = chia_rep.read_data(loop_data_dir=LOOP_DATA_DIR,
+                                 chrom_size_file=f'{CHROM_DATA_DIR}/hg38.chrom.sizes',
+                                 bedgraph_data_dir=BEDGRAPH_DATA_DIR,
+                                 peak_data_dir=PEAK_DATA_DIR,
+                                 chroms_to_load=['chr1'])
 
-reproducibility.preprocess(loop_dict, num_peaks=60)
+chia_rep.preprocess(sample_dict, num_peaks=60)
 
 rep, non_rep, emd_scores, j_scores = \
-    reproducibility.compare(loop_dict, bin_size=10000, window_size=10000000)
+    chia_rep.compare(sample_dict, bin_size=10000, window_size=10000000)
 
 assert str(rep) == '{}'
 
