@@ -19,7 +19,7 @@ if USE_CYTHON:
     extensions = cythonize(extensions, language_level=3)
 
 NAME = 'ChIA-Rep'
-VERSION = '3.0.1'
+VERSION = '3.1.0'
 
 setuptools.setup(
 
@@ -47,6 +47,8 @@ setuptools.setup(
                       'scipy>=1.3.1',
                       'pybedgraph>=0.5.40',
                       'click>=7.0'],
+
+    python_requires='>=3.6',
 
     ext_modules=extensions,
 

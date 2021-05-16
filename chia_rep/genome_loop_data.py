@@ -295,13 +295,17 @@ class GenomeLoopData:
         os.makedirs(f'{output_dir}/peaks', exist_ok=True)
         os.makedirs(f'{output_dir}/loops', exist_ok=True)
 
-        with open(f'{output_dir}/peaks/{self.sample_name}.{num_peak_param}.peaks', 'w') as out_file:
+        with open(
+                f'{output_dir}/peaks/{self.sample_name}.{num_peak_param}.peaks',
+                'w') as out_file:
             for chrom_name, peak_list in self.peak_dict.items():
                 for peak in peak_list:
                     out_file.write(f'{chrom_name}\t{peak[0]}\t{peak[1]}\t'
                                    f'{peak[PEAK_MAX_VALUE_INDEX]}\n')
 
-        with open(f'{output_dir}/loops/{self.sample_name}.{num_peak_param}.loops', 'w') as out_file:
+        with open(
+                f'{output_dir}/loops/{self.sample_name}.{num_peak_param}.loops',
+                'w') as out_file:
             for chrom_name, chrom_data in self.chrom_dict.items():
                 for i in chrom_data.kept_indexes:
                     out_file.write(
@@ -319,9 +323,10 @@ class GenomeLoopData:
         o_loop_data: 'GenomeLoopData',
         window_size: int,
         bin_size: int,
+        num_peaks: any,
         chroms_to_compare: List[str] = None,
-        is_rep: bool = False,
-        output_dir: str = 'output'
+        output_dir: str = 'output',
+        do_output_graph: bool = False
     ) -> Dict[str, float]:
         """
         Compares this sample against another sample
@@ -341,12 +346,13 @@ class GenomeLoopData:
         bin_size : int
             Splits each window into window_size / bin_size bins which determines
             the start and end of each loop
+        num_peaks : any
         chroms_to_compare : list, optional
             A list of chromosomes to compare (Default is All)
-        is_rep : bool, optional
-            Debugging purposes
         output_dir : str, optional
             Directory to output data
+        do_output_graph : bool, optional
+            Whether to output graph used for comparison (Default is False)
 
         Returns
         ------
@@ -358,9 +364,18 @@ class GenomeLoopData:
             chroms_to_compare = list(self.chrom_dict.keys())
 
         comparison_name = f'{self.sample_name}_{o_loop_data.sample_name}'
-        os.makedirs(f'{output_dir}/scores/windows', exist_ok=True)
-        os.makedirs(f'{output_dir}/scores/chromosomes', exist_ok=True)
-        os.makedirs(f'{output_dir}/comparisons/{comparison_name}', exist_ok=True)
+        param_str = f'{window_size}.{bin_size}.{num_peaks}'
+        os.makedirs(f'{output_dir}/{param_str}/comparisons/{comparison_name}',
+                    exist_ok=True)
+        os.makedirs(f'{output_dir}/{param_str}/scores/windows', exist_ok=True)
+        os.makedirs(f'{output_dir}/{param_str}/scores/chromosomes',
+                    exist_ok=True)
+
+        if do_output_graph:
+            with open(f'{output_dir}/{param_str}/comparisons/{comparison_name}/'
+                      f'chr1_graph.txt', 'w') as out_file:
+                out_file.write(
+                    f'sample_name\tchrom_name\twindow_start\twindow_end\tgraph\n')
 
         chrom_score_dict = {}
         log.info(f'Chromosomes to compare: {chroms_to_compare}')
@@ -384,8 +399,10 @@ class GenomeLoopData:
             window_starts = []
             window_ends = []
 
-            with open(f'{output_dir}/comparisons/{comparison_name}/{chrom_name}.txt', 'w') as out_file:
-                out_file.write(f'chrom_name\twindow_start\twindow_end\tnumb_nonzeros\tnumb_zeros\tgenerated_graph\n')
+            with open(f'{output_dir}/{param_str}/comparisons/{comparison_name}/'
+                      f'{chrom_name}.txt', 'w') as out_file:
+                out_file.write(
+                    f'sample_name\tchrom_name\twindow_start\twindow_end\tnumb_nonzeros\tnumb_zeros\n')
 
             # Compare all windows in chromosome
             for k in range(numb_windows):
@@ -399,14 +416,16 @@ class GenomeLoopData:
                 value_dict_list.append(
                     self.chrom_dict[chrom_name].compare(
                         o_loop_data.chrom_dict[chrom_name], window_start,
-                        window_end, bin_size, window_size, is_rep=is_rep))
+                        window_end, window_size, bin_size, num_peaks,
+                        output_dir=output_dir, do_output_graph=do_output_graph))
 
             emd_values = [x['emd_value'] for x in value_dict_list]
             j_values = [x['j_value'] for x in value_dict_list]
             weights = [x['w'] for x in value_dict_list]
             chrom_comp_values = []
             try:  # Weigh value from each window according to max loop in graph
-                chrom_comp_values.append(np.average(emd_values, weights=weights))
+                chrom_comp_values.append(
+                    np.average(emd_values, weights=weights))
                 chrom_comp_values.append(np.average(j_values, weights=weights))
             except ZeroDivisionError:  # sum of weights == 0
                 log.exception(f"No loops were found in either graphs. Skipping"
@@ -416,9 +435,11 @@ class GenomeLoopData:
             chrom_score_dict[chrom_name] = chrom_comp_values
             log.debug(f'{chrom_name} comp values: {chrom_comp_values}')
 
-            with open(f'{output_dir}/scores/windows/{comparison_name}_{chrom_name}.txt', 'w') as out_file:
-                out_file.write(f'sample_name\tchrom_name\twindow_start\twindow_end\t'
-                               f'emd_value\tj_value\tweight\temd_dist\tj_divergence\n')
+            with open(f'{output_dir}/{param_str}/scores/windows/'
+                      f'{comparison_name}_{chrom_name}.txt', 'w') as out_file:
+                out_file.write(
+                    f'sample_name\tchrom_name\twindow_start\twindow_end\t'
+                    f'emd_value\tj_value\tweight\temd_dist\tj_divergence\n')
                 for i, value_dict in enumerate(value_dict_list):
                     window_start = window_starts[i]
                     window_end = window_ends[i]
@@ -431,7 +452,8 @@ class GenomeLoopData:
                                    f'\t{emd_value}\t{j_value}\t{weight}\t'
                                    f'{emd_dist}\t{j_divergence}\n')
 
-        with open(f'{output_dir}/scores/chromosomes/{comparison_name}.txt', 'w') as out_file:
+        with open(f'{output_dir}/{param_str}/scores/chromosomes/'
+                  f'{comparison_name}.txt', 'w') as out_file:
             out_file.write(f'chrom_name\temd_value\tj_value\n')
             for chrom_name, score_dict in chrom_score_dict.items():
                 emd_value = score_dict[0]

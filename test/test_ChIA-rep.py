@@ -1,6 +1,5 @@
 import sys
 import os
-import pytest
 import shutil
 
 sys.path.append('.')
@@ -33,12 +32,13 @@ def test_package():
     l = sample_dict
     chia_rep.preprocess(l, output_dir='test/output')
 
-    emd_scores, j_scores = chia_rep.compare(l,
-                                            comparison_list_file='test/pairs.txt',
+    emd_scores, j_scores = chia_rep.compare(l, 'all',
+                                            compare_list_file='test/pairs.txt',
                                             bin_size=bin_size,
                                             window_size=window_size,
                                             output_dir='test/output')
-    chia_rep.output_to_csv(emd_scores, j_scores, output_dir='test/output')
+    chia_rep.output_to_csv(emd_scores, j_scores, window_size, bin_size, 'all',
+                           output_dir='test/output')
 
     assert os.path.isfile('test/output/loops/sampleA1.all.loops')
     assert os.path.isfile('test/output/loops/sampleA2.all.loops')
@@ -52,25 +52,26 @@ def test_package():
     assert os.path.isfile('test/output/removed_areas/sampleA2.txt')
     assert os.path.isfile('test/output/removed_areas/sampleB1.txt')
 
-    assert os.path.isfile('test/output/scores/emd_complete.csv')
-    assert os.path.isfile('test/output/scores/j_complete.csv')
+    param = f'{window_size}.{bin_size}.all'
+    assert os.path.isfile(f'test/output/{param}/scores/emd_complete.csv')
+    assert os.path.isfile(f'test/output/{param}/scores/j_complete.csv')
 
-    assert os.path.isfile('test/output/timings/comparison.txt')
-    assert os.path.isfile('test/output/timings/read_data.txt')
-
-    assert os.path.isfile(
-        'test/output/scores/windows/sampleA1_sampleA2_chr1.txt')
-    assert os.path.isfile(
-        'test/output/scores/windows/sampleA1_sampleB1_chr1.txt')
-    assert os.path.isfile(
-        'test/output/scores/windows/sampleA2_sampleB1_chr1.txt')
+    assert os.path.isfile(f'test/output/timings/comparison.{param}.txt')
+    assert os.path.isfile(f'test/output/timings/read_data.txt')
 
     assert os.path.isfile(
-        'test/output/scores/chromosomes/sampleA1_sampleA2.txt')
+        f'test/output/{param}/scores/windows/sampleA1_sampleA2_chr1.txt')
     assert os.path.isfile(
-        'test/output/scores/chromosomes/sampleA1_sampleB1.txt')
+        f'test/output/{param}/scores/windows/sampleA1_sampleB1_chr1.txt')
     assert os.path.isfile(
-        'test/output/scores/chromosomes/sampleA2_sampleB1.txt')
+        f'test/output/{param}/scores/windows/sampleA2_sampleB1_chr1.txt')
+
+    assert os.path.isfile(
+        f'test/output/{param}/scores/chromosomes/sampleA1_sampleA2.txt')
+    assert os.path.isfile(
+        f'test/output/{param}/scores/chromosomes/sampleA1_sampleB1.txt')
+    assert os.path.isfile(
+        f'test/output/{param}/scores/chromosomes/sampleA2_sampleB1.txt')
 
 
 def test_package2():
@@ -91,12 +92,14 @@ def test_package2():
         ['sampleA2', 'sampleB1']
     ]
 
-    emd_scores, j_scores = chia_rep.compare(l, comparison_list=comparison_list,
+    emd_scores, j_scores = chia_rep.compare(l, 'all',
+                                            compare_list=comparison_list,
                                             bin_size=bin_size,
                                             window_size=window_size,
                                             output_dir='test/output')
 
-    chia_rep.output_to_csv(emd_scores, j_scores, output_dir='test/output')
+    chia_rep.output_to_csv(emd_scores, j_scores, window_size, bin_size, 'all',
+                           output_dir='test/output')
 
     assert os.path.isfile('test/output/loops/sampleA1.all.loops')
     assert os.path.isfile('test/output/loops/sampleA2.all.loops')
@@ -110,22 +113,23 @@ def test_package2():
     assert os.path.isfile('test/output/removed_areas/sampleA2.txt')
     assert os.path.isfile('test/output/removed_areas/sampleB1.txt')
 
-    assert os.path.isfile('test/output/scores/emd_complete.csv')
-    assert os.path.isfile('test/output/scores/j_complete.csv')
+    param = f'{window_size}.{bin_size}.all'
+    assert os.path.isfile(f'test/output/{param}/scores/emd_complete.csv')
+    assert os.path.isfile(f'test/output/{param}/scores/j_complete.csv')
 
-    assert os.path.isfile('test/output/timings/comparison.txt')
-    assert os.path.isfile('test/output/timings/read_data.txt')
-
-    assert os.path.isfile(
-        'test/output/scores/windows/sampleA1_sampleA2_chr1.txt')
-    assert os.path.isfile(
-        'test/output/scores/windows/sampleA1_sampleB1_chr1.txt')
-    assert os.path.isfile(
-        'test/output/scores/windows/sampleA2_sampleB1_chr1.txt')
+    assert os.path.isfile(f'test/output/timings/comparison.{param}.txt')
+    assert os.path.isfile(f'test/output/timings/read_data.txt')
 
     assert os.path.isfile(
-        'test/output/scores/chromosomes/sampleA1_sampleA2.txt')
+        f'test/output/{param}/scores/windows/sampleA1_sampleA2_chr1.txt')
     assert os.path.isfile(
-        'test/output/scores/chromosomes/sampleA1_sampleB1.txt')
+        f'test/output/{param}/scores/windows/sampleA1_sampleB1_chr1.txt')
     assert os.path.isfile(
-        'test/output/scores/chromosomes/sampleA2_sampleB1.txt')
+        f'test/output/{param}/scores/windows/sampleA2_sampleB1_chr1.txt')
+
+    assert os.path.isfile(
+        f'test/output/{param}/scores/chromosomes/sampleA1_sampleA2.txt')
+    assert os.path.isfile(
+        f'test/output/{param}/scores/chromosomes/sampleA1_sampleB1.txt')
+    assert os.path.isfile(
+        f'test/output/{param}/scores/chromosomes/sampleA2_sampleB1.txt')

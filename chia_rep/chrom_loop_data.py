@@ -154,7 +154,8 @@ def output_graph(
     window_start: int,
     window_end: int,
     graph: np.ndarray,
-    sample_name: str
+    sample_name: str,
+    do_output_graph: bool = False
 ) -> None:
     """
     Outputs graph to file
@@ -167,19 +168,29 @@ def output_graph(
     window_end
     graph
     sample_name
+    do_output_graph
 
     Returns
     -------
     None
     """
     with open(f'{output_dir}/{chrom_name}.txt', 'a') as out_file:
-        generated_graph = graph.flatten()
         n_non_zeros = np.count_nonzero(graph)
         n_zeros = graph.size - n_non_zeros
-        with np.printoptions(threshold=sys.maxsize, precision=4, linewidth=sys.maxsize, suppress=True):
-            out_file.write(
-                f'{sample_name}\t{chrom_name}\t{window_start}\t{window_end}\t'
-                f'{n_non_zeros}\t{n_zeros}\t{generated_graph}\n')
+        out_file.write(
+            f'{sample_name}\t{chrom_name}\t{window_start}\t{window_end}\t'
+            f'{n_non_zeros}\t{n_zeros}\n')
+
+    start_time = time.time()
+    if chrom_name == 'chr1' and do_output_graph:
+        with open(f'{output_dir}/chr1_graph.txt', 'a') as out_file, \
+                np.printoptions(threshold=sys.maxsize, precision=6,
+                                linewidth=sys.maxsize, suppress=True) as _:
+            generated_graph = '\t'.join([str(x) for x in graph.flatten()])
+
+            out_file.write(f'{sample_name}\t{chrom_name}\t{window_start}\t'
+                           f'{window_end}\t{generated_graph}\n')
+    log.debug(f'Printing graph took {time.time() - start_time}s')
 
 
 class ChromLoopData:
@@ -542,8 +553,7 @@ class ChromLoopData:
         bin_size: int,
         window_size: int,
         random: bool = False,
-        num_loops: int = 0,
-        to_debug: bool = False
+        num_loops: int = 0
     ) -> np.ndarray:
         """
         Creates a bin-based graph to easily compare loops
@@ -559,8 +569,6 @@ class ChromLoopData:
             Useless for now since different sequencing depth is ignored
         num_loops : int, optional
             Number of loops to use when making the graph
-        to_debug : bool, optional
-            Log loops used in the graph (Default is False)
 
         Returns
         -------
@@ -730,7 +738,8 @@ class ChromLoopData:
         # Lower emd_dist == samples are more similar
         max_emd_dist = graph.shape[0] - 1
         numerator = overall_emd_dist - max_emd_dist
-        emd_value = 2 * numerator * numerator / (max_emd_dist * max_emd_dist) - 1
+        emd_value = 2 * numerator * numerator / (
+                max_emd_dist * max_emd_dist) - 1
 
         # Linear scale
         # emd_value = 1 - 2 / max_emd_dist * overall_emd_dist
@@ -752,10 +761,11 @@ class ChromLoopData:
         o_chrom: 'ChromLoopData',
         window_start: int,
         window_end: int,
-        bin_size: int,
         window_size: int,
-        is_rep: bool = False,
-        output_dir: str = 'output'
+        bin_size: int,
+        num_peaks: any,
+        output_dir: str = 'output',
+        do_output_graph: bool = False
     ) -> Dict[str, float]:
         """
         Compare a window of this chromosome to another chromosome from another
@@ -773,10 +783,11 @@ class ChromLoopData:
             Determines which loops are the same by putting them into bins
         window_size : int
             Needed to find the exact loop start/end index in this graph
-        is_rep : bool, optional
-            Debugging purposes
+        num_peaks : any
         output_dir : str, optional
             Directory to output data
+        do_output_graph : bool, optional
+            Whether to output graph used for comparison (Default is False)
 
         Returns
         -------
@@ -793,7 +804,6 @@ class ChromLoopData:
                 Weight of this window
         """
 
-        # def compare(self, o_chrom, combined_peak_list, is_rep=False):
         return_skeleton = {
             'emd_value': 0,
             'j_value': 0,
@@ -833,14 +843,17 @@ class ChromLoopData:
             log.debug('No loops in either sample')
         else:
             # Make graphs using all loops in the window
-            graph = self.create_graph(loops, bin_size, window_size,
-                                      to_debug=is_rep)
-            o_graph = o_chrom.create_graph(o_loops, bin_size,
-                                           window_size, to_debug=is_rep)
-            # comparison_name = f'{self.sample_name}_{o_chrom.sample_name}'
-            # parent_dir = f'{output_dir}/comparisons/{comparison_name}'
-            # output_graph(parent_dir, self.name, window_start, window_end, graph, self.sample_name)
-            # output_graph(parent_dir, o_chrom.name, window_start, window_end, o_graph, o_chrom.sample_name)
+            graph = self.create_graph(loops, bin_size, window_size)
+            o_graph = o_chrom.create_graph(o_loops, bin_size, window_size)
+
+            comparison_name = f'{self.sample_name}_{o_chrom.sample_name}'
+            param_str = f'{window_size}.{bin_size}.{num_peaks}'
+            parent_dir = f'{output_dir}/{param_str}/comparisons/{comparison_name}'
+            output_graph(parent_dir, self.name, window_start, window_end, graph,
+                         self.sample_name, do_output_graph=do_output_graph)
+            output_graph(parent_dir, o_chrom.name, window_start, window_end,
+                         o_graph, o_chrom.sample_name,
+                         do_output_graph=do_output_graph)
 
             result = self.get_stats(graph, o_graph, o_chrom)
 

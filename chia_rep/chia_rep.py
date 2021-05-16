@@ -41,6 +41,9 @@ def output_score(
 def output_to_csv(
     emd_scores: score_dict,
     j_scores: score_dict,
+    window_size: int,
+    bin_size: int,
+    num_peaks: any,
     output_dir: str = 'output'
 ) -> None:
     """
@@ -50,6 +53,9 @@ def output_to_csv(
     ----------
     emd_scores
     j_scores
+    window_size
+    bin_size
+    num_peaks
     output_dir
         Directory to output scores
 
@@ -57,7 +63,8 @@ def output_to_csv(
     ------
     None
     """
-    score_dir = f'{output_dir}/scores'
+    param_str = f'{window_size}.{bin_size}.{num_peaks}'
+    score_dir = f'{output_dir}/{param_str}/scores'
     os.makedirs(score_dir, exist_ok=True)
     output_score(emd_scores, f'{score_dir}/emd_complete.csv')
     output_score(j_scores, f'{score_dir}/j_complete.csv')
@@ -83,7 +90,8 @@ def output_removed_areas(
     """
     os.makedirs(f'{output_dir}/removed_areas', exist_ok=True)
 
-    with open(f'{output_dir}/removed_areas/{gld.sample_name}.txt', 'w') as out_file:
+    with open(f'{output_dir}/removed_areas/{gld.sample_name}.txt',
+              'w') as out_file:
         out_file.write(f'chrom_name\tstart\tend\n')
         for chrom_name, chrom_data in gld.chrom_dict.items():
             for i in range(len(chrom_data.removed_intervals[0])):
@@ -94,10 +102,13 @@ def output_removed_areas(
 
 def compare(
     sample_dict: OrderedDict,
-    comparison_list: list = None,
-    comparison_list_file: str = None,
+    num_peaks: any,
+    compare_list: list = None,
+    compare_list_file: str = None,
     output_dir: str = 'output',
-    **kwargs
+    window_size: int = 3000000,
+    bin_size: int = 5000,
+    do_output_graph: bool = False
 ) -> (score_dict, score_dict):
     """
     Compares all samples in the dictionary against each other.
@@ -107,10 +118,11 @@ def compare(
     sample_dict : OrderedDict
         Key: Name of sample
         Value: Sample data
-    comparison_list : list, optional
+    num_peaks : any
+    compare_list : list, optional
         List of comparisons to make. Shape is n x 2 where n is the number of
         comparisons
-    comparison_list_file : str, optional
+    compare_list_file : str, optional
         File that contains a list of comparisons to make.
         Format:
         sample1_name    sample2_name
@@ -118,8 +130,9 @@ def compare(
         ...
     output_dir : str
         Directory to output data
-    kwargs :
-        Extra arguments for compare function in GenomeLoopData
+    window_size : int
+    bin_size : int
+    do_output_graph : bool
 
     Returns
     -------
@@ -130,27 +143,27 @@ def compare(
     os.makedirs(f'{output_dir}/timings', exist_ok=True)
     sample_list = list(sample_dict.keys())
 
-    if comparison_list is None:
-        if comparison_list_file is None or not os.path.isfile(comparison_list_file):
-            log.error(f"{comparison_list_file} is not a valid file")
+    if compare_list is None:
+        if compare_list_file is None or not os.path.isfile(compare_list_file):
+            log.error(f"{compare_list_file} is not a valid file")
             return OrderedDict(), OrderedDict()
 
         to_compare_list = []
-        with open(comparison_list_file) as in_file:
+        with open(compare_list_file) as in_file:
             for line in in_file:
                 comparison = line.split()
                 if len(comparison) != 2:
-                    log.error(f'Invalid number of columns in {comparison_list_file}')
+                    log.error(f'Invalid number of columns in {compare_list_file}')
                     return OrderedDict(), OrderedDict()
 
                 to_compare_list.append(comparison)
     else:
-        for comparison in comparison_list:
+        for comparison in compare_list:
             if len(comparison) != 2:
                 log.error(f'Invalid list length in {comparison}')
                 return OrderedDict(), OrderedDict()
 
-        to_compare_list = comparison_list
+        to_compare_list = compare_list
 
     # To easily output in .csv format
     emd_scores = OrderedDict()
@@ -177,24 +190,28 @@ def compare(
         if sample1.species_name != sample2.species_name:
             log.error('Tried to compare two different species. Skipping')
 
-        rep_dict = sample1.compare(sample2, output_dir=output_dir, **kwargs)
+        value_dict = sample1.compare(sample2, window_size, bin_size, num_peaks,
+                                     output_dir=output_dir,
+                                     do_output_graph=do_output_graph)
 
         # Save values in OrderedDict
-        emd_value = rep_dict['emd_value']
-        j_value = rep_dict['j_value']
+        emd_value = value_dict['emd_value']
+        j_value = value_dict['j_value']
         emd_scores[sample1_name][sample2_name] = emd_value
         emd_scores[sample2_name][sample1_name] = emd_value
         j_scores[sample1_name][sample2_name] = j_value
         j_scores[sample2_name][sample1_name] = j_value
-        log.info(f'{comparison_name} EMD: {emd_value}')
+        log.info(f'{comparison_name} emd_value: {emd_value}')
         log.info(f'{comparison_name} j_value: {j_value}')
 
         comparison_timings[comparison_name] = time.time() - comparison_start_time
 
-    with open(f'{output_dir}/timings/comparison.txt', 'w') as out_file:
+    param_str = f'{window_size}.{bin_size}.{num_peaks}'
+    with open(f'{output_dir}/timings/comparison.{param_str}.txt',
+              'w') as out_file:
         out_file.write(f'comparison\ttime_taken\n')
-        for comparison_name, comparison_timing in comparison_timings.items():
-            out_file.write(f'{comparison_name}\t{comparison_timing}\n')
+        for comparison_name, compare_timing in comparison_timings.items():
+            out_file.write(f'{comparison_name}\t{compare_timing}\n')
         out_file.write(f'total\t{time.time() - total_start_time}\n')
 
     return emd_scores, j_scores
