@@ -5,14 +5,13 @@ import csv
 import logging
 from pyBedGraph import BedGraph
 from typing import Dict, List
-import typing
 
 from .genome_loop_data import GenomeLoopData
 import numpy as np
 
 log = logging.getLogger()
 # score_dict = OrderedDict[str, OrderedDict[str, float]]
-score_dict = typing.OrderedDict[str, typing.OrderedDict[str, float]]
+score_dict = Dict[str, Dict[str, float]]
 
 
 def output_score(
@@ -297,7 +296,7 @@ def read_data(
     chroms_to_load: List[str] = None,
     use_bigwig: bool = False,
     output_dir: str = 'output'
-) -> typing.OrderedDict[str, GenomeLoopData]:
+) -> Dict[str, GenomeLoopData]:
     """
     Reads all samples that are found in loop_data_dir.
 
