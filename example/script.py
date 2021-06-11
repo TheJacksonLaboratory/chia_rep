@@ -19,9 +19,9 @@ fileConfig('log.conf')
 @click.argument('chroms_to_load', nargs=-1)
 @click.option('-l', '--min-loop-value', default=1, type=int)
 @click.option('-b', '--min-bedgraph-value', default=1, type=int)
-@click.option('-p', '--num-peaks', type=int)
-@click.option('-g', '--do-output-graph', type=bool)
-def main(input_data_file, chrom_size_file, comparison_list_file, window_size,
+@click.option('-p', '--num-peaks', default=60, type=int)
+@click.option('-g', '--do-output-graph', default=False, type=bool)
+def main(input_data_file, chrom_size_file, compare_list_file, window_size,
          bin_size, chroms_to_load, min_loop_value, min_bedgraph_value,
          num_peaks, do_output_graph):
     if 'all' in chroms_to_load:
@@ -33,7 +33,7 @@ def main(input_data_file, chrom_size_file, comparison_list_file, window_size,
     chia_rep.preprocess(sample_data_dict, num_peaks)
     emd_scores, j_scores = \
         chia_rep.compare(sample_data_dict, num_peaks,
-                         compare_list_file=comparison_list_file,
+                         compare_list_file=compare_list_file,
                          window_size=window_size, bin_size=bin_size,
                          do_output_graph=do_output_graph)
 
