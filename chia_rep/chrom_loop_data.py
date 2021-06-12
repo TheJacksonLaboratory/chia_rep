@@ -12,8 +12,6 @@ from .util import *
 log = logging.getLogger()
 log_bin = logging.getLogger('bin')
 
-MAX_LOOP_LEN = 1000000  # 1mb
-
 MAX_USHRT = 65535
 
 PEAK_START_INDEX = 0
@@ -380,11 +378,6 @@ class ChromLoopData:
             peak_value = start_list_peaks[i] + end_list_peaks[i]
             self.value_list[i] *= peak_value
 
-            # Remove loops over a given threshold
-            # loop_length = int(loop_end) - int(loop_start)
-            # if loop_length > MAX_LOOP_LEN:
-            #     self.value_list[i] = 0
-
         self.max_loop_value = np.max(self.value_list)
 
         # Should be very small due to peaks being weighted earlier
@@ -471,10 +464,6 @@ class ChromLoopData:
             loop_start = self.start_list[i]
             loop_end = self.end_list[i]
             loop_value = self.value_list[i]
-
-            # Loops that are too long can be considered noise
-            if loop_end - loop_start > MAX_LOOP_LEN:
-                continue
 
             # From overlapping anchors
             if loop_value == 0:
