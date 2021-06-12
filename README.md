@@ -140,5 +140,8 @@ python script.py sample_input_file.txt hg38.chrom.sizes pairs.txt 3000000 5000 c
 pytest  # Runs the tests in test/
 ```
 
+### Documentation
+Included in docs/build/html
+
 ## Contact
 Contact Minji (minji.kim@jax.org) for general questions, and report software issues in the [Issues](https://github.com/TheJacksonLaboratory/chia_rep/issues) page. 

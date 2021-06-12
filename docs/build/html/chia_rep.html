@@ -1,0 +1,802 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>chia_rep package &#8212; ChIA-rep 3.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Welcome to chIA-rep’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="chia-rep-package">
+<h1>chia_rep package<a class="headerlink" href="#chia-rep-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-chia_rep.chrom_loop_data">
+<span id="chia-rep-chrom-loop-data-module"></span><h2>chia_rep.chrom_loop_data module<a class="headerlink" href="#module-chia_rep.chrom_loop_data" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="chia_rep.chrom_loop_data.emd">
+<span class="sig-prename descclassname"><span class="pre">chia_rep.chrom_loop_data.</span></span><span class="sig-name descname"><span class="pre">emd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#chia_rep.chrom_loop_data.emd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the Earth Mover’s Distance of two 1D arrays</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> (<em>ndarray</em>) – </p></li>
+<li><p><strong>q</strong> (<em>ndarray</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The Earth Mover’s Distance; the weight of this calculation</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple[float, float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chia_rep.chrom_loop_data.jensen_shannon_divergence">
+<span class="sig-prename descclassname"><span class="pre">chia_rep.chrom_loop_data.</span></span><span class="sig-name descname"><span class="pre">jensen_shannon_divergence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">float</span><a class="headerlink" href="#chia_rep.chrom_loop_data.jensen_shannon_divergence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the jensen-shannon divergence</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> (<em>np.ndarray</em><em>[</em><em>np.float64</em><em>]</em>) – Graph of sample1</p></li>
+<li><p><strong>q</strong> (<em>np.ndarray</em><em>[</em><em>np.float64</em><em>]</em>) – Graph of sample2</p></li>
+<li><p><strong>base</strong> (<em>int</em><em>, </em><em>optional</em>) – Determines base to be used in calculating scipy.entropy (Default is 2)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Jensen-Shannon divergence</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chia_rep.chrom_loop_data.get_removed_area">
+<span class="sig-prename descclassname"><span class="pre">chia_rep.chrom_loop_data.</span></span><span class="sig-name descname"><span class="pre">get_removed_area</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chrom_size</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chrom</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#chia_rep.chrom_loop_data.ChromLoopData" title="chia_rep.chrom_loop_data.ChromLoopData"><span class="pre">chia_rep.chrom_loop_data.ChromLoopData</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">o_chrom</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#chia_rep.chrom_loop_data.ChromLoopData" title="chia_rep.chrom_loop_data.ChromLoopData"><span class="pre">chia_rep.chrom_loop_data.ChromLoopData</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.ndarray</span><a class="headerlink" href="#chia_rep.chrom_loop_data.get_removed_area" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets removed area from both samples so no loops from that area are compared</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chrom_size</strong> (<em>int</em>) – Size of chromosome</p></li>
+<li><p><strong>chrom</strong> (<a class="reference internal" href="#chia_rep.chrom_loop_data.ChromLoopData" title="chia_rep.chrom_loop_data.ChromLoopData"><em>ChromLoopData</em></a>) – </p></li>
+<li><p><strong>o_chrom</strong> (<a class="reference internal" href="#chia_rep.chrom_loop_data.ChromLoopData" title="chia_rep.chrom_loop_data.ChromLoopData"><em>ChromLoopData</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Array marked with 1 in removed intervals</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray[np.uint8]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chia_rep.chrom_loop_data.output_graph">
+<span class="sig-prename descclassname"><span class="pre">chia_rep.chrom_loop_data.</span></span><span class="sig-name descname"><span class="pre">output_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chrom_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_start</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_end</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_output_graph</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#chia_rep.chrom_loop_data.output_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Outputs graph to file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output_dir</strong> – </p></li>
+<li><p><strong>chrom_name</strong> – </p></li>
+<li><p><strong>window_start</strong> – </p></li>
+<li><p><strong>window_end</strong> – </p></li>
+<li><p><strong>graph</strong> – </p></li>
+<li><p><strong>sample_name</strong> – </p></li>
+<li><p><strong>do_output_graph</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="chia_rep.chrom_loop_data.ChromLoopData">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">chia_rep.chrom_loop_data.</span></span><span class="sig-name descname"><span class="pre">ChromLoopData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chrom_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chrom_size</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chia_rep.chrom_loop_data.ChromLoopData" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class used to represent a chromosome in a sample</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="chia_rep.chrom_loop_data.ChromLoopData.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#chia_rep.chrom_loop_data.ChromLoopData.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of chromosome</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="chia_rep.chrom_loop_data.ChromLoopData.size">
+<span class="sig-name descname"><span class="pre">size</span></span><a class="headerlink" href="#chia_rep.chrom_loop_data.ChromLoopData.size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Size of chromosome</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="chia_rep.chrom_loop_data.ChromLoopData.sample_name">
+<span class="sig-name descname"><span class="pre">sample_name</span></span><a class="headerlink" href="#chia_rep.chrom_loop_data.ChromLoopData.sample_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the sample (LHH0061, LHH0061_0061H, …)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chia_rep.chrom_loop_data.ChromLoopData.add_loop">
+<span class="sig-name descname"><span class="pre">add_loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loop_start1</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_end1</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_start2</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_end2</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_value</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#chia_rep.chrom_loop_data.ChromLoopData.add_loop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chia_rep.chrom_loop_data.ChromLoopData.finish_init">
+<span class="sig-name descname"><span class="pre">finish_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bedgraph</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pyBedGraph.BedGraph.BedGraph</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span><a class="headerlink" href="#chia_rep.chrom_loop_data.ChromLoopData.finish_init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finishes the construction of this chromosome. Converts lists to numpy
+arrays and calls find_loop_anchor_points</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>bedgraph</strong> (<em>BedGraph</em>) – Used to find the anchor points of each loop</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Whether the chromosome was successfully made</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chia_rep.chrom_loop_data.ChromLoopData.find_loop_anchor_points">
+<span class="sig-name descname"><span class="pre">find_loop_anchor_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bedgraph</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pyBedGraph.BedGraph.BedGraph</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chia_rep.chrom_loop_data.ChromLoopData.find_loop_anchor_points" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the exact loop anchor points.</p>
+<p>Finds peak values for each anchor and weighs the loop. Also finds loops
+that have overlapping start/end indexes due to close and long start/end
+anchors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>bedgraph</strong> (<em>BedGraph</em>) – Used to find the anchor points of each loop</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chia_rep.chrom_loop_data.ChromLoopData.preprocess">
+<span class="sig-name descname"><span class="pre">preprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peak_list</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">both_peak_support</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span><a class="headerlink" href="#chia_rep.chrom_loop_data.ChromLoopData.preprocess" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chia_rep.chrom_loop_data.ChromLoopData.filter_with_peaks">
+<span class="sig-name descname"><span class="pre">filter_with_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peak_list</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">both_peak_support</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span><a class="headerlink" href="#chia_rep.chrom_loop_data.ChromLoopData.filter_with_peaks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filters out loops without peak support.</p>
+<p>Get coverage of peaks that have been chosen to be used. Find loops that
+are not within that coverage and filter them out.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>peak_list</strong> (<em>list</em><em>(</em><em>list</em><em>)</em>) – List of peaks to use</p></li>
+<li><p><strong>both_peak_support</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to only keep loops that have peak support on both sides
+(default is False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Whether the chromosome had any problems when filtering</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chia_rep.chrom_loop_data.ChromLoopData.create_graph">
+<span class="sig-name descname"><span class="pre">create_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loops</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_size</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_loops</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.ndarray</span><a class="headerlink" href="#chia_rep.chrom_loop_data.ChromLoopData.create_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a bin-based graph to easily compare loops</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>loops</strong> (<em>list</em>) – List of loop indexes from self.filtered_*</p></li>
+<li><p><strong>bin_size</strong> (<em>int</em>) – </p></li>
+<li><p><strong>window_size</strong> (<em>int</em>) – </p></li>
+<li><p><strong>random</strong> (<em>bool</em><em>, </em><em>optional</em>) – Randomly pick which loops to use (Default is False)
+Useless for now since different sequencing depth is ignored</p></li>
+<li><p><strong>num_loops</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of loops to use when making the graph</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chia_rep.chrom_loop_data.ChromLoopData.get_stats">
+<span class="sig-name descname"><span class="pre">get_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">o_graph</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">o_chrom</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#chia_rep.chrom_loop_data.ChromLoopData" title="chia_rep.chrom_loop_data.ChromLoopData"><span class="pre">chia_rep.chrom_loop_data.ChromLoopData</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chia_rep.chrom_loop_data.ChromLoopData.get_stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the reproducibility stat.</p>
+<p>Jensen Shannon and EMD. Though EMD seems to be better.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>graph</strong> (<em>np.ndarray</em>) – 2D Numpy array, float64
+Graph created from window from sample1</p></li>
+<li><p><strong>o_graph</strong> (<em>np.ndarray</em>) – 2D Numpy array, float64
+Graph created from window from sample2</p></li>
+<li><p><strong>o_chrom</strong> (<a class="reference internal" href="#chia_rep.chrom_loop_data.ChromLoopData" title="chia_rep.chrom_loop_data.ChromLoopData"><em>ChromLoopData</em></a>) – sample2</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>emd_value<span class="classifier">float</span></dt><dd><p>Comparison value based on the Earth mover’s Distance formula</p>
+</dd>
+<dt>j_value<span class="classifier">float</span></dt><dd><p>Comparison value based on the Jensen-Shannon formula</p>
+</dd>
+<dt>emd_dist<span class="classifier">float</span></dt><dd><p>Result of the Earth mover’s Distance formula</p>
+</dd>
+<dt>j_divergence<span class="classifier">float</span></dt><dd><p>Result of the Jensen-Shannon formula</p>
+</dd>
+<dt>w<span class="classifier">str</span></dt><dd><p>Weight of this window</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chia_rep.chrom_loop_data.ChromLoopData.compare">
+<span class="sig-name descname"><span class="pre">compare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">o_chrom</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#chia_rep.chrom_loop_data.ChromLoopData" title="chia_rep.chrom_loop_data.ChromLoopData"><span class="pre">chia_rep.chrom_loop_data.ChromLoopData</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_start</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_end</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_size</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_peaks</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'output'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_output_graph</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#chia_rep.chrom_loop_data.ChromLoopData.compare" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compare a window of this chromosome to another chromosome from another
+sample</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>o_chrom</strong> (<a class="reference internal" href="#chia_rep.chrom_loop_data.ChromLoopData" title="chia_rep.chrom_loop_data.ChromLoopData"><em>ChromLoopData</em></a>) – The other chromosome</p></li>
+<li><p><strong>window_start</strong> (<em>int</em>) – The start of the window</p></li>
+<li><p><strong>window_end</strong> (<em>int</em>) – The end of the window</p></li>
+<li><p><strong>bin_size</strong> (<em>int</em>) – Determines which loops are the same by putting them into bins</p></li>
+<li><p><strong>window_size</strong> (<em>int</em>) – Needed to find the exact loop start/end index in this graph</p></li>
+<li><p><strong>num_peaks</strong> (<em>any</em>) – </p></li>
+<li><p><strong>output_dir</strong> (<em>str</em><em>, </em><em>optional</em>) – Directory to output data</p></li>
+<li><p><strong>do_output_graph</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to output graph used for comparison (Default is False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>emd_value<span class="classifier">float</span></dt><dd><p>Comparison value based on the Earth mover’s Distance formula</p>
+</dd>
+<dt>j_value<span class="classifier">float</span></dt><dd><p>Comparison value based on the Jensen-Shannon formula</p>
+</dd>
+<dt>emd_dist<span class="classifier">float</span></dt><dd><p>Result of the Earth mover’s Distance formula</p>
+</dd>
+<dt>j_divergence<span class="classifier">float</span></dt><dd><p>Result of the Jensen-Shannon formula</p>
+</dd>
+<dt>w<span class="classifier">float</span></dt><dd><p>Weight of this window</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-chia_rep.genome_loop_data">
+<span id="chia-rep-genome-loop-data-module"></span><h2>chia_rep.genome_loop_data module<a class="headerlink" href="#module-chia_rep.genome_loop_data" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="chia_rep.genome_loop_data.GenomeLoopData">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">chia_rep.genome_loop_data.</span></span><span class="sig-name descname"><span class="pre">GenomeLoopData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chrom_size_file</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_file</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bedgraph</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pyBedGraph.BedGraph.BedGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">peak_dict</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chroms_to_load</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_loop_value</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chia_rep.genome_loop_data.GenomeLoopData" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class used to represent a sample</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="chia_rep.genome_loop_data.GenomeLoopData.species_name">
+<span class="sig-name descname"><span class="pre">species_name</span></span><a class="headerlink" href="#chia_rep.genome_loop_data.GenomeLoopData.species_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the sample’s species (hg38, mm10, …)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="chia_rep.genome_loop_data.GenomeLoopData.sample_name">
+<span class="sig-name descname"><span class="pre">sample_name</span></span><a class="headerlink" href="#chia_rep.genome_loop_data.GenomeLoopData.sample_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the sample (LHH0061, LHH0061_0061H, …)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="chia_rep.genome_loop_data.GenomeLoopData.peak_dict">
+<span class="sig-name descname"><span class="pre">peak_dict</span></span><a class="headerlink" href="#chia_rep.genome_loop_data.GenomeLoopData.peak_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Key: Name of chromosome (chr1, chr2, …)
+Value: List of peaks in chromosome
+Peak format: [start, end, length, max_value, mean_value (optional)]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict[str, list]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="chia_rep.genome_loop_data.GenomeLoopData.chrom_dict">
+<span class="sig-name descname"><span class="pre">chrom_dict</span></span><a class="headerlink" href="#chia_rep.genome_loop_data.GenomeLoopData.chrom_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Key: Name of chromosome
+Value: ChromLoopData object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict[str, <a class="reference internal" href="#chia_rep.chrom_loop_data.ChromLoopData" title="chia_rep.chrom_loop_data.ChromLoopData">ChromLoopData</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chia_rep.genome_loop_data.GenomeLoopData.filter_peaks">
+<span class="sig-name descname"><span class="pre">filter_peaks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_peaks</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_chrom</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#chia_rep.genome_loop_data.GenomeLoopData.filter_peaks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keeps only the top num_peaks peaks. Takes the ratio of kept peaks in the
+base_chrom and uses it for all other chromosomes to calculate which
+peaks are kept.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_peaks</strong> – </p></li>
+<li><p><strong>base_chrom</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chia_rep.genome_loop_data.GenomeLoopData.preprocess">
+<span class="sig-name descname"><span class="pre">preprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_peaks</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">both_peak_support</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'output'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_chrom</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'chr1'</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#chia_rep.genome_loop_data.GenomeLoopData.preprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocess all the chromosomes in chrom_dict attribute of this object.</p>
+<p>Removes all problematic chromosomes (not enough loops, etc…). Keeps
+only num_peaks peaks in each list in peak_dict</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_peaks</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of peaks to use when filtering. Only to be used with chr1
+since other chromosomes will be dependent on min peak used from chr1
+(default is DEFAULT_NUM_PEAKS)</p></li>
+<li><p><strong>both_peak_support</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to only keep loops that have peak support on both sides
+(default is False)</p></li>
+<li><p><strong>output_dir</strong> (<em>str</em><em>, </em><em>optional</em>) – Directory to output found peaks and filters</p></li>
+<li><p><strong>base_chrom</strong> (<em>str</em><em>, </em><em>optional</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="chia_rep.genome_loop_data.GenomeLoopData.compare">
+<span class="sig-name descname"><span class="pre">compare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">o_loop_data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#chia_rep.genome_loop_data.GenomeLoopData" title="chia_rep.genome_loop_data.GenomeLoopData"><span class="pre">chia_rep.genome_loop_data.GenomeLoopData</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_size</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_peaks</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chroms_to_compare</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'output'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_output_graph</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#chia_rep.genome_loop_data.GenomeLoopData.compare" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compares this sample against another sample</p>
+<p>Gets the comparison values for each window in each chromosome and
+combines that into a genome-wide comparison value. Each window is given
+a weight based on the highest loop in it. Each chromosome is weighted
+equally.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>o_loop_data</strong> (<a class="reference internal" href="#chia_rep.genome_loop_data.GenomeLoopData" title="chia_rep.genome_loop_data.GenomeLoopData"><em>GenomeLoopData</em></a>) – The sample to compare this sample against</p></li>
+<li><p><strong>window_size</strong> (<em>int</em>) – Splits the chromosome into ceil(chrom_size / window_size) windows.
+Loops that start in one window and end in another are filter out.</p></li>
+<li><p><strong>bin_size</strong> (<em>int</em>) – Splits each window into window_size / bin_size bins which determines
+the start and end of each loop</p></li>
+<li><p><strong>num_peaks</strong> (<em>any</em>) – </p></li>
+<li><p><strong>chroms_to_compare</strong> (<em>list</em><em>, </em><em>optional</em>) – A list of chromosomes to compare (Default is All)</p></li>
+<li><p><strong>output_dir</strong> (<em>str</em><em>, </em><em>optional</em>) – Directory to output data</p></li>
+<li><p><strong>do_output_graph</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to output graph used for comparison (Default is False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Contains comparison values based on EMD and Jensen-Shannon formulas</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict[str, float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-chia_rep.util">
+<span id="chia-rep-util-module"></span><h2>chia_rep.util module<a class="headerlink" href="#module-chia_rep.util" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="chia_rep.util.c_emd">
+<span class="sig-prename descclassname"><span class="pre">chia_rep.util.</span></span><span class="sig-name descname"><span class="pre">c_emd</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chia_rep.util.c_emd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates Earth Mover’s Distance in Cython</p>
+<p>Iterates through array, keeping track of the differences</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p</strong> – The row or column of sample1</p></li>
+<li><p><strong>q</strong> – The matching row or column of sample2</p></li>
+<li><p><strong>size</strong> – The size of p,q. They should be the same size.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The EMD</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chia_rep.util.complete_graph">
+<span class="sig-prename descclassname"><span class="pre">chia_rep.util.</span></span><span class="sig-name descname"><span class="pre">complete_graph</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chia_rep.util.complete_graph" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chia_rep.util.get_loops">
+<span class="sig-prename descclassname"><span class="pre">chia_rep.util.</span></span><span class="sig-name descname"><span class="pre">get_loops</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chia_rep.util.get_loops" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets all loops within the window but not in the removed area.</p>
+<p>Iterates through every filtered loop</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>window_start</strong> – </p></li>
+<li><p><strong>window_end</strong> – </p></li>
+<li><p><strong>start_list</strong> – Numpy array of anchor starts for loops</p></li>
+<li><p><strong>end_list</strong> – Numpy array of anchor ends for loops</p></li>
+<li><p><strong>value_list</strong> – Numpy array of loop values</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Array of indexes that contains wanted loops from filtered_loops</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Numpy 1D array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chia_rep.util.match_graphs">
+<span class="sig-prename descclassname"><span class="pre">chia_rep.util.</span></span><span class="sig-name descname"><span class="pre">match_graphs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chia_rep.util.match_graphs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-chia_rep.chia_rep">
+<span id="chia-rep-chia-rep-module"></span><h2>chia_rep.chia_rep module<a class="headerlink" href="#module-chia_rep.chia_rep" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="chia_rep.chia_rep.output_score">
+<span class="sig-prename descclassname"><span class="pre">chia_rep.chia_rep.</span></span><span class="sig-name descname"><span class="pre">output_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scores</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#chia_rep.chia_rep.output_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Output scores to a specified file path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scores</strong> – </p></li>
+<li><p><strong>file_path</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chia_rep.chia_rep.output_to_csv">
+<span class="sig-prename descclassname"><span class="pre">chia_rep.chia_rep.</span></span><span class="sig-name descname"><span class="pre">output_to_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">emd_scores</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j_scores</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_size</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_peaks</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'output'</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#chia_rep.chia_rep.output_to_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Outputs emd_scores and j_scores to a specified file path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>emd_scores</strong> – </p></li>
+<li><p><strong>j_scores</strong> – </p></li>
+<li><p><strong>window_size</strong> – </p></li>
+<li><p><strong>bin_size</strong> – </p></li>
+<li><p><strong>num_peaks</strong> – </p></li>
+<li><p><strong>output_dir</strong> – Directory to output scores</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chia_rep.chia_rep.output_removed_areas">
+<span class="sig-prename descclassname"><span class="pre">chia_rep.chia_rep.</span></span><span class="sig-name descname"><span class="pre">output_removed_areas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gld</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#chia_rep.genome_loop_data.GenomeLoopData" title="chia_rep.genome_loop_data.GenomeLoopData"><span class="pre">chia_rep.genome_loop_data.GenomeLoopData</span></a></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#chia_rep.chia_rep.output_removed_areas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Outputs areas that have been removed</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output_dir</strong> (<em>str</em>) – </p></li>
+<li><p><strong>gld</strong> (<a class="reference internal" href="#chia_rep.genome_loop_data.GenomeLoopData" title="chia_rep.genome_loop_data.GenomeLoopData"><em>GenomeLoopData</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chia_rep.chia_rep.compare">
+<span class="sig-prename descclassname"><span class="pre">chia_rep.chia_rep.</span></span><span class="sig-name descname"><span class="pre">compare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_dict</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">collections.OrderedDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_peaks</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compare_list</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compare_list_file</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'output'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">3000000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_size</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">5000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_output_graph</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chia_rep.chia_rep.compare" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compares specified samples against each other. Specify comparisons in either
+compare_list or compare_list_file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sample_dict</strong> (<em>OrderedDict</em>) – (Key: sample name, value: sample data)</p></li>
+<li><p><strong>num_peaks</strong> (<em>any</em>) – Number of peaks to use when filtering out loops. If None, use all peaks.</p></li>
+<li><p><strong>compare_list</strong> (<em>list</em><em>, </em><em>optional</em>) – List of comparisons to make. Shape is n x 2 where n is the number of
+comparisons</p></li>
+<li><p><strong>compare_list_file</strong> (<em>str</em><em>, </em><em>optional</em>) – File that contains a list of comparisons to make.
+Format:
+sample1_name    sample2_name
+sample3_name    sample4_name
+…</p></li>
+<li><p><strong>output_dir</strong> (<em>str</em>) – Directory to output data</p></li>
+<li><p><strong>window_size</strong> (<em>int</em>) – Split each chromosome into windows with specified size.</p></li>
+<li><p><strong>bin_size</strong> (<em>int</em>) – Split each window into bins with with specified size.</p></li>
+<li><p><strong>do_output_graph</strong> (<em>bool</em>) – Output generated matrix to file. Outputs two arrays for each window in
+each comparison of length (window_size / bin_size)^2.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Two OrderedDicts containing emd_scores and j_scores</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chia_rep.chia_rep.check_results">
+<span class="sig-prename descclassname"><span class="pre">chia_rep.chia_rep.</span></span><span class="sig-name descname"><span class="pre">check_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">non_rep</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_file_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desc_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#chia_rep.chia_rep.check_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deprecated:
+Outputs results in readable text file table format</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rep</strong> (<em>dict</em><em>(</em><em>str</em><em>, </em><em>dict</em><em>)</em>) – Key: Combined comparison name (LHH0048_LHH0054L)
+Value: dict containing keys: ‘emd_value’ and/or ‘j_value’
+Dictionary containing information for replicate comparisons</p></li>
+<li><p><strong>non_rep</strong> (<em>dict</em><em>(</em><em>str</em><em>, </em><em>dict</em><em>)</em>) – Key: Combined comparison name (LHH0048_LHH0054L)
+Value: dict containing keys: ‘emd_value’ and/or ‘j_value’
+Dictionary containing information for non-replicate comparisons</p></li>
+<li><p><strong>out_file_dir</strong> (<em>str</em><em>, </em><em>optional</em>) – Default is None</p></li>
+<li><p><strong>desc_str</strong> (<em>str</em><em>, </em><em>optional</em>) – Used as file name to describe settings/parameters for this comparison
+Not optional if out_file_dir is not None
+Default is None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chia_rep.chia_rep.read_data">
+<span class="sig-prename descclassname"><span class="pre">chia_rep.chia_rep.</span></span><span class="sig-name descname"><span class="pre">read_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_data_file</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chrom_size_file</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_loop_value</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_bedgraph_value</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chroms_to_load</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_bigwig</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'output'</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="#chia_rep.genome_loop_data.GenomeLoopData" title="chia_rep.genome_loop_data.GenomeLoopData"><span class="pre">chia_rep.genome_loop_data.GenomeLoopData</span></a><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#chia_rep.chia_rep.read_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads all samples that are found in loop_data_dir.</p>
+<p>loop_data_dir/peak_data_dir/bedgraph_data_dir do not have to be separate
+directories.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_data_file</strong> (<em>str</em>) – File with file paths to all necessary input files.
+Format:
+sample1_name bedgraph1_file   peak1_file   loop2_file
+sample2_name bedgraph2_file   peak2_file   loop1_file
+…</p></li>
+<li><p><strong>chrom_size_file</strong> (<em>str</em>) – Path to chromosome size file</p></li>
+<li><p><strong>min_loop_value</strong> (<em>int</em><em>, </em><em>optional</em>) – Minimum loop value accepted by GenomeLoopData/ChromLoopData</p></li>
+<li><p><strong>min_bedgraph_value</strong> (<em>int</em><em>, </em><em>optional</em>) – Minimum value accepted by BedGraph obj from pyBedGraph</p></li>
+<li><p><strong>chroms_to_load</strong> (<em>list</em><em>, </em><em>optional</em>) – Specify specific chromosomes to load instead of the entire genome</p></li>
+<li><p><strong>use_bigwig</strong> (<em>bool</em><em>, </em><em>optional</em>) – Specify if input_file is bigwig or not. Not implemented yet.</p></li>
+<li><p><strong>output_dir</strong> (<em>str</em>) – Directory to output data</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>OrderedDict[str, <a class="reference internal" href="#chia_rep.genome_loop_data.GenomeLoopData" title="chia_rep.genome_loop_data.GenomeLoopData">GenomeLoopData</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chia_rep.chia_rep.preprocess">
+<span class="sig-prename descclassname"><span class="pre">chia_rep.chia_rep.</span></span><span class="sig-name descname"><span class="pre">preprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_dict</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">collections.OrderedDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_peaks</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">both_peak_support</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'output'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_chrom</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'chr1'</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#chia_rep.chia_rep.preprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes num_peaks top peaks from the peak file for base_chrom and uses the
+same ratio for each other chromosome.
+Preprocess all the chromosomes in this object.</p>
+<p>Removes all problematic chromosomes (not enough loops, etc…).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sample_dict</strong> (<em>OrderedDict</em><em>[</em><em>str</em><em>, </em><a class="reference internal" href="#chia_rep.genome_loop_data.GenomeLoopData" title="chia_rep.genome_loop_data.GenomeLoopData"><em>GenomeLoopData</em></a><em>]</em>) – Samples to compare</p></li>
+<li><p><strong>num_peaks</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of peaks to use when filtering. Only to be used with chr1
+since other chromosomes will be dependent on min peak used from chr1</p></li>
+<li><p><strong>both_peak_support</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to only keep loops that have peak support on both sides</p></li>
+<li><p><strong>output_dir</strong> (<em>str</em><em>, </em><em>optional</em>) – Directory to output found peaks and filters</p></li>
+<li><p><strong>base_chrom</strong> (<em>str</em><em>, </em><em>optional</em>) – Chromosome to use with num_peaks to equalize number of peaks used for
+each chromosome.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="chia_rep.chia_rep.read_peak_file">
+<span class="sig-prename descclassname"><span class="pre">chia_rep.chia_rep.</span></span><span class="sig-name descname"><span class="pre">read_peak_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">peak_file_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#chia_rep.chia_rep.read_peak_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the start and ends of every peak in chromosome for one sample. Find
+the max value within the interval for each peak using the bedgraph file.</p>
+<p>File format must have at least 3 columns with the first 3 being:
+chrom_name   start   end</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>peak_file_path</strong> (<em>str</em>) – File path of peak file</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary containing list of peaks start and ends for every chromosome</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict[str, list]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">ChIA-rep</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">chia_rep package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-chia_rep.chrom_loop_data">chia_rep.chrom_loop_data module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-chia_rep.genome_loop_data">chia_rep.genome_loop_data module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-chia_rep.util">chia_rep.util module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-chia_rep.chia_rep">chia_rep.chia_rep module</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to chIA-rep’s documentation!</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Minji Kim, Henry Zhang.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/chia_rep.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
