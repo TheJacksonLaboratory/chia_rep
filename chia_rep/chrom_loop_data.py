@@ -12,24 +12,15 @@ from .util import *
 log = logging.getLogger()
 log_bin = logging.getLogger('bin')
 
-EMD_WEIGHT = 1
-J_WEIGHT = 1
-MIN_NUMB_LOOPS = 5
 MAX_LOOP_LEN = 1000000  # 1mb
 
-VERSION = 60
-
 MAX_USHRT = 65535
-MIN_RATIO_INCREASE = 1.1
 
 PEAK_START_INDEX = 0
 PEAK_END_INDEX = 1
 PEAK_LEN_INDEX = 2
 PEAK_MAX_VALUE_INDEX = 3
 PEAK_MEAN_VALUE_INDEX = 4
-
-# MIN_PEAK_VALUE = 70
-MIN_PEAK_VALUE = 0
 
 # The length of each normalization call
 NORM_LEN = 100
@@ -333,14 +324,14 @@ class ChromLoopData:
 
         bedgraph.load_chrom_data(self.name)
 
-        norm_start_test = np.arange(0, self.size, NORM_LEN, dtype=np.int32)
-        norm_end_test = norm_start_test + NORM_LEN
-        if norm_end_test[-1] > self.size:
-            norm_end_test[-1] = self.size - 1
-        self.norm_list = bedgraph.stats(start_list=norm_start_test,
-                                        end_list=norm_end_test,
-                                        chrom_name=self.name, stat='max')
-        self.norm_list += 1  # To avoid zeros
+        # norm_start_test = np.arange(0, self.size, NORM_LEN, dtype=np.int32)
+        # norm_end_test = norm_start_test + NORM_LEN
+        # if norm_end_test[-1] > self.size:
+        #     norm_end_test[-1] = self.size - 1
+        # self.norm_list = bedgraph.stats(start_list=norm_start_test,
+        #                                 end_list=norm_end_test,
+        #                                 chrom_name=self.name, stat='max')
+        # self.norm_list += 1  # To avoid zeros
 
         # Get index of peaks in every anchor interval
         self.start_list = bedgraph.stats(start_list=self.start_anchor_list[0],
@@ -447,7 +438,9 @@ class ChromLoopData:
         # Get the coverage of each wanted peak
         # Could be used to find the specific peaks for every loop
         index_array = np.zeros(self.size, dtype=np.uint16)
-        assert num_peaks < MAX_USHRT
+
+        if num_peaks >= MAX_USHRT:
+            log.warning(f'Number of peaks: {num_peaks} is greater than max_unsigned_short: {MAX_USHRT}')
         for i in range(num_peaks):
             peak_start = peak_list[i][0]
             peak_end = peak_list[i][1]
