@@ -44,8 +44,7 @@ def match_graphs(double[:, :] p, double[:, :] q, double[:, :] p1,
                 p1[i][j] = 0
 
 def get_loops(unsigned int window_start, unsigned int window_end,
-              unsigned char[:] removed_area, int[:] start_list,
-              int[:] end_list, double[:] value_list):
+              int[:] start_list, int[:] end_list, double[:] value_list):
     """
     Gets all loops within the window but not in the removed area.
 
@@ -55,8 +54,6 @@ def get_loops(unsigned int window_start, unsigned int window_end,
     ----------
     window_start
     window_end
-    removed_area
-        Same size of chromosome
     start_list
         Numpy array of anchor starts for loops
     end_list
@@ -83,9 +80,6 @@ def get_loops(unsigned int window_start, unsigned int window_end,
         end = end_list[i]
 
         if start < window_start or end > window_end or value == 0:
-            continue
-
-        if removed_area[start] or removed_area[end]:
             continue
 
         loops_view[counter] = i

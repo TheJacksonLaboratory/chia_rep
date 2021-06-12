@@ -104,41 +104,6 @@ def jensen_shannon_divergence(
     return sp.entropy(p, m, base=base) / 2 + sp.entropy(q, m, base=base) / 2
 
 
-def get_removed_area(
-    chrom_size: int,
-    chrom: 'ChromLoopData',
-    o_chrom: 'ChromLoopData'
-) -> np.ndarray:
-    """
-    Gets removed area from both samples so no loops from that area are compared
-
-    Parameters
-    ----------
-    chrom_size : int
-        Size of chromosome
-    chrom : ChromLoopData
-    o_chrom : ChromLoopData
-
-    Returns
-    -------
-    np.ndarray[np.uint8]
-        Array marked with 1 in removed intervals
-    """
-    to_remove = np.array(
-        [chrom.removed_intervals[0] + o_chrom.removed_intervals[0],
-         chrom.removed_intervals[1] + o_chrom.removed_intervals[1]],
-        dtype=np.int32)
-
-    # Uses dtype unsigned char because bool doesn't work as well in Cython
-    removed_area = np.zeros(chrom_size, dtype=np.uint8)
-    for i in range(len(to_remove[0])):
-        start = to_remove[0][i]
-        end = to_remove[1][i]
-        removed_area[start:end] = 1
-
-    return removed_area
-
-
 def output_graph(
     output_dir: str,
     chrom_name: str,
@@ -361,19 +326,19 @@ class ChromLoopData:
         #         pass
 
         for i in range(self.numb_loops):
-            loop_start = self.start_list[i]
-            loop_end = self.end_list[i]
+            # loop_start = self.start_list[i]
+            # loop_end = self.end_list[i]
 
             # Remove anchors that have the same* peak
             # Keep indexes of loop length to avoid comparisons in interval
-            if not loop_start < loop_end:
-                self.value_list[i] = 0
-
-                # Removed interval goes from
-                # (start of start anchor, end of end anchor)
-                self.removed_intervals[0].append(self.start_anchor_list[0][i])
-                self.removed_intervals[1].append(self.end_anchor_list[1][i])
-                continue
+            # if not loop_start < loop_end:
+            #     self.value_list[i] = 0
+            #
+            #     # Removed interval goes from
+            #     # (start of start anchor, end of end anchor)
+            #     self.removed_intervals[0].append(self.start_anchor_list[0][i])
+            #     self.removed_intervals[1].append(self.end_anchor_list[1][i])
+            #     continue
 
             # Weigh each loop based on its corresponding bedgraph peak
             # peak_value = max(start_list_peaks[i], end_list_peaks[i])
@@ -472,11 +437,15 @@ class ChromLoopData:
             loop_end = self.end_list[i]
             loop_value = self.value_list[i]
 
+            if loop_start > loop_end:
+                temp_val = loop_start
+                loop_start = loop_end
+                loop_end = temp_val
+
             # Loops that are too long can be considered noise
             if loop_end - loop_start > MAX_LOOP_LEN:
                 continue
 
-            # From overlapping anchors
             if loop_value == 0:
                 continue
 
@@ -816,16 +785,11 @@ class ChromLoopData:
         log.debug(f'{self.sample_name} vs. {o_chrom.sample_name} '
                   f'{self.name}:{window_start} - {window_end}')
 
-        # Get areas removed due to overlapping start/end anchors
-        combined_removed = get_removed_area(self.size, self, o_chrom)
-
         # Get loop indexes in the window
-        loops = get_loops(window_start, window_end, combined_removed,
-                          self.filtered_start, self.filtered_end,
-                          self.filtered_values)
-        o_loops = get_loops(window_start, window_end, combined_removed,
-                            o_chrom.filtered_start, o_chrom.filtered_end,
-                            o_chrom.filtered_values)
+        loops = get_loops(window_start, window_end, self.filtered_start,
+                          self.filtered_end, self.filtered_values)
+        o_loops = get_loops(window_start, window_end, o_chrom.filtered_start,
+                            o_chrom.filtered_end, o_chrom.filtered_values)
         num_loops = len(loops)
         num_o_loops = len(o_loops)
         log.debug(f"Numb of loops in {self.sample_name}: {num_loops}")
