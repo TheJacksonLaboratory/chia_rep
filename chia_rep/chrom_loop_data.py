@@ -12,24 +12,15 @@ from .util import *
 log = logging.getLogger()
 log_bin = logging.getLogger('bin')
 
-EMD_WEIGHT = 1
-J_WEIGHT = 1
-MIN_NUMB_LOOPS = 5
 MAX_LOOP_LEN = 1000000  # 1mb
 
-VERSION = 60
-
 MAX_USHRT = 65535
-MIN_RATIO_INCREASE = 1.1
 
 PEAK_START_INDEX = 0
 PEAK_END_INDEX = 1
 PEAK_LEN_INDEX = 2
 PEAK_MAX_VALUE_INDEX = 3
 PEAK_MEAN_VALUE_INDEX = 4
-
-# MIN_PEAK_VALUE = 70
-MIN_PEAK_VALUE = 0
 
 # The length of each normalization call
 NORM_LEN = 100
@@ -333,15 +324,6 @@ class ChromLoopData:
 
         bedgraph.load_chrom_data(self.name)
 
-        norm_start_test = np.arange(0, self.size, NORM_LEN, dtype=np.int32)
-        norm_end_test = norm_start_test + NORM_LEN
-        if norm_end_test[-1] > self.size:
-            norm_end_test[-1] = self.size - 1
-        self.norm_list = bedgraph.stats(start_list=norm_start_test,
-                                        end_list=norm_end_test,
-                                        chrom_name=self.name, stat='max')
-        self.norm_list += 1  # To avoid zeros
-
         # Get index of peaks in every anchor interval
         self.start_list = bedgraph.stats(start_list=self.start_anchor_list[0],
                                          end_list=self.start_anchor_list[1],
@@ -363,11 +345,6 @@ class ChromLoopData:
 
         start_list_peaks = start_list_peaks / start_list_peaks.sum()
         end_list_peaks = end_list_peaks / end_list_peaks.sum()
-
-        # Merge peaks that are close together
-        # for i in range(self.numb_values):
-        #     for j in range(i, self.numb_values):
-        #         pass
 
         for i in range(self.numb_loops):
             loop_start = self.start_list[i]
@@ -447,7 +424,9 @@ class ChromLoopData:
         # Get the coverage of each wanted peak
         # Could be used to find the specific peaks for every loop
         index_array = np.zeros(self.size, dtype=np.uint16)
-        assert num_peaks < MAX_USHRT
+
+        if num_peaks >= MAX_USHRT:
+            log.warning(f'Number of peaks: {num_peaks} is greater than max_unsigned_short: {MAX_USHRT}')
         for i in range(num_peaks):
             peak_start = peak_list[i][0]
             peak_end = peak_list[i][1]
@@ -465,14 +444,6 @@ class ChromLoopData:
         self.filtered_end = []
         self.filtered_values = []
         self.filtered_anchors = []
-
-        # plt.title(f'{self.sample_name} Log10(loop span)')
-        # plt.xlabel('log10(Loop Span)')
-        # plt.ylabel('Density')
-        # loop_spans = [self.end_list[i] - self.start_list[i] for i in range(self.numb_loops)]
-        # plt.hist(loop_spans, bins=int(1 + np.log2(len(loop_spans))), density=True)
-        # plt.savefig(f'{self.sample_name}_loop_span_all')
-        # plt.close()
 
         for i in range(self.numb_loops):
             loop_start = self.start_list[i]
@@ -602,23 +573,17 @@ class ChromLoopData:
             start = start % window_size
             end = end % window_size
 
-            # loop_len[int((end - start) / self.bin_size)] += 1
-
             bin_start = int(start / bin_size)
             bin_end = int(end / bin_size)
 
+            if bin_end < bin_start:
+                log.error(
+                    f'{orig_start}\t{orig_end}\t{start}\t{end}\t{bin_start}\t{bin_end}')
+                temp_val = bin_start
+                bin_start = bin_end
+                bin_end = temp_val
+
             graph[bin_start][bin_end] += value
-
-            # if bin_end < bin_start:
-            #     log.error(
-            #         f'{orig_start}\t{orig_end}\t{start}\t{end}\t{bin_start}\t{bin_end}')
-
-            # Get the other side of the graph as well for emd calculation
-            # graph[bin_end][bin_start] += value
-
-            # Avoid double counting the middle
-            # if bin_end != bin_start:
-            #    graph[bin_end][bin_start] += value
 
             # Also get areas surrounding this loop
             # May not be needed with emd calculation
@@ -630,23 +595,9 @@ class ChromLoopData:
                     if k < 0 or k == graph_len:
                         continue
                     graph[j][k] += value
-                    # graph[k][j] += value
-                    # if j != k:
-                    #    graph[k][j] += value
-
-            # if to_debug:
-            #     log.debug(
-            #         f'{self.sample_name}\t{orig_start}\t{orig_end}\t{value}')
 
             num_loops_used += 1
 
-        # log.info(f"Number of loops in {self.sample_name} graph: {num_loops_used}")
-
-        # plt.plot([x for x in range(len(loop_len))], [np.log(x) for x in loop_len])
-        # plt.show()
-
-        # log.info(f'Max value in graph: {np.max(graph)}')
-        # return graph, total_PET_count / self.total_loop_value
         return graph
 
     def get_stats(
