@@ -91,7 +91,7 @@ def compare(
     sample_dict : OrderedDict
         (Key: sample name, value: sample data)
     num_peaks : any
-        Number of peaks to use when filtering out loops. If None, use all peaks.
+        Number of peaks to use when creating folder name for results.
     compare_list : list, optional
         List of comparisons to make. Shape is n x 2 where n is the number of
         comparisons

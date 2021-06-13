@@ -112,7 +112,7 @@ python commands.py --help
 python commands.py make-pairs --help
 python commands.py make-sample-input-file --help
 
-python commands.py make-pairs sample_list.txt
+python commands.py make-pairs sample_list.txt pairs.txt
 
 # Assumes (letter case doesn't matter)
 # bedgraph file extension: .bedgraph

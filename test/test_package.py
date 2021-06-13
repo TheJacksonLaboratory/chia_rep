@@ -48,10 +48,6 @@ def test_package():
     assert os.path.isfile('test/output/peaks/sampleA2.all.peaks')
     assert os.path.isfile('test/output/peaks/sampleB1.all.peaks')
 
-    assert os.path.isfile('test/output/removed_areas/sampleA1.txt')
-    assert os.path.isfile('test/output/removed_areas/sampleA2.txt')
-    assert os.path.isfile('test/output/removed_areas/sampleB1.txt')
-
     param = f'{window_size}.{bin_size}.all'
     assert os.path.isfile(f'test/output/{param}/scores/emd_complete.csv')
     assert os.path.isfile(f'test/output/{param}/scores/j_complete.csv')
@@ -108,10 +104,6 @@ def test_package2():
     assert os.path.isfile('test/output/peaks/sampleA1.all.peaks')
     assert os.path.isfile('test/output/peaks/sampleA2.all.peaks')
     assert os.path.isfile('test/output/peaks/sampleB1.all.peaks')
-
-    assert os.path.isfile('test/output/removed_areas/sampleA1.txt')
-    assert os.path.isfile('test/output/removed_areas/sampleA2.txt')
-    assert os.path.isfile('test/output/removed_areas/sampleB1.txt')
 
     param = f'{window_size}.{bin_size}.all'
     assert os.path.isfile(f'test/output/{param}/scores/emd_complete.csv')
