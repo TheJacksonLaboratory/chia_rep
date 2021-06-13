@@ -4,6 +4,9 @@
 !misc/
 !example/
 !test/
+!docs/
+
+!docs/**
 
 !test/test_files/
 !test/test_files/*

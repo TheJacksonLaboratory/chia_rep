@@ -12,24 +12,13 @@ from .util import *
 log = logging.getLogger()
 log_bin = logging.getLogger('bin')
 
-EMD_WEIGHT = 1
-J_WEIGHT = 1
-MIN_NUMB_LOOPS = 5
-MAX_LOOP_LEN = 1000000  # 1mb
-
-VERSION = 60
-
 MAX_USHRT = 65535
-MIN_RATIO_INCREASE = 1.1
 
 PEAK_START_INDEX = 0
 PEAK_END_INDEX = 1
 PEAK_LEN_INDEX = 2
 PEAK_MAX_VALUE_INDEX = 3
 PEAK_MEAN_VALUE_INDEX = 4
-
-# MIN_PEAK_VALUE = 70
-MIN_PEAK_VALUE = 0
 
 # The length of each normalization call
 NORM_LEN = 100
@@ -111,41 +100,6 @@ def jensen_shannon_divergence(
 
     m = (p + q) / 2
     return sp.entropy(p, m, base=base) / 2 + sp.entropy(q, m, base=base) / 2
-
-
-def get_removed_area(
-    chrom_size: int,
-    chrom: 'ChromLoopData',
-    o_chrom: 'ChromLoopData'
-) -> np.ndarray:
-    """
-    Gets removed area from both samples so no loops from that area are compared
-
-    Parameters
-    ----------
-    chrom_size : int
-        Size of chromosome
-    chrom : ChromLoopData
-    o_chrom : ChromLoopData
-
-    Returns
-    -------
-    np.ndarray[np.uint8]
-        Array marked with 1 in removed intervals
-    """
-    to_remove = np.array(
-        [chrom.removed_intervals[0] + o_chrom.removed_intervals[0],
-         chrom.removed_intervals[1] + o_chrom.removed_intervals[1]],
-        dtype=np.int32)
-
-    # Uses dtype unsigned char because bool doesn't work as well in Cython
-    removed_area = np.zeros(chrom_size, dtype=np.uint8)
-    for i in range(len(to_remove[0])):
-        start = to_remove[0][i]
-        end = to_remove[1][i]
-        removed_area[start:end] = 1
-
-    return removed_area
 
 
 def output_graph(
@@ -333,15 +287,6 @@ class ChromLoopData:
 
         bedgraph.load_chrom_data(self.name)
 
-        norm_start_test = np.arange(0, self.size, NORM_LEN, dtype=np.int32)
-        norm_end_test = norm_start_test + NORM_LEN
-        if norm_end_test[-1] > self.size:
-            norm_end_test[-1] = self.size - 1
-        self.norm_list = bedgraph.stats(start_list=norm_start_test,
-                                        end_list=norm_end_test,
-                                        chrom_name=self.name, stat='max')
-        self.norm_list += 1  # To avoid zeros
-
         # Get index of peaks in every anchor interval
         self.start_list = bedgraph.stats(start_list=self.start_anchor_list[0],
                                          end_list=self.start_anchor_list[1],
@@ -364,35 +309,25 @@ class ChromLoopData:
         start_list_peaks = start_list_peaks / start_list_peaks.sum()
         end_list_peaks = end_list_peaks / end_list_peaks.sum()
 
-        # Merge peaks that are close together
-        # for i in range(self.numb_values):
-        #     for j in range(i, self.numb_values):
-        #         pass
-
         for i in range(self.numb_loops):
-            loop_start = self.start_list[i]
-            loop_end = self.end_list[i]
+            # loop_start = self.start_list[i]
+            # loop_end = self.end_list[i]
 
             # Remove anchors that have the same* peak
             # Keep indexes of loop length to avoid comparisons in interval
-            if not loop_start < loop_end:
-                self.value_list[i] = 0
-
-                # Removed interval goes from
-                # (start of start anchor, end of end anchor)
-                self.removed_intervals[0].append(self.start_anchor_list[0][i])
-                self.removed_intervals[1].append(self.end_anchor_list[1][i])
-                continue
+            # if not loop_start < loop_end:
+            #     self.value_list[i] = 0
+            #
+            #     # Removed interval goes from
+            #     # (start of start anchor, end of end anchor)
+            #     self.removed_intervals[0].append(self.start_anchor_list[0][i])
+            #     self.removed_intervals[1].append(self.end_anchor_list[1][i])
+            #     continue
 
             # Weigh each loop based on its corresponding bedgraph peak
             # peak_value = max(start_list_peaks[i], end_list_peaks[i])
             peak_value = start_list_peaks[i] + end_list_peaks[i]
             self.value_list[i] *= peak_value
-
-            # Remove loops over a given threshold
-            # loop_length = int(loop_end) - int(loop_start)
-            # if loop_length > MAX_LOOP_LEN:
-            #     self.value_list[i] = 0
 
         self.max_loop_value = np.max(self.value_list)
 
@@ -447,7 +382,9 @@ class ChromLoopData:
         # Get the coverage of each wanted peak
         # Could be used to find the specific peaks for every loop
         index_array = np.zeros(self.size, dtype=np.uint16)
-        assert num_peaks < MAX_USHRT
+
+        if num_peaks >= MAX_USHRT:
+            log.warning(f'Number of peaks: {num_peaks} is greater than max_unsigned_short: {MAX_USHRT}')
         for i in range(num_peaks):
             peak_start = peak_list[i][0]
             peak_end = peak_list[i][1]
@@ -466,24 +403,16 @@ class ChromLoopData:
         self.filtered_values = []
         self.filtered_anchors = []
 
-        # plt.title(f'{self.sample_name} Log10(loop span)')
-        # plt.xlabel('log10(Loop Span)')
-        # plt.ylabel('Density')
-        # loop_spans = [self.end_list[i] - self.start_list[i] for i in range(self.numb_loops)]
-        # plt.hist(loop_spans, bins=int(1 + np.log2(len(loop_spans))), density=True)
-        # plt.savefig(f'{self.sample_name}_loop_span_all')
-        # plt.close()
-
         for i in range(self.numb_loops):
             loop_start = self.start_list[i]
             loop_end = self.end_list[i]
             loop_value = self.value_list[i]
 
-            # Loops that are too long can be considered noise
-            if loop_end - loop_start > MAX_LOOP_LEN:
-                continue
+            if loop_start > loop_end:
+                temp_val = loop_start
+                loop_start = loop_end
+                loop_end = temp_val
 
-            # From overlapping anchors
             if loop_value == 0:
                 continue
 
@@ -602,23 +531,17 @@ class ChromLoopData:
             start = start % window_size
             end = end % window_size
 
-            # loop_len[int((end - start) / self.bin_size)] += 1
-
             bin_start = int(start / bin_size)
             bin_end = int(end / bin_size)
 
+            if bin_end < bin_start:
+                log.error(
+                    f'{orig_start}\t{orig_end}\t{start}\t{end}\t{bin_start}\t{bin_end}')
+                temp_val = bin_start
+                bin_start = bin_end
+                bin_end = temp_val
+
             graph[bin_start][bin_end] += value
-
-            # if bin_end < bin_start:
-            #     log.error(
-            #         f'{orig_start}\t{orig_end}\t{start}\t{end}\t{bin_start}\t{bin_end}')
-
-            # Get the other side of the graph as well for emd calculation
-            # graph[bin_end][bin_start] += value
-
-            # Avoid double counting the middle
-            # if bin_end != bin_start:
-            #    graph[bin_end][bin_start] += value
 
             # Also get areas surrounding this loop
             # May not be needed with emd calculation
@@ -630,23 +553,9 @@ class ChromLoopData:
                     if k < 0 or k == graph_len:
                         continue
                     graph[j][k] += value
-                    # graph[k][j] += value
-                    # if j != k:
-                    #    graph[k][j] += value
-
-            # if to_debug:
-            #     log.debug(
-            #         f'{self.sample_name}\t{orig_start}\t{orig_end}\t{value}')
 
             num_loops_used += 1
 
-        # log.info(f"Number of loops in {self.sample_name} graph: {num_loops_used}")
-
-        # plt.plot([x for x in range(len(loop_len))], [np.log(x) for x in loop_len])
-        # plt.show()
-
-        # log.info(f'Max value in graph: {np.max(graph)}')
-        # return graph, total_PET_count / self.total_loop_value
         return graph
 
     def get_stats(
@@ -823,16 +732,11 @@ class ChromLoopData:
         log.debug(f'{self.sample_name} vs. {o_chrom.sample_name} '
                   f'{self.name}:{window_start} - {window_end}')
 
-        # Get areas removed due to overlapping start/end anchors
-        combined_removed = get_removed_area(self.size, self, o_chrom)
-
         # Get loop indexes in the window
-        loops = get_loops(window_start, window_end, combined_removed,
-                          self.filtered_start, self.filtered_end,
-                          self.filtered_values)
-        o_loops = get_loops(window_start, window_end, combined_removed,
-                            o_chrom.filtered_start, o_chrom.filtered_end,
-                            o_chrom.filtered_values)
+        loops = get_loops(window_start, window_end, self.filtered_start,
+                          self.filtered_end, self.filtered_values)
+        o_loops = get_loops(window_start, window_end, o_chrom.filtered_start,
+                            o_chrom.filtered_end, o_chrom.filtered_values)
         num_loops = len(loops)
         num_o_loops = len(o_loops)
         log.debug(f"Numb of loops in {self.sample_name}: {num_loops}")

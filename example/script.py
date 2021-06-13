@@ -19,23 +19,24 @@ fileConfig('log.conf')
 @click.argument('chroms_to_load', nargs=-1)
 @click.option('-l', '--min-loop-value', default=1, type=int)
 @click.option('-b', '--min-bedgraph-value', default=1, type=int)
-@click.option('-p', '--num-peaks', default=60, type=int)
+@click.option('-p', '--num-peaks', default=None, type=int)
 @click.option('-g', '--do-output-graph', default=False, type=bool)
+@click.option('-o', '--output-dir', default='output', type=str)
 def main(input_data_file, chrom_size_file, compare_list_file, window_size,
          bin_size, chroms_to_load, min_loop_value, min_bedgraph_value,
-         num_peaks, do_output_graph):
-    if 'all' in chroms_to_load:
+         num_peaks, do_output_graph, output_dir):
+    if 'all' in chroms_to_load or len(chroms_to_load) == 0:
         chroms_to_load = None
     sample_data_dict = chia_rep.read_data(input_data_file, chrom_size_file,
                                           min_loop_value, min_bedgraph_value,
-                                          chroms_to_load)
+                                          chroms_to_load, output_dir=output_dir)
 
-    chia_rep.preprocess(sample_data_dict, num_peaks)
+    chia_rep.preprocess(sample_data_dict, num_peaks, output_dir=output_dir)
     emd_scores, j_scores = \
         chia_rep.compare(sample_data_dict, num_peaks,
                          compare_list_file=compare_list_file,
                          window_size=window_size, bin_size=bin_size,
-                         do_output_graph=do_output_graph)
+                         do_output_graph=do_output_graph, output_dir=output_dir)
 
     # compare_list = [
     #     ['sampleA1', 'sampleA2'],
@@ -46,7 +47,8 @@ def main(input_data_file, chrom_size_file, compare_list_file, window_size,
     #     chia_rep.compare(sample_data_dict, compare_list=compare_list,
     #                      window_size=window_size, bin_size=bin_size)
 
-    chia_rep.output_to_csv(emd_scores, j_scores, window_size, bin_size, num_peaks)
+    chia_rep.output_to_csv(emd_scores, j_scores, window_size, bin_size,
+                           num_peaks, output_dir=output_dir)
 
 
 if __name__ == '__main__':

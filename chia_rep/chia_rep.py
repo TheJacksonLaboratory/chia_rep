@@ -19,7 +19,7 @@ def output_score(
     file_path: str
 ) -> None:
     """
-    Output scores
+    Output scores to a specified file path.
 
     Parameters
     ----------
@@ -47,7 +47,7 @@ def output_to_csv(
     output_dir: str = 'output'
 ) -> None:
     """
-    Output scores
+    Outputs emd_scores and j_scores to a specified file path.
 
     Parameters
     ----------
@@ -72,34 +72,6 @@ def output_to_csv(
     log.info(f"Results have been written to {score_dir}")
 
 
-def output_removed_areas(
-    output_dir: str,
-    gld: GenomeLoopData
-) -> None:
-    """
-    Outputs areas that have been removed
-
-    Parameters
-    ----------
-    output_dir : str
-    gld : GenomeLoopData
-
-    Returns
-    ------
-    None
-    """
-    os.makedirs(f'{output_dir}/removed_areas', exist_ok=True)
-
-    with open(f'{output_dir}/removed_areas/{gld.sample_name}.txt',
-              'w') as out_file:
-        out_file.write(f'chrom_name\tstart\tend\n')
-        for chrom_name, chrom_data in gld.chrom_dict.items():
-            for i in range(len(chrom_data.removed_intervals[0])):
-                start = chrom_data.removed_intervals[0][i]
-                end = chrom_data.removed_intervals[1][i]
-                out_file.write(f'{chrom_name}\t{start}\t{end}\n')
-
-
 def compare(
     sample_dict: OrderedDict,
     num_peaks: any,
@@ -111,14 +83,15 @@ def compare(
     do_output_graph: bool = False
 ) -> (score_dict, score_dict):
     """
-    Compares all samples in the dictionary against each other.
+    Compares specified samples against each other. Specify comparisons in either
+    compare_list or compare_list_file.
 
     Parameters
     ----------
     sample_dict : OrderedDict
-        Key: Name of sample
-        Value: Sample data
+        (Key: sample name, value: sample data)
     num_peaks : any
+        Number of peaks to use when filtering out loops. If None, use all peaks.
     compare_list : list, optional
         List of comparisons to make. Shape is n x 2 where n is the number of
         comparisons
@@ -131,8 +104,12 @@ def compare(
     output_dir : str
         Directory to output data
     window_size : int
+        Split each chromosome into windows with specified size.
     bin_size : int
+        Split each window into bins with with specified size.
     do_output_graph : bool
+        Output generated matrix to file. Outputs two arrays for each window in
+        each comparison of length (window_size / bin_size)^2.
 
     Returns
     -------
@@ -397,7 +374,6 @@ def read_data(
         gld = GenomeLoopData(chrom_size_file, loop_file, bedgraph,
                              peak_dict, min_loop_value=min_loop_value,
                              chroms_to_load=chroms_to_load)
-        output_removed_areas(output_dir, gld)
         sample_data_dict[sample_name] = gld
         sample_timings[sample_name] = time.time() - sample_start_time
 
@@ -418,11 +394,11 @@ def preprocess(
     base_chrom: str = 'chr1'
 ) -> None:
     """
-    Takes the top peaks from the peak file.
+    Takes num_peaks top peaks from the peak file for base_chrom and uses the
+    same ratio for each other chromosome.
     Preprocess all the chromosomes in this object.
 
-    Removes all problematic chromosomes (not enough loops, etc...). Keeps
-    only num_peaks peaks in each list in peak_dict
+    Removes all problematic chromosomes (not enough loops, etc...).
 
     Parameters
     ----------
@@ -431,16 +407,13 @@ def preprocess(
     num_peaks : int, optional
         The number of peaks to use when filtering. Only to be used with chr1
         since other chromosomes will be dependent on min peak used from chr1
-        (default is All)
     both_peak_support : bool, optional
         Whether to only keep loops that have peak support on both sides
-        (default is False)
     output_dir : str, optional
         Directory to output found peaks and filters
     base_chrom : str, optional
         Chromosome to use with num_peaks to equalize number of peaks used for
         each chromosome.
-        (default is chr1)
 
     Returns
     ------

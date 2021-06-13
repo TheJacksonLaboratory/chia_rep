@@ -7,14 +7,10 @@ from typing import Dict, List
 
 from .chrom_loop_data import ChromLoopData, PEAK_MAX_VALUE_INDEX
 
-VERSION = 17
 log = logging.getLogger()
-log_bin = logging.getLogger('bin')
 
 # Missing in many miseq peak files
 CHROMS_TO_IGNORE = ['chrY', 'chrM']
-
-NUM_PEAKS = 60
 
 
 class GenomeLoopData:
