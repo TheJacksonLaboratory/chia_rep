@@ -72,34 +72,6 @@ def output_to_csv(
     log.info(f"Results have been written to {score_dir}")
 
 
-def output_removed_areas(
-    output_dir: str,
-    gld: GenomeLoopData
-) -> None:
-    """
-    Outputs areas that have been removed
-
-    Parameters
-    ----------
-    output_dir : str
-    gld : GenomeLoopData
-
-    Returns
-    ------
-    None
-    """
-    os.makedirs(f'{output_dir}/removed_areas', exist_ok=True)
-
-    with open(f'{output_dir}/removed_areas/{gld.sample_name}.txt',
-              'w') as out_file:
-        out_file.write(f'chrom_name\tstart\tend\n')
-        for chrom_name, chrom_data in gld.chrom_dict.items():
-            for i in range(len(chrom_data.removed_intervals[0])):
-                start = chrom_data.removed_intervals[0][i]
-                end = chrom_data.removed_intervals[1][i]
-                out_file.write(f'{chrom_name}\t{start}\t{end}\n')
-
-
 def compare(
     sample_dict: OrderedDict,
     num_peaks: any,
